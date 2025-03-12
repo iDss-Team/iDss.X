@@ -1,0 +1,47 @@
+﻿@inherits LayoutComponentBase
+
+<BootstrapBlazorRoot>
+    <Layout SideWidth="0" IsPage="true" ShowGotoTop="true" ShowCollapseBar="true"
+            IsFullSide="@IsFullSide" IsFixedHeader="true" IsFixedFooter="true" ShowFooter="@ShowFooter"
+            TabDefaultUrl="/" UseTabSet="false" class="@Theme">
+        <Header>
+            <span class="ms-3 flex-sm-fill d-none d-sm-block layout-header-left">
+                <di class="layout-banner">
+                    <img class="layout-logo" src="favicon.png" />
+                    <div class="layout-title">
+                        <span>iDss X</span>
+                    </div>
+                </di>
+            </span>
+            <span class="layout-header-right">
+                <Widget></Widget>
+                <Logout ImageUrl="images/Argo-C.png" DisplayName="Admin iDss" UserName="admin">
+                    <LinkTemplate>
+                        <a href="#"><i class="fa-solid fa-suitcase"></i>Personal</a>
+                        <a href="#"><i class="fa-solid fa-cog"></i>Settings</a>
+                        <a href="#"><i class="fa-solid fa-bell"></i>Notification<span class="badge badge-pill badge-success"></span></a>
+                        <LogoutLink />
+                    </LinkTemplate>
+                </Logout>
+            </span>
+            
+        </Header>
+        <Main>
+            <CascadingValue Value="this" IsFixed="true">
+                @Body
+            </CascadingValue>
+        </Main>
+        <Footer>
+            <FooterComponent></FooterComponent>
+        </Footer>
+        <NotFound>
+            <p>Sorry, there's nothing at this address.</p>
+        </NotFound>
+    </Layout>
+</BootstrapBlazorRoot>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

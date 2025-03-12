@@ -1,0 +1,27 @@
+﻿
+.module-content {
+    padding: 20px 100px;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Pusatkan secara vertikal */
+    align-items: center; /* Pusatkan secara horizontal */
+    min-height: 80px; /* Sesuai kebutuhan */
+    text-align: center; /* Agar teks tetap rata tengah */
+    cursor: pointer;
+}
+
+    .card-content h5 {
+        font-size: 1.2em;
+        color: #696f74;
+    }
+
+    .card-content p {
+        color: #a4abb2;
+    }
+
+.module-content > .card-body {
+    cursor: pointer;
+}

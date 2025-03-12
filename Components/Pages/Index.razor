@@ -1,0 +1,87 @@
+﻿@page "/test"
+@layout iDss.X.Components.Shared.ModuleLayout
+
+@using iDss.X.Models;
+@inject ISessionStorageService session
+@inject NavigationManager Navigation
+
+
+<PageTitle>Module Page</PageTitle>
+
+<div class="module-content">
+    <Divider Icon="fa-fw fa-solid fa-user" Text="Administration" Alignment="Alignment.Left" class="module-divider" />
+    <Row ItemsPerRow="ItemsPerRow.Four">
+        <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome("101"))">
+            <BodyTemplate>
+                <div class="card-content">
+                    <h5 class="card-title">Administration</h5>
+                    <p class="card-text">accsess apps configuration for administrator.</p>
+                </div>
+            </BodyTemplate>
+        </Card>
+        <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome("102"))">
+            <BodyTemplate>
+                <div class="card-content">
+                    <h5 class="card-title">Master Data</h5>
+                    <p class="card-text">iDss Data Master</p>
+                </div>
+            </BodyTemplate>
+        </Card>
+    </Row>
+
+    <Divider Icon="fa-fw fa-solid fa-user" Text="Operasional Cargo" Alignment="Alignment.Left" class="module-divider" />
+    <Row ItemsPerRow="ItemsPerRow.Four">
+        <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome("103"))">
+            <BodyTemplate>
+                <div class="card-content">
+                    <h5 class="card-title">Pickup Management</h5>
+                    <p class="card-text">Pickup Processing Center.</p>
+                </div>
+            </BodyTemplate>
+        </Card>
+        <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome("104"))">
+            <BodyTemplate>
+                <div class="card-content">
+                    <h5 class="card-title">Outbound Control Library</h5>
+                    <p class="card-text">Outbound Processing Center.</p>
+                </div>
+            </BodyTemplate>
+        </Card>
+        <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome("105"))">
+            <BodyTemplate>
+                <div class="card-content">
+                    <h5 class="card-title">Linehaul Control Library</h5>
+                    <p class="card-text">Linehaul Processing Center.</p>
+                </div>
+            </BodyTemplate>
+        </Card>
+        <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome("106"))">
+            <BodyTemplate>
+                <div class="card-content">
+                    <h5 class="card-title">Inbound Control Library</h5>
+                    <p class="card-text">Inbound Processing Center.</p>
+                </div>
+            </BodyTemplate>
+        </Card>
+    </Row>
+
+    <Divider Icon="fa-fw fa-solid fa-user" Text="Operasional Cargo" Alignment="Alignment.Left" class="module-divider" />
+    <Row ItemsPerRow="ItemsPerRow.Four" >
+        <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome("107"))">
+            <BodyTemplate>
+                <div class="card-content">
+                    <h5 class="card-title">Dashboard & Reporting</h5>
+                    <p class="card-text">Dashboard, Reporting and Diagram NCS Transaction.</p>
+                </div>
+            </BodyTemplate>
+        </Card>
+    </Row>
+</div>
+
+@code {
+    private async Task NavigateToHome(string moduleId)
+    {
+        await session.SetItemAsync("moduleid", moduleId);
+        Navigation.NavigateTo("/Home");
+    }
+}

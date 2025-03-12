@@ -1,0 +1,14 @@
+﻿@page "/table"
+@attribute [TabItemOption(Text = "Example Table")]
+<PageTitle>Example Table</PageTitle>
+
+<h1>Table</h1>
+
+<Table TItem="Foo" IsPagination="true" PageItemsSource="PageItemsSource" class="table-demo" 
+       IsStriped="true" IsBordered="true" ShowSkeleton="true" AddModalTitle="EDIT DATA" ShowFooter="true" IsMultipleSelect="true"
+       ShowToolbar="true" ShowSearch="true" ShowExtendButtons="true"
+       AutoGenerateColumns="true" EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowRefresh="false" ShowExportButton="true" ExportButtonText="Download">
+    <TableColumns>
+        <TableColumn @bind-Field="@context.Hobby" Items="GetHobbys(context)" />
+    </TableColumns>
+</Table>

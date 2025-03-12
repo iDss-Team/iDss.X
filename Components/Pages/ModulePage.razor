@@ -1,0 +1,41 @@
+﻿@page "/"
+@layout iDss.X.Components.Shared.ModuleLayout
+
+@using iDss.X.Models;
+@inject ISessionStorageService session
+@inject NavigationManager Navigation
+
+<PageTitle>Name List</PageTitle>
+
+<PageTitle>Module Page</PageTitle>
+
+<div class="module-content">
+    @if (CategoriesWithModules.Any())
+    {
+        @foreach (var category in CategoriesWithModules)
+        {
+            @if (category.Modules.Any())
+            {
+                <Divider Icon="fa-fw fa-solid fa-user" Text="@category.modulectgname" Alignment="Alignment.Left" AdditionalAttributes="@(new Dictionary<string, object> { { "class", "module-divider" } })" />
+                
+                <Row ItemsPerRow="ItemsPerRow.Four">
+                @foreach (var module in category.Modules)
+                {
+                    <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome(module.moduleid))" class="module-card">
+                        <BodyTemplate>
+                            <div class="card-content">
+                                <h5 class="card-title">@module.modulename</h5>
+                                <p class="card-text">@module.description</p>
+                            </div>
+                        </BodyTemplate>
+                    </Card>
+                }
+                </Row>
+            }
+        }
+    }
+    else
+    {
+        <p>Loading data...</p>
+    }
+</div>

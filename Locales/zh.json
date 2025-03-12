@@ -1,0 +1,26 @@
+﻿{
+  "iDss.X.Data.Foo": {
+    "Name": "Nama",
+    "DateTime": "Tanggal dan Waktu",
+    "Address": "Alamat",
+    "Count": "Total",
+    "Complete": "Selesai",
+    "Education": "Arahan",
+    "Hobby": "Hobi",
+    "Name.Required": "{0} tidak boleh kosong",
+    "Address.Required": "{0} tidak boleh kosong",
+    "Education.Required": "{0} tidak boleh kosong",
+    "Hobby.Required": "{0} tidak boleh kosong",
+    "Name.PlaceHolder": "Harus Diisi",
+    "Hobbys": "Musik,Koding,Olahraga",
+    "Foo.Name": "Admin {0}",
+    "Foo.Address": "Jl. Brigjen Katanso No {0}",
+    "Foo.Address2": "Kota Bambu Selatan,Palmerah",
+    "Foo.BindValue": "BindValue"
+  },
+  "iDss.X.Data.EnumEducation": {
+    "PlaceHolder": "Klick untuk memilih ...",
+    "Primary": "Primary",
+    "Middel": "Middel"
+  }
+}
