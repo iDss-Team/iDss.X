@@ -16,7 +16,7 @@
         {
             @if (category.Modules.Any())
             {
-                <Divider Icon="fa-fw fa-solid fa-user" Text="@category.modulectgname" Alignment="Alignment.Left" AdditionalAttributes="@(new Dictionary<string, object> { { "class", "module-divider" } })" />
+                <Divider Text="@category.modulectgname" Alignment="Alignment.Left" AdditionalAttributes="@(new Dictionary<string, object> { { "class", "module-divider" } })" />
                 
                 <Row ItemsPerRow="ItemsPerRow.Four">
                 @foreach (var module in category.Modules)

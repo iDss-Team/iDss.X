@@ -16,12 +16,14 @@ builder.Services.AddBootstrapBlazor();
 
 builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddDbContext<AuthDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("AuthDbConnection")));
+
 builder.Services.AddSingleton<WeatherForecastService>();
 
-// 增加 Table 数据服务操作类
+// Add Table demo data service operation class
 builder.Services.AddTableDemoDataService();
 
-// 增加 SignalR 服务数据传输大小限制配置
+// Add SignalR service data transfer size limit configuration
 builder.Services.Configure<HubOptions>(option => option.MaximumReceiveMessageSize = null);
 
 builder.Services.AddBlazoredSessionStorage();

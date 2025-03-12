@@ -95,7 +95,7 @@
 
     .layout-header-left .layout-banner .layout-logo {
         width: var(--bb-layout-banner-logo-width);
-        border-radius: var(--bs-border-radius);
+        /*border-radius: var(--bs-border-radius);*/
     }
 
         .layout-header-left .layout-banner .layout-logo + .layout-title {
