@@ -1,0 +1,55 @@
+﻿@page "/login"
+@layout iDss.X.Components.Shared.AuthLayout
+
+@using Microsoft.AspNetCore.Identity
+@using iDss.X.Models
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject NavigationManager Navigation
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>Login</PageTitle>
+
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <div>
+        <FloatingLabel DisplayText="Username" TValue="string" @bind-Value="loginModel.Email" IsSelectAllTextOnFocus="true" IsGroupBox="true" PlaceHolder="your username" />
+    </div>
+    <div>
+        <FloatingLabel DisplayText="Password" TValue="string" type="password" @bind-Value="loginModel.Password" IsGroupBox="true" maxlength="30" />
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+
+@code {
+    private LoginModel loginModel = new();
+    private string errorMessage = "";
+
+    private async Task HandleLogin()
+    {
+        var user = await UserManager.FindByEmailAsync(loginModel.Email);
+        if (user == null)
+        {
+            errorMessage = "Email tidak ditemukan";
+            return;
+        }
+
+        var result = await SignInManager.PasswordSignInAsync(user, loginModel.Password, false, false);
+        if (result.Succeeded)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Login gagal, periksa email atau password Anda";
+        }
+    }
+
+    public class LoginModel
+    {
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+}

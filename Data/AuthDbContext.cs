@@ -18,15 +18,42 @@ namespace iDss.X.Data
         {
             base.OnModelCreating(builder);
 
-            // Contoh mengubah nama tabel menjadi lowercase
+
+            // Hanya ubah tabel Identity
+            var identityTables = new List<string>
+            {
+                "AspNetUsers",
+                "AspNetRoles",
+                "AspNetUserRoles",
+                "AspNetUserClaims",
+                "AspNetUserLogins",
+                "AspNetRoleClaims",
+                "AspNetUserTokens"
+            };
+
+            // mengubah nama field identity menjadi lowercase
             foreach (var entity in builder.Model.GetEntityTypes())
             {
-                entity.SetTableName(entity.GetTableName()?.ToLower());
-                foreach (var property in entity.GetProperties())
+                var tableName = entity.GetTableName();
+
+                if (tableName != null && identityTables.Contains(tableName))
                 {
-                    property.SetColumnName(property.Name.ToLower());
+                    foreach (var property in entity.GetProperties())
+                    {
+                        property.SetColumnName(property.Name.ToLower());
+                    }
                 }
             }
+
+            // Ubah nama tabel default Identity
+            builder.Entity<ApplicationUser>().ToTable("idm_user");
+            builder.Entity<IdentityRole>().ToTable("idm_role");
+            builder.Entity<IdentityUserRole<string>>().ToTable("idm_userrole");
+            builder.Entity<IdentityUserClaim<string>>().ToTable("idm_userclaim");
+            builder.Entity<IdentityUserLogin<string>>().ToTable("idm_userlogin");
+            builder.Entity<IdentityUserToken<string>>().ToTable("idm_usertoken");
+            builder.Entity<IdentityRoleClaim<string>>().ToTable("idm_roleclaim");
+
         }
     }
 }   

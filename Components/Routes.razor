@@ -1,5 +1,14 @@
 ﻿<Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <CascadingAuthenticationState>
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <p>Anda tidak memiliki akses ke halaman ini. <a href="/login">Login</a></p>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </CascadingAuthenticationState>
     </Found>
+    <NotFound>
+        <h3>Halaman tidak ditemukan!</h3>
+    </NotFound>
 </Router>

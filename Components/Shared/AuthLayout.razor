@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+
+<BootstrapBlazorRoot>
+    <Layout SideWidth="0" IsPage="true" ShowGotoTop="true" ShowCollapseBar="true"
+            IsFullSide="@IsFullSide" IsFixedHeader="true" IsFixedFooter="true" ShowFooter="@ShowFooter"
+            TabDefaultUrl="/" UseTabSet="false" class="@Theme">
+        <Main>
+            <CascadingValue Value="this" IsFixed="true">
+                @Body
+            </CascadingValue>
+        </Main>
+        <Footer>
+            <FooterComponent></FooterComponent>
+        </Footer>
+        <NotFound>
+            <p>Sorry, there's nothing at this address.</p>
+        </NotFound>
+    </Layout>
+</BootstrapBlazorRoot>
