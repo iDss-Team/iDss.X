@@ -34,6 +34,7 @@ namespace iDss.X.Data
         public DbSet<Counter> mdt_counter { get; set; }
         public DbSet<Agent> mdt_agent { get; set; }
         public DbSet<Industry> mdt_industry { get; set; }
+        public DbSet<Checkpoint> mdt_checkpoint { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

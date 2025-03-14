@@ -6,6 +6,7 @@ using System.Text;
 using Blazored.SessionStorage;
 using iDss.X.Models;
 using Microsoft.AspNetCore.Identity;
+using iDss.X.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<AuthDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<MasterDataServices>();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 // Add Table demo data service operation class

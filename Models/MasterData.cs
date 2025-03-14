@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using BootstrapBlazor.Components;
 
 namespace iDss.X.Models
 {
@@ -412,19 +413,25 @@ namespace iDss.X.Models
 
     public class Checkpoint : CommonField3
     {
-        [Key] [StringLength(3)] public string cpcode { get; set; }
+        [Key]
+        [StringLength(3)]
+        [Required]
+        [AutoGenerateColumn(Order = 10, Filterable = true, Searchable = true, Sortable = true)]
+        public string cpcode { get; set; }
 
         [StringLength(50)]
         [Display(Name = "Checkpoint Name")]
         [Required]
+        [AutoGenerateColumn(Order = 20, Filterable = true, Searchable = true)]
         public string cpname { get; set; }
 
+        [AutoGenerateColumn(Order = 70)]
         public String? description { get; set; }
     }
 
     public class Counter : CommonField2
     {
-        [Key][DatabaseGenerated(DatabaseGeneratedOption.Identity)] public int counterid { get; set; }
+        [Key][DatabaseGenerated(DatabaseGeneratedOption.Identity)] public int counterid { get; set; } 
 
         [StringLength(50)]
         [Display(Name = "Counter Name")]

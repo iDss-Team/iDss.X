@@ -30,8 +30,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\Pages\MasterData\" />
-  </ItemGroup>
-
 </Project>

@@ -1,0 +1,15 @@
+﻿@page "/master/checkpointcode"
+@attribute [TabItemOption(Text = "Checkpoint")]
+<PageTitle>Checkpoint Code</PageTitle>
+
+<h5>Checkpoint Code</h5>
+
+<Table TItem="Checkpoint" IsPagination="true" PageItemsSource="@PageItemsSource" RenderMode="TableRenderMode.Table" IsFixedHeader="true" class="table-users"
+       IsStriped="true" IsBordered="true" OnQueryAsync="OnQueryAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
+       EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" ShowDeleteButton="false">
+    <TableColumns>
+        <TableColumn @bind-Field="@context.cpcode" />
+        <TableColumn @bind-Field="@context.cpname" />
+        <TableColumn @bind-Field="@context.createddate" />
+    </TableColumns>
+</Table>

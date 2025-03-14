@@ -39,6 +39,9 @@ namespace iDss.X.Components.Pages
 
         private static readonly ConcurrentDictionary<Type, Func<IEnumerable<Foo>, string, SortOrder, IEnumerable<Foo>>> SortLambdaCache = new();
 
+        private readonly ConcurrentDictionary<Foo, IEnumerable<SelectedItem>> _cache = new();
+        private IEnumerable<SelectedItem> GetHobbys(Foo item) => _cache.GetOrAdd(item, f => Foo.GenerateHobbys(Localizer));
+
         private Task<QueryData<Foo>> OnQueryAsync(QueryPageOptions options)
         {
             // Kode ini tidak dapat digunakan dalam praktik sebenarnya, hanya ditulis untuk demonstrasi guna mencegah penghapusan semua data.
