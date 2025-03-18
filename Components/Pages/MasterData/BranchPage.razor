@@ -1,0 +1,24 @@
+﻿@page "/master/branch"
+@using iDss.X.Models
+@inject iDss.X.Services.MasterDataServices _services
+@attribute [TabItemOption(Text = "Branch")]
+
+<PageTitle>Checkpoint Code</PageTitle>
+
+<Row  ItemsPerRow="ItemsPerRow.One">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <span>
+            <h5>Checkpoint Code</h5>
+        </span>    
+    </Row> 
+    <Table TItem="Branch" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" EditButtonIcon="fa-solid fa-pen" DeleteButtonIcon="fa-solid fa-trash-can"
+           IsStriped="true" IsBordered="true" OnQueryAsync="@_services.OnQueryBranchAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true" AddModalTitle="Create New Branch" EditModalTitle="Update Branch"
+           EditMode="EditMode.Popup" EditDialogSize="Size.ExtraLarge" ShowEditButton="false" OnSaveAsync="@_services.SaveBranchAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteBranchByIDAsync">
+    </Table>
+</Row>
+
+@code {
+    
+
+}
+

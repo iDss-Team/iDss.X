@@ -4,77 +4,116 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using BootstrapBlazor.Components;
+using System.ComponentModel;
 
 namespace iDss.X.Models
 {
     public class Branch : CommonField2
     {
-        [Key][DatabaseGenerated(DatabaseGeneratedOption.Identity)] public int branchid { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [AutoGenerateColumn(Ignore = true)]
+        public int branchid { get; set; }
 
         [StringLength(50, ErrorMessage = "Branch Name cannot be longer than 50 characters.")]
-        [Display(Name = "Branch")]
+        [Display(Name = "Branch Name")]
         [Required]
+        [AutoGenerateColumn(Order = 1, Filterable = true, Searchable = true, GroupName = "General", GroupOrder = 1)]
         public String branchname { get; set; }
 
         [StringLength(10)] 
         [Display(Name = "Branch Code")]
+        [AutoGenerateColumn(Order = 2, Filterable = true, Searchable = true, GroupName = "General", GroupOrder = 1, Cols = 4)]
         public String? branchcode { get; set; }
 
-        [StringLength(10)] public String? branchtype { get; set; }
+        [StringLength(10)]
+        [AutoGenerateColumn(Order = 5, GroupName = "General", GroupOrder = 1)]
+        public String? branchtype { get; set; }
 
         [StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
         [Display(Name = "Address")]
         [Required]
+        [AutoGenerateColumn(Order = 30, GroupName = "Address", GroupOrder = 2, Cols = 12, ComponentType = typeof(Textarea))]
         public String addr1 { get; set; }
 
-        [StringLength(300)] public String? addr2 { get; set; }
+        [StringLength(300)]
+        [AutoGenerateColumn(Order = 31, GroupName = "Address", GroupOrder = 2, Cols = 6, Visible = false)]
+        public String? addr2 { get; set; }
 
-        [StringLength(300)] public String? addr3 { get; set; }
+        [StringLength(300)]
+        [AutoGenerateColumn(Order = 32, GroupName = "Address", GroupOrder = 2, Cols = 6, Visible = false)]
+        public String? addr3 { get; set; }
 
-        [StringLength(10)][ValidateNever][Required][Display(Name = "Village")] public String villid { get; set; }
-        [ForeignKey("villid")][ValidateNever] public Village Village { get; set; }
+        [StringLength(10)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Village")]
+        [AutoGenerateColumn(Order = 35, GroupName = "Address", GroupOrder = 2, Visible = false, ComponentType = typeof(AutoComplete))]
+        public String villid { get; set; }
+        [ForeignKey("villid")]
+        [ValidateNever]
+        [AutoGenerateColumn(Ignore = true)]
+        public Village Village { get; set; }
 
-        [StringLength(50)] public String? distname { get; set; }
+        [StringLength(50)]
+        [AutoGenerateColumn(Order = 36, Visible = false, GroupName = "Address", GroupOrder = 2, Readonly = true)]
 
-        [StringLength(50)] public String? cityname { get; set; }
+        public String? distname { get; set; }
 
-        [StringLength(50)] public String? provname { get; set; }
+        [StringLength(50)]
+        [AutoGenerateColumn(Order = 37, Visible = false, GroupName = "Address", GroupOrder = 2, Readonly = true)]
+        public String? cityname { get; set; }
+
+        [StringLength(50)]
+        [AutoGenerateColumn(Order = 38, Visible = false, GroupName = "Address", GroupOrder = 2, Readonly = true)]
+        public String? provname { get; set; }
 
         [StringLength(5, ErrorMessage = "Postal Code cannot be longer than 5 characters.")]
         [Display(Name = "Postal Code")]
+        [AutoGenerateColumn(Order = 39, Visible = false, GroupName = "Address", GroupOrder = 2)]
         public String? postcode { get; set; }
 
         [StringLength(100)]
         [Required]
+        [AutoGenerateColumn(Order = 41, Visible = false, GroupName = "Address", GroupOrder = 2)]
         public String latitude { get; set; }
 
         [StringLength(100)]
         [Required]
+        [AutoGenerateColumn(Order = 42, Visible = false, GroupName = "Address", GroupOrder = 2)]
         public String longitude { get; set; }
 
-        [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")] 
+        [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
+        [AutoGenerateColumn(Order= 10, Visible = false, GroupName = "General", GroupOrder = 1)]
         public String? phone { get; set; }
 
         [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
+        [AutoGenerateColumn(Order = 11, Visible = false, GroupName = "General", GroupOrder = 1)]
         public String? phonealt { get; set; }
 
         [StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
         [EmailAddress]
+        [AutoGenerateColumn(Order = 12, Visible = false, GroupName = "General", GroupOrder = 1)]
         public String? email { get; set; }
 
         [StringLength(50)]
         [Display(Name = "HO Name")]
+        [AutoGenerateColumn(Order = 90, Visible = false, GroupName = "General", GroupOrder = 1)]
         public String? honame { get; set; }
 
         [StringLength(50)]
         [Display(Name = "PIC Name")]
+        [AutoGenerateColumn(Order = 15, Visible = false, GroupName = "General", GroupOrder = 1)]
         public String? picname { get; set; }
 
         [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
         [Display(Name = "PIC Phone No")]
+        [AutoGenerateColumn(Order = 17, Visible = false, GroupName = "General", GroupOrder = 1)]
         public String? picno { get; set; }
 
-        [StringLength(3)] public String? citycode { get; set; }
+        [StringLength(3)]
+        [AutoGenerateColumn(Order = 20, Visible = false, GroupName = "General", GroupOrder = 1)]
+        public String? citycode { get; set; }
     }
 
     public class Courier : CommonField2
@@ -416,16 +455,16 @@ namespace iDss.X.Models
         [Key]
         [StringLength(3)]
         [Required]
-        [AutoGenerateColumn(Order = 10, Filterable = true, Searchable = true, Sortable = true)]
+        [AutoGenerateColumn(Order = 10, Filterable = true, Searchable = true, Sortable = true, Cols = 5)]
         public string cpcode { get; set; }
 
         [StringLength(50)]
         [Display(Name = "Checkpoint Name")]
         [Required]
-        [AutoGenerateColumn(Order = 20, Filterable = true, Searchable = true)]
+        [AutoGenerateColumn(Order = 20, Filterable = true, Searchable = true, Cols = 7)]
         public string cpname { get; set; }
 
-        [AutoGenerateColumn(Order = 70)]
+        [AutoGenerateColumn(Order = 70, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
         public String? description { get; set; }
     }
 

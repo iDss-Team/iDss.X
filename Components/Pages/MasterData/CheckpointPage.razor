@@ -1,15 +1,30 @@
 ﻿@page "/master/checkpointcode"
+@using iDss.X.Models
+@inject iDss.X.Services.MasterDataServices _services
 @attribute [TabItemOption(Text = "Checkpoint")]
+
 <PageTitle>Checkpoint Code</PageTitle>
 
-<h5>Checkpoint Code</h5>
+<Row  ItemsPerRow="ItemsPerRow.One">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <span>
+            <h5>Checkpoint Code</h5>
+        </span>    
+    </Row> 
+    <Table TItem="Checkpoint" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
+           IsStriped="true" IsBordered="true" OnQueryAsync="@_services.OnQueryAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
+           EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" OnSaveAsync="@_services.SaveCheckpointAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteCheckpointByIDAsync">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.cpcode" />
+            <TableColumn @bind-Field="@context.cpname" />
+            <TableColumn @bind-Field="@context.description" />
+            <TableColumn @bind-Field="@context.createddate" />
+        </TableColumns>
+    </Table>
+</Row>
 
-<Table TItem="Checkpoint" IsPagination="true" PageItemsSource="@PageItemsSource" RenderMode="TableRenderMode.Table" IsFixedHeader="true" class="table-users"
-       IsStriped="true" IsBordered="true" OnQueryAsync="OnQueryAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
-       EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" ShowDeleteButton="false">
-    <TableColumns>
-        <TableColumn @bind-Field="@context.cpcode" />
-        <TableColumn @bind-Field="@context.cpname" />
-        <TableColumn @bind-Field="@context.createddate" />
-    </TableColumns>
-</Table>
+@code {
+    
+
+}
+
