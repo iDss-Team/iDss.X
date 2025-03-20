@@ -15,18 +15,9 @@ namespace iDss.X.Services
             {
                 using var scope = _provider.CreateScope();
                 var masterDataService = scope.ServiceProvider.GetRequiredService<MasterDataServices>();
-                
-                try 
-                {                  
-                    var villages = masterDataService.GetAllVillages().ToList();
-                    return villages.Select(v => new SelectedItem(v.villid, v.villname ?? "Unknown")).ToList();
-                    //return villages.Select(v => v.villname ?? "Unknown").ToList();
-                }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine($"[VillageLookupService] Error: {ex.Message}");
-                    return new List<SelectedItem>();
-                }
+
+                var villages = masterDataService.GetAllVillages().ToList();
+                return villages.Select(v => new SelectedItem(v.villid, v.villname ?? "Unknown")).ToList();
             }
             return new List<SelectedItem>();
         }

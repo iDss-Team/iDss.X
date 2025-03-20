@@ -120,20 +120,33 @@ namespace iDss.X.Models
         [Key]
         [StringLength(30)]
         [Display(Name = "NIP")]
+        [Required]
         public String nip { get; set; }
 
-        [StringLength(50, ErrorMessage = "Courier Name cannot be longer than 50 characters.")] 
+        [StringLength(50, ErrorMessage = "Courier Name cannot be longer than 50 characters.")]
+        [Required]
         public String couriername { get; set; }
 
         [StringLength(10)]
         [Required]
         public String couriercode { get; set; }
 
-        [StringLength(6)][ValidateNever][Required][Display(Name = "District")] public String distid { get; set; }
-        [ForeignKey("distid")][ValidateNever] public District District { get; set; }
+        [StringLength(6)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "District")]
+        public String distid { get; set; }
+        [ForeignKey("distid")]
+        [ValidateNever]
+        public District District { get; set; }
 
-        [ValidateNever][Required][Display(Name = "Branch")] public int branchid { get; set; }
-        [ForeignKey("branchid")][ValidateNever] public Branch Branch { get; set; }
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Branch")]
+        public int branchid { get; set; }
+        [ForeignKey("branchid")]
+        [ValidateNever]
+        public Branch Branch { get; set; }
 
         [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
         [Required]

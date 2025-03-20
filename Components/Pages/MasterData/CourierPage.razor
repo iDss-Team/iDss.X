@@ -1,0 +1,144 @@
+﻿@page "/master/courier"
+@using iDss.X.Models
+@inject iDss.X.Services.MasterDataServices _services
+
+@attribute [TabItemOption(Text = "Couier Code")]
+
+<PageTitle>Courier Page</PageTitle>
+
+<Row  ItemsPerRow="ItemsPerRow.One">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>Courier Code</h5>
+            </StackItem>
+        </Stack> 
+    </Row> 
+    <Table TItem="Courier" Items="couriers" IsPagination="true" PageItemsSource="@_services.PageItemsSource" ShowColumnList="true" DeleteButtonText="" EditButtonText="" ShowSkeleton="true"
+           IsStriped="true" ShowToolbar="true" ShowSearch="true" ShowExtendButtons="true" 
+           ShowEditButton="false" OnSaveAsync="@_services.SaveCourierAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteCourierAsync">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.nip" Searchable="true" Filterable="true"/>
+            <TableColumn @bind-Field="@context.couriercode" Searchable="true" Filterable="true" />
+            <TableColumn @bind-Field="@context.couriername" Searchable="true" Filterable="true" />
+            <TableColumn @bind-Field="@context.District" Visible="false"/>
+            <TableColumn @bind-Field="@context.branchid">
+                <Template Context="rowData">
+                    <AutoComplete TValue="string" Items="@BranchItems" @bind-Value="@BranchIdValue" IsSelectAllTextOnFocus="true"> </AutoComplete>
+                </Template>
+            </TableColumn>
+            <TableColumn @bind-Field="@context.createddate" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
+        </TableColumns>
+    </Table>
+</Row>
+
+@* <Modal IsOpen="@isModalOpen" Title="@modalTitle" OnClose="CloseModal">
+    <EditorForm TModel="Courier">
+        <FieldItems>
+            <EditorItem @bind-Field="@context.nip"></EditorItem>
+            <EditorItem @bind-Field="@context.couriercode"></EditorItem>
+            <EditorItem @bind-Field="@context.couriername"></EditorItem>
+            <EditorItem @bind-Field="@context.branchid" ComponentType="" Items="@DistrictItems"></EditorItem>
+        </FieldItems>
+        <Buttons>
+            <Button Icon="fa-solid fa-floppy-disk" Text="Submit"></Button>
+        </Buttons>
+    </EditorForm>
+</Modal> *@
+
+@code {
+    public List<Courier> couriers = new();
+    // private List<Branch> branches = new();
+    private IEnumerable<SelectedItem>? DistrictItems { get; set; }
+    private IEnumerable<String>? BranchItems { get; set; }
+
+    private bool isModalOpen = false;
+    private string modalTitle = "Add Courier";
+    private Courier selectedCourier = new();
+
+    // private IEnumerable<Courier>? Items { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        couriers = await _services.GetCourierAsync();
+
+        var districts = await _services.LoadDistrictAsync();
+        DistrictItems = districts.Select(b => new SelectedItem(b.distid.ToString(), b.distname));
+
+        var branches = await _services.LoadBranchAsync();
+        BranchItems = branches.Select(b => b.branchname);
+
+    }
+
+    private string? BranchIdValue
+    {
+        get => selectedCourier.Row.branchid.ToString(); // Konversi ke string
+        set
+        {
+            if (int.TryParse(value, out int result))
+            {
+                selectedCourier.Row.branchid = result; // Set kembali ke integer
+            }
+        }
+    }
+
+    private void ShowAddModal()
+    {
+        selectedCourier = new Courier();
+        modalTitle = "Create New Courier Data";
+        isModalOpen = true;
+    }
+
+    private void ShowEditModal(Courier courier)
+    {
+        selectedCourier = new Courier
+            {
+                nip = courier.nip,
+                couriername = courier.couriername,
+                couriercode = courier.couriercode,
+                branchid = courier.branchid,
+                phone = courier.phone
+            };
+        modalTitle = "Update Courier Data";
+        isModalOpen = true;
+    }
+
+    private async Task SaveCourier()
+    {
+        bool result;
+        if (couriers.Any(c => c.nip == selectedCourier.nip))
+        {
+            result = await _services.UpdateCourierAsync(selectedCourier);
+        }
+        else
+        {
+            result = await _services.CreateCourierAsync(selectedCourier);
+        }
+
+        if (result)
+        {
+            isModalOpen = false;
+            await LoadData();
+        }
+    }
+
+    // private async Task DeleteCourier(Courier courier)
+    // {
+    //     bool result = await _services.DeleteCourierAsync(courier.nip);
+    //     if (result)
+    //     {
+    //         await LoadData();
+    //     }
+    // }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+    }
+}
+

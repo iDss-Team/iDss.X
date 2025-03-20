@@ -11,7 +11,7 @@ namespace iDss.X.Services
         {
             services.AddScoped<MasterDataServices>(); // Tambahkan service lainnya di sini
             services.AddSingleton<WeatherForecastService>();
-            services.AddScoped<ILookupService, VillageLookupService>(); // Daftarkan lookup service
+            //services.AddScoped<ILookupService, VillageLookupService>(); // Daftarkan lookup service
 
             return services;
         }
