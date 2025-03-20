@@ -6,7 +6,7 @@ using Microsoft.Extensions.Localization;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace iDss.X.Components.Pages
+namespace iDss.X.Components.SampleTemplate
 {
     /// <summary>
     /// 

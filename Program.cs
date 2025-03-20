@@ -28,8 +28,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<AuthDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddScoped<MasterDataServices>();
-builder.Services.AddSingleton<WeatherForecastService>();
+// Add IDSS Services operation class
+builder.Services.AddIDSSServices();
 
 // Add Table demo data service operation class
 builder.Services.AddTableDemoDataService();

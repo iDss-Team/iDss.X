@@ -6,11 +6,11 @@ namespace iDss.X.Models
     public class CommonField1
     {
         [DisplayFormat(DataFormatString = "{0:dd/MMM/yyyy}", ApplyFormatInEditMode = true)]
-        [AutoGenerateColumn(Ignore = true)]
+        [AutoGenerateColumn(Order = 100, Visible = true, IsVisibleWhenAdd = false, IsVisibleWhenEdit = false, FormatString = "dd MMM yyyy")]
         public DateTime createddate { get; set; } = System.DateTime.Now;
 
         [StringLength(50)]
-        [AutoGenerateColumn(Ignore = true)]
+        [AutoGenerateColumn(Order = 99, Visible = true, IsVisibleWhenAdd = false, IsVisibleWhenEdit = false)]
         public String createdby { get; set; } = "System";
     }
 
@@ -20,11 +20,11 @@ namespace iDss.X.Models
         public int flag { get; set; } = 1;
 
         [DisplayFormat(DataFormatString = "{0:dd/MMM/yyyy}", ApplyFormatInEditMode = true)]
-        [AutoGenerateColumn(Ignore = true)]
+        [AutoGenerateColumn(Order = 100, Visible = true, IsVisibleWhenAdd = false, IsVisibleWhenEdit = false, FormatString = "dd MMM yyyy")]
         public DateTime createddate { get; set; } = System.DateTime.Now;
 
         [StringLength(50)]
-        [AutoGenerateColumn(Ignore = true)]
+        [AutoGenerateColumn(Order = 99, Visible = true, IsVisibleWhenAdd = false, IsVisibleWhenEdit = false)]
         public String createdby { get; set; } = "System";
 
         [DisplayFormat(DataFormatString = "{0:dd/MMM/yyyy}", ApplyFormatInEditMode = true)]
@@ -42,11 +42,11 @@ namespace iDss.X.Models
         public int flag { get; set; } = 1;
 
         [DisplayFormat(DataFormatString = "{0:dd/MMM/yyyy}", ApplyFormatInEditMode = true)]
-        [AutoGenerateColumn(Ignore = true)]
+        [AutoGenerateColumn(Order = 100,Visible = true, IsVisibleWhenAdd = false, IsVisibleWhenEdit = false, FormatString = "dd MMM yyyy")]
         public DateTime createddate { get; set; } = System.DateTime.Now;
 
         [StringLength(50)]
-        [AutoGenerateColumn(Ignore = true)]
+        [AutoGenerateColumn(Order = 99, Visible = true, IsVisibleWhenAdd = false, IsVisibleWhenEdit = false)]
         public String createdby { get; set; } = "System";
     }
 }

@@ -242,6 +242,11 @@ namespace iDss.X.Services
             return await result;
         }
 
+        public IEnumerable<Village> GetAllVillages()
+        {
+            return _db.mdt_village.AsNoTracking().ToList();
+        }
+
         public async Task<Branch> GetBranchByIDAsync(Guid id)
         {
             var result = _db.mdt_branch.FindAsync(id);
@@ -298,6 +303,7 @@ namespace iDss.X.Services
                 return false; // Jika gagal
             }
         }
+
         public async Task<string> UpdateBranchAsync(Branch data)
         {
             string result;

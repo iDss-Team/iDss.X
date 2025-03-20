@@ -18,101 +18,100 @@ namespace iDss.X.Models
         [StringLength(50, ErrorMessage = "Branch Name cannot be longer than 50 characters.")]
         [Display(Name = "Branch Name")]
         [Required]
-        [AutoGenerateColumn(Order = 1, Filterable = true, Searchable = true, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order = 1, Filterable = true, Searchable = true, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String branchname { get; set; }
 
         [StringLength(10)] 
         [Display(Name = "Branch Code")]
-        [AutoGenerateColumn(Order = 2, Filterable = true, Searchable = true, GroupName = "General", GroupOrder = 1, Cols = 4)]
+        [AutoGenerateColumn(Order = 2, Filterable = true, Searchable = true, GroupName = "General", GroupOrder = 1, Cols = 4, ComponentType = typeof(BootstrapInput<string>))]
         public String? branchcode { get; set; }
 
         [StringLength(10)]
-        [AutoGenerateColumn(Order = 5, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order = 5, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? branchtype { get; set; }
 
         [StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
         [Display(Name = "Address")]
         [Required]
-        [AutoGenerateColumn(Order = 30, GroupName = "Address", GroupOrder = 2, Cols = 12, ComponentType = typeof(Textarea))]
+        [AutoGenerateColumn(Order = 30, GroupName = "Location", GroupOrder = 2, Cols = 12, ComponentType = typeof(Textarea))]
         public String addr1 { get; set; }
 
         [StringLength(300)]
-        [AutoGenerateColumn(Order = 31, GroupName = "Address", GroupOrder = 2, Cols = 6, Visible = false)]
+        [AutoGenerateColumn(Order = 31, GroupName = "Location", GroupOrder = 2, Cols = 6, Visible = false, ComponentType = typeof(BootstrapInput<string>))]
         public String? addr2 { get; set; }
 
         [StringLength(300)]
-        [AutoGenerateColumn(Order = 32, GroupName = "Address", GroupOrder = 2, Cols = 6, Visible = false)]
+        [AutoGenerateColumn(Order = 32, GroupName = "Location", GroupOrder = 2, Cols = 6, Visible = false, ComponentType = typeof(BootstrapInput<string>))]
         public String? addr3 { get; set; }
 
         [StringLength(10)]
         [ValidateNever]
         [Required]
         [Display(Name = "Village")]
-        [AutoGenerateColumn(Order = 35, GroupName = "Address", GroupOrder = 2, Visible = false, ComponentType = typeof(AutoComplete))]
+        [AutoGenerateColumn(Order = 35, GroupName = "Location", GroupOrder = 2, Visible = false, ComponentType = typeof(Select<string>), LookupServiceKey = "branch.villages")]
         public String villid { get; set; }
         [ForeignKey("villid")]
         [ValidateNever]
         [AutoGenerateColumn(Ignore = true)]
-        public Village Village { get; set; }
+        public Village? Village { get; set; }
 
         [StringLength(50)]
-        [AutoGenerateColumn(Order = 36, Visible = false, GroupName = "Address", GroupOrder = 2, Readonly = true)]
-
+        [AutoGenerateColumn(Order = 36, Visible = false, GroupName = "Location", GroupOrder = 2, Readonly = true, ComponentType = typeof(BootstrapInput<string>))]
         public String? distname { get; set; }
 
         [StringLength(50)]
-        [AutoGenerateColumn(Order = 37, Visible = false, GroupName = "Address", GroupOrder = 2, Readonly = true)]
+        [AutoGenerateColumn(Order = 37, Visible = false, GroupName = "Location", GroupOrder = 2, Readonly = true, ComponentType = typeof(BootstrapInput<string>))]
         public String? cityname { get; set; }
 
         [StringLength(50)]
-        [AutoGenerateColumn(Order = 38, Visible = false, GroupName = "Address", GroupOrder = 2, Readonly = true)]
+        [AutoGenerateColumn(Order = 38, Visible = false, GroupName = "Location", GroupOrder = 2, Readonly = true, ComponentType = typeof(BootstrapInput<string>))]
         public String? provname { get; set; }
 
         [StringLength(5, ErrorMessage = "Postal Code cannot be longer than 5 characters.")]
         [Display(Name = "Postal Code")]
-        [AutoGenerateColumn(Order = 39, Visible = false, GroupName = "Address", GroupOrder = 2)]
+        [AutoGenerateColumn(Order = 39, Visible = false, GroupName = "Location", GroupOrder = 2, ComponentType = typeof(BootstrapInput<string>))]
         public String? postcode { get; set; }
 
         [StringLength(100)]
         [Required]
-        [AutoGenerateColumn(Order = 41, Visible = false, GroupName = "Address", GroupOrder = 2)]
+        [AutoGenerateColumn(Order = 41, Visible = false, GroupName = "Location", GroupOrder = 2, ComponentType = typeof(BootstrapInput<string>))]
         public String latitude { get; set; }
 
         [StringLength(100)]
         [Required]
-        [AutoGenerateColumn(Order = 42, Visible = false, GroupName = "Address", GroupOrder = 2)]
+        [AutoGenerateColumn(Order = 42, Visible = false, GroupName = "Location", GroupOrder = 2, ComponentType = typeof(BootstrapInput<string>))]
         public String longitude { get; set; }
 
         [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
-        [AutoGenerateColumn(Order= 10, Visible = false, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order= 10, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? phone { get; set; }
 
         [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
-        [AutoGenerateColumn(Order = 11, Visible = false, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order = 11, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? phonealt { get; set; }
 
         [StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
         [EmailAddress]
-        [AutoGenerateColumn(Order = 12, Visible = false, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order = 12, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? email { get; set; }
 
         [StringLength(50)]
         [Display(Name = "HO Name")]
-        [AutoGenerateColumn(Order = 90, Visible = false, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order = 90, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? honame { get; set; }
 
         [StringLength(50)]
         [Display(Name = "PIC Name")]
-        [AutoGenerateColumn(Order = 15, Visible = false, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order = 15, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? picname { get; set; }
 
         [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
         [Display(Name = "PIC Phone No")]
-        [AutoGenerateColumn(Order = 17, Visible = false, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order = 17, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? picno { get; set; }
 
         [StringLength(3)]
-        [AutoGenerateColumn(Order = 20, Visible = false, GroupName = "General", GroupOrder = 1)]
+        [AutoGenerateColumn(Order = 20, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? citycode { get; set; }
     }
 
