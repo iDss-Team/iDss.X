@@ -113,6 +113,8 @@ namespace iDss.X.Models
         [StringLength(3)]
         [AutoGenerateColumn(Order = 20, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? citycode { get; set; }
+
+        public List<Courier> couriers {  get; set; } 
     }
 
     public class Courier : CommonField2
@@ -159,6 +161,9 @@ namespace iDss.X.Models
         public int? fuelquota { get; set; }
 
         public int? status { get; set; }
+
+        [NotMapped]
+        public string branchname { get; set; }
 
     }
 

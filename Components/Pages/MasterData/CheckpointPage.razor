@@ -7,12 +7,14 @@
 
 <Row  ItemsPerRow="ItemsPerRow.One">
     <Row ItemsPerRow="ItemsPerRow.Two">
-        <span>
-            <h5>Checkpoint Code</h5>
-        </span>    
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>Checkpoint Code</h5>
+            </StackItem>
+        </Stack> 
     </Row> 
     <Table TItem="Checkpoint" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
-           IsStriped="true" IsBordered="true" OnQueryAsync="@_services.OnQueryAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
+           IsStriped="true" IsBordered="true" OnQueryAsync="@_services.OnQueryCheckpointAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
            EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" OnSaveAsync="@_services.SaveCheckpointAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteCheckpointByIDAsync">
     </Table>
 </Row>

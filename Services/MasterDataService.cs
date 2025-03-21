@@ -132,7 +132,7 @@ namespace iDss.X.Services
             return await result;
         }
 
-        public Task<QueryData<Checkpoint>> OnQueryAsync(QueryPageOptions options)
+        public Task<QueryData<Checkpoint>> OnQueryCheckpointAsync(QueryPageOptions options)
         {
             var items = _db.mdt_checkpoint.ToList();
 
@@ -457,12 +457,20 @@ namespace iDss.X.Services
         #region "Courier"
         public async Task<List<Courier>> GetCourierAsync()
         {
-            var result = _db.mdt_courier
-                .Include(c => c.District)
+            var result = await _db.mdt_courier
                 .Include(c => c.Branch)
+                .AsNoTracking()
                 .OrderByDescending(c => c.createddate)
                 .ToListAsync();
-            return await result;
+
+            // Debugging: Cek apakah branch terbaca
+            foreach (var item in result)
+            {
+                System.Console.WriteLine($"Courier: {item.couriername}, Branch: {(item.Branch != null ? item.Branch.branchname : "NULL")}");
+            }
+
+
+            return result;
         }
 
         public async Task<QueryData<Courier>> OnQueryCourierAsync(QueryPageOptions options)

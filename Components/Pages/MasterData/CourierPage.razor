@@ -1,52 +1,91 @@
 ﻿@page "/master/courier"
 @using iDss.X.Models
 @inject iDss.X.Services.MasterDataServices _services
-
 @attribute [TabItemOption(Text = "Couier Code")]
 
 <PageTitle>Courier Page</PageTitle>
 
-<Row  ItemsPerRow="ItemsPerRow.One">
-    <Row ItemsPerRow="ItemsPerRow.Two">
-        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
-            <StackItem>
-                <h5>Courier Code</h5>
-            </StackItem>
-        </Stack> 
-    </Row> 
-    <Table TItem="Courier" Items="couriers" IsPagination="true" PageItemsSource="@_services.PageItemsSource" ShowColumnList="true" DeleteButtonText="" EditButtonText="" ShowSkeleton="true"
-           IsStriped="true" ShowToolbar="true" ShowSearch="true" ShowExtendButtons="true" 
-           ShowEditButton="false" OnSaveAsync="@_services.SaveCourierAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteCourierAsync">
-        <TableColumns>
-            <TableColumn @bind-Field="@context.nip" Searchable="true" Filterable="true"/>
-            <TableColumn @bind-Field="@context.couriercode" Searchable="true" Filterable="true" />
-            <TableColumn @bind-Field="@context.couriername" Searchable="true" Filterable="true" />
-            <TableColumn @bind-Field="@context.District" Visible="false"/>
-            <TableColumn @bind-Field="@context.branchid">
-                <Template Context="rowData">
-                    <AutoComplete TValue="string" Items="@BranchItems" @bind-Value="@BranchIdValue" IsSelectAllTextOnFocus="true"> </AutoComplete>
-                </Template>
-            </TableColumn>
-            <TableColumn @bind-Field="@context.createddate" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
-        </TableColumns>
-    </Table>
-</Row>
+@if (couriers != null){
+    <Row  ItemsPerRow="ItemsPerRow.One">
+        <Row ItemsPerRow="ItemsPerRow.Two">
+            <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+                <StackItem>
+                    <h5>Courier Code</h5>
+                </StackItem>
+            </Stack> 
+        </Row>
+        <Table Items="couriers" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true"
+        IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="true"
+        EditMode="EditMode.Popup" EditDialogSize="Size.ExtraLarge" ShowEditButton="false" ShowAddButton="false">
+            <TableToolbarTemplate>
+                <TableToolbarButton TItem="Courier"
+                Color="Color.Primary"
+                Icon="fa-solid fa-plus"
+                Text="Add"
+                IsAsync OnClickCallback="@ShowAddModal" />
+            </TableToolbarTemplate>
+            <TableColumns>
+                <TableColumn @bind-Field="@context.nip" Searchable="true" Filterable="true"/>
+                <TableColumn @bind-Field="@context.couriercode" Searchable="true" Filterable="true" />
+                <TableColumn @bind-Field="@context.couriername" Searchable="true" Filterable="true" />
+                <TableColumn @bind-Field="@context.Branch" Text="Branch Name">
+                    <Template Context="x">
+                        @{
+                            var br = x.Row.Branch.branchname;
+                            <p>@br</p>
+                        }
+                    </Template>
+                </TableColumn>   
+                <TableColumn @bind-Field="@context.createddate" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
+            </TableColumns>
+        </Table>
+    </Row>
 
-@* <Modal IsOpen="@isModalOpen" Title="@modalTitle" OnClose="CloseModal">
-    <EditorForm TModel="Courier">
-        <FieldItems>
-            <EditorItem @bind-Field="@context.nip"></EditorItem>
-            <EditorItem @bind-Field="@context.couriercode"></EditorItem>
-            <EditorItem @bind-Field="@context.couriername"></EditorItem>
-            <EditorItem @bind-Field="@context.branchid" ComponentType="" Items="@DistrictItems"></EditorItem>
-        </FieldItems>
-        <Buttons>
-            <Button Icon="fa-solid fa-floppy-disk" Text="Submit"></Button>
-        </Buttons>
-    </EditorForm>
-</Modal> *@
+}else{
+    <h5>Loading . . .</h5>
+}
+
+<Modal @ref="modals">
+    <ModalDialog Size="Size.Small" ShowResize="true" Title="Test"
+                 ShowSaveButton="true">
+        <BodyTemplate>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <BootstrapInput PlaceHolder="enter module id ..."
+                                    TValue="int"
+                                    IsAutoFocus="true"
+                                    IsSelectAllTextOnFocus="true"
+                                    ShowLabel="true"
+                                    DisplayText="Module ID"/>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <BootstrapInput PlaceHolder="enter module name ..."
+                                    TValue="string"
+                                    IsAutoFocus="true"
+                                    IsSelectAllTextOnFocus="true"
+                                    ShowLabel="true"
+                                    DisplayText="Module Name" />
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <Textarea PlaceHolder="enter description ..."
+                              rows="4"
+                              TValue="string"
+                              IsAutoFocus="true"
+                              IsSelectAllTextOnFocus="true"
+                              ShowLabel="true"
+                              DisplayText="Description" />
+                </div>
+            </div>
+        </BodyTemplate>
+    </ModalDialog>
+</Modal>
 
 @code {
+    Modal modals;
     public List<Courier> couriers = new();
     // private List<Branch> branches = new();
     private IEnumerable<SelectedItem>? DistrictItems { get; set; }
@@ -67,31 +106,22 @@
     {
         couriers = await _services.GetCourierAsync();
 
-        var districts = await _services.LoadDistrictAsync();
-        DistrictItems = districts.Select(b => new SelectedItem(b.distid.ToString(), b.distname));
 
-        var branches = await _services.LoadBranchAsync();
-        BranchItems = branches.Select(b => b.branchname);
+        // var districts = await _services.LoadDistrictAsync();
+        // DistrictItems = districts.Select(b => new SelectedItem(b.distid.ToString(), b.distname));
+
+        // var branches = await _services.LoadBranchAsync();
+        // BranchItems = branches.Select(b => b.branchname);
 
     }
 
-    private string? BranchIdValue
-    {
-        get => selectedCourier.Row.branchid.ToString(); // Konversi ke string
-        set
-        {
-            if (int.TryParse(value, out int result))
-            {
-                selectedCourier.Row.branchid = result; // Set kembali ke integer
-            }
-        }
-    }
-
-    private void ShowAddModal()
+    private async Task ShowAddModal(IEnumerable<Courier> items)
     {
         selectedCourier = new Courier();
         modalTitle = "Create New Courier Data";
         isModalOpen = true;
+
+        modals.Show();
     }
 
     private void ShowEditModal(Courier courier)

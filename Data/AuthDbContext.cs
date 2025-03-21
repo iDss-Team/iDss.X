@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace iDss.X.Data
 {
-    public class AuthDbContext : IdentityDbContext<IdentityUser>
+    public class AuthDbContext : IdentityDbContext<ApplicationUser>
     {
         public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
         {
