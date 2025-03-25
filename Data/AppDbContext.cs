@@ -40,17 +40,15 @@ namespace iDss.X.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            //modelBuilder.Entity<ApplicationUser>().ToTable("users");
-            //modelBuilder.Entity<ApplicationRole>().ToTable("roles");
-            //modelBuilder.Entity<IdentityUserToken<string>>().ToTable("user_token");
-            //modelBuilder.Entity<IdentityUserRole<string>>().ToTable("user_role");
-            //modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("role_claim");
-            //modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("user_claim");
-            //modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("user_login");
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes().Where(e => !e.IsOwned()).SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            }
 
             //Example Rewrite On-Delete Rule
-            modelBuilder.ApplyConfiguration(new AppModuleConfiguration());
-            modelBuilder.ApplyConfiguration(new AppMenuConfiguration());
+            modelBuilder.ApplyConfiguration(new CIFConfiguration());
+            modelBuilder.ApplyConfiguration(new AccountAddrConfiguration());
+            modelBuilder.ApplyConfiguration(new accountCROConfiguration());
 
             //Seed table app_module
             modelBuilder.SeedAppModuleCtg();

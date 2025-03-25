@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace iDss.X.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialNewDb : Migration
+    public partial class AddInitialTableToDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,6 +27,22 @@ namespace iDss.X.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_app_modulectg", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "mdt_checkpoint",
+                columns: table => new
+                {
+                    cpcode = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
+                    cpname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    flag = table.Column<int>(type: "int", nullable: false),
+                    createddate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    createdby = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_mdt_checkpoint", x => x.cpcode);
                 });
 
             migrationBuilder.CreateTable(
@@ -294,8 +310,7 @@ namespace iDss.X.Migrations
                         name: "FK_mdt_cif_mdt_industry_industryid",
                         column: x => x.industryid,
                         principalTable: "mdt_industry",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -511,6 +526,7 @@ namespace iDss.X.Migrations
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PK_mdt_accountcro", x => new { x.acctno, x.crocode });
                     table.ForeignKey(
                         name: "FK_mdt_accountcro_mdt_account_acctno",
                         column: x => x.acctno,
@@ -541,13 +557,13 @@ namespace iDss.X.Migrations
                         column: x => x.acctno,
                         principalTable: "mdt_account",
                         principalColumn: "acctno",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_mdt_branchaccount_mdt_branch_branchid",
                         column: x => x.branchid,
                         principalTable: "mdt_branch",
                         principalColumn: "branchid",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
@@ -555,12 +571,13 @@ namespace iDss.X.Migrations
                 columns: new[] { "id", "createdby", "createddate", "modulectgname", "modulectgsort" },
                 values: new object[,]
                 {
-                    { 1, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Administrasion", 1 },
-                    { 2, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Operasional Cargo", 2 },
-                    { 3, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Operasional Credit Card & Billing", 3 },
-                    { 4, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Monitoring & Reports", 4 },
-                    { 5, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Financial Management", 5 },
-                    { 6, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "CRM (Customer Relationship Management)", 6 }
+                    { 1, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Administration & System Management", 1 },
+                    { 2, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Data Management", 2 },
+                    { 3, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Pre-Delivery", 3 },
+                    { 4, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "In-Transit", 4 },
+                    { 5, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Post-Delivery", 5 },
+                    { 6, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Back Office", 6 },
+                    { 7, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Warehouse Management", 7 }
                 });
 
             migrationBuilder.InsertData(
@@ -609,13 +626,25 @@ namespace iDss.X.Migrations
                 columns: new[] { "moduleid", "createdby", "createddate", "description", "flag", "icon", "modifieddate", "modifier", "modulectgid", "modulename", "modulesort" },
                 values: new object[,]
                 {
-                    { "101", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "accsess apps configuration dor administrator", 1, "idcard", null, null, 1, "Administrasion", 1 },
-                    { "102", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "iDss Data Master", 1, "database", null, null, 1, "Master Data", 2 },
-                    { "103", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Pickup Processing Center", 1, "schedule", null, null, 2, "Pickup Management", 3 },
-                    { "104", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Outbound Processing Center", 1, "bank", null, null, 2, "Outbound Control Library", 4 },
-                    { "105", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Linehaul Processing Center", 1, "car", null, null, 2, "Linehaul Control Library", 5 },
-                    { "106", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Inbound Processing Center", 1, "interaction", null, null, 2, "Inbound Control Library", 6 },
-                    { "107", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Dashboard & Reporting", 1, "fund", null, null, 4, "Dashboard & Reporting", 7 }
+                    { "101", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Manages system settings, permissions and general platform configurations", 1, "idcard", null, null, 1, "Administrasion", 1 },
+                    { "102", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Stores and manages core data", 1, "database", null, null, 2, "Master Data", 2 },
+                    { "103", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Handles potential customer prospects, including registration, analysis, and follow-ups to be regular customers", 1, "schedule", null, null, 3, "Prospect Customer Relationship", 3 },
+                    { "104", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Manages relationships with potential agents, registration, evaluation, and communication to expand the operational network.", 1, "schedule", null, null, 3, "Prospect Agent Relationship", 4 },
+                    { "105", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Records and manages the sales process, pricing and monitoring team performance and targets.", 1, "schedule", null, null, 3, "Sales Management", 5 },
+                    { "106", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Schedules and manages pickup from customers, including route optimization and field team coordination.", 1, "schedule", null, null, 3, "Pickup Management", 6 },
+                    { "107", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Controls and manages the outbound shipment of goods from origin distribution centers to final destinations.", 1, "bank", null, null, 4, "Outbound Control Library", 7 },
+                    { "108", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Monitors and manages the movement of goods during intercity or inter-hub transportation.", 1, "car", null, null, 4, "Linehaul Control Library", 8 },
+                    { "109", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Handles the receiving of incoming shipments from distribution centers until delivery to recipient.", 1, "interaction", null, null, 4, "Inbound Control Library", 9 },
+                    { "110", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Manages the return process due to incorrect shipments, damaged goods, or other return policies.", 1, "interaction", null, null, 4, "Return Management", 10 },
+                    { "111", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Inbound Processing Center", 0, "interaction", null, null, 4, "Billing Delivery System", 11 },
+                    { "112", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Inbound Processing Center", 0, "interaction", null, null, 4, "Credit Card System", 12 },
+                    { "113", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Handles cash payments upon delivery, including transaction recording and coordination with couriers.", 1, "fund", null, null, 5, "Cash on Delivery", 13 },
+                    { "114", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Provides real-time tracking for customers and internal teams to monitor shipment status and locations.", 1, "fund", null, null, 5, "Shipment Tracking Visibility", 14 },
+                    { "115", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Addresses operational issues such as delivery delays, lost shipments, or customer complaints, and records provided solutions.", 1, "fund", null, null, 5, "Problem Handling & Solution", 15 },
+                    { "116", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Generates reports and data analysis related to operational performance, sales, and financial aspects to support strategic decision-making.", 1, "fund", null, null, 5, "Analytics & Reporting", 16 },
+                    { "117", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Manages company financials, including transaction records, operational expenses, payment reconciliation, and invoicing.", 1, "fund", null, null, 5, "Finance Management", 17 },
+                    { "118", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Provides customer support to answer inquiries, handle complaints, and offer shipment and service-related information.", 1, "fund", null, null, 5, "Customer Care Services", 18 },
+                    { "119", "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Ensures compliance with industry regulations and legal requirements, including document management and audit processes.", 1, "fund", null, null, 6, "Legal & Compliance", 19 }
                 });
 
             migrationBuilder.InsertData(
@@ -1222,11 +1251,6 @@ namespace iDss.X.Migrations
                 column: "distid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_mdt_accountcro_acctno",
-                table: "mdt_accountcro",
-                column: "acctno");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_mdt_accountcro_crocode",
                 table: "mdt_accountcro",
                 column: "crocode");
@@ -1324,6 +1348,9 @@ namespace iDss.X.Migrations
 
             migrationBuilder.DropTable(
                 name: "mdt_branchaccount");
+
+            migrationBuilder.DropTable(
+                name: "mdt_checkpoint");
 
             migrationBuilder.DropTable(
                 name: "mdt_counter");

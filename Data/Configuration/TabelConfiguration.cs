@@ -4,29 +4,47 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace iDss.X.Data.Configuration
 {
-    public class AppModuleConfiguration : IEntityTypeConfiguration<AppModule>
+    public class CIFConfiguration : IEntityTypeConfiguration<CIF>
     {
-        public void Configure(EntityTypeBuilder<AppModule> builder)
+        public void Configure(EntityTypeBuilder<CIF> builder)
         {
-            builder.HasKey(m => m.moduleid); // Menentukan Primary Key
+            builder.HasKey(m => m.cif); // Menentukan Primary Key
 
-            builder.HasOne(m => m.ModuleCtg) // Relasi ke AppModuleCategory
-                .WithMany(c => c.Modules)
-                .HasForeignKey(m => m.modulectgid) // Foreign Key
-                .OnDelete(DeleteBehavior.Restrict); // **Restrict (Mencegah Cascade Delete)**
+            builder.HasOne(m => m.Industry) // Relasi ke mdt_industry
+                .WithMany(c => c.CIFs)
+                .HasForeignKey(m => m.industryid) // Foreign Key
+                .OnDelete(DeleteBehavior.NoAction); 
         }
     }
 
-    public class AppMenuConfiguration : IEntityTypeConfiguration<AppMenu>
+    public class AccountAddrConfiguration : IEntityTypeConfiguration<AccountAddr>
     {
-        public void Configure(EntityTypeBuilder<AppMenu> builder)
+        public void Configure(EntityTypeBuilder<AccountAddr> builder)
         {
-            builder.HasKey(m => m.menuid); // Menentukan Primary Key
+            builder.HasKey(m => m.id); // Menentukan Primary Key
 
-            builder.HasOne(m => m.Module) // Relasi ke AppModule
-                .WithMany(c => c.Menus)
-                .HasForeignKey(m => m.moduleid) // Foreign Key
-                .OnDelete(DeleteBehavior.Restrict); // **Restrict (Mencegah Cascade Delete)**
+            builder.HasOne(m => m.Account) // Relasi ke mdt_account
+                .WithMany(c => c.AccountAddrs)
+                .HasForeignKey(m => m.acctno) // Foreign Key
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    public class accountCROConfiguration : IEntityTypeConfiguration<AccountCro>
+    {
+        public void Configure(EntityTypeBuilder<AccountCro> builder)
+        {
+            builder.HasKey(ac => new { ac.acctno, ac.crocode });
+
+            builder.HasOne(m => m.Account) // Relasi ke mdt_account
+                .WithMany(c => c.AccountCros)
+                .HasForeignKey(m => m.acctno) // Foreign Key
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(m => m.CRO) // Relasi ke mdt_cro
+                .WithMany(c => c.AccountCros)
+                .HasForeignKey(m => m.crocode) // Foreign Key
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

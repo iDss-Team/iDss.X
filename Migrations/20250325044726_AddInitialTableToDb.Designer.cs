@@ -12,8 +12,8 @@ using iDss.X.Data;
 namespace iDss.X.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250312190133_InitialNewDb")]
-    partial class InitialNewDb
+    [Migration("20250325044726_AddInitialTableToDb")]
+    partial class AddInitialTableToDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -222,9 +222,12 @@ namespace iDss.X.Migrations
             modelBuilder.Entity("iDss.X.Models.AccountCro", b =>
                 {
                     b.Property<string>("acctno")
-                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("crocode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("createdby")
                         .IsRequired()
@@ -234,12 +237,7 @@ namespace iDss.X.Migrations
                     b.Property<DateTime>("createddate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("crocode")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasIndex("acctno");
+                    b.HasKey("acctno", "crocode");
 
                     b.HasIndex("crocode");
 
@@ -804,7 +802,7 @@ namespace iDss.X.Migrations
                             moduleid = "101",
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            description = "accsess apps configuration dor administrator",
+                            description = "Manages system settings, permissions and general platform configurations",
                             flag = 1,
                             icon = "idcard",
                             modulectgid = 1,
@@ -816,10 +814,10 @@ namespace iDss.X.Migrations
                             moduleid = "102",
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            description = "iDss Data Master",
+                            description = "Stores and manages core data",
                             flag = 1,
                             icon = "database",
-                            modulectgid = 1,
+                            modulectgid = 2,
                             modulename = "Master Data",
                             modulesort = 2
                         },
@@ -828,11 +826,11 @@ namespace iDss.X.Migrations
                             moduleid = "103",
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            description = "Pickup Processing Center",
+                            description = "Handles potential customer prospects, including registration, analysis, and follow-ups to be regular customers",
                             flag = 1,
                             icon = "schedule",
-                            modulectgid = 2,
-                            modulename = "Pickup Management",
+                            modulectgid = 3,
+                            modulename = "Prospect Customer Relationship",
                             modulesort = 3
                         },
                         new
@@ -840,11 +838,11 @@ namespace iDss.X.Migrations
                             moduleid = "104",
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            description = "Outbound Processing Center",
+                            description = "Manages relationships with potential agents, registration, evaluation, and communication to expand the operational network.",
                             flag = 1,
-                            icon = "bank",
-                            modulectgid = 2,
-                            modulename = "Outbound Control Library",
+                            icon = "schedule",
+                            modulectgid = 3,
+                            modulename = "Prospect Agent Relationship",
                             modulesort = 4
                         },
                         new
@@ -852,11 +850,11 @@ namespace iDss.X.Migrations
                             moduleid = "105",
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            description = "Linehaul Processing Center",
+                            description = "Records and manages the sales process, pricing and monitoring team performance and targets.",
                             flag = 1,
-                            icon = "car",
-                            modulectgid = 2,
-                            modulename = "Linehaul Control Library",
+                            icon = "schedule",
+                            modulectgid = 3,
+                            modulename = "Sales Management",
                             modulesort = 5
                         },
                         new
@@ -864,11 +862,11 @@ namespace iDss.X.Migrations
                             moduleid = "106",
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            description = "Inbound Processing Center",
+                            description = "Schedules and manages pickup from customers, including route optimization and field team coordination.",
                             flag = 1,
-                            icon = "interaction",
-                            modulectgid = 2,
-                            modulename = "Inbound Control Library",
+                            icon = "schedule",
+                            modulectgid = 3,
+                            modulename = "Pickup Management",
                             modulesort = 6
                         },
                         new
@@ -876,12 +874,156 @@ namespace iDss.X.Migrations
                             moduleid = "107",
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            description = "Dashboard & Reporting",
+                            description = "Controls and manages the outbound shipment of goods from origin distribution centers to final destinations.",
+                            flag = 1,
+                            icon = "bank",
+                            modulectgid = 4,
+                            modulename = "Outbound Control Library",
+                            modulesort = 7
+                        },
+                        new
+                        {
+                            moduleid = "108",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Monitors and manages the movement of goods during intercity or inter-hub transportation.",
+                            flag = 1,
+                            icon = "car",
+                            modulectgid = 4,
+                            modulename = "Linehaul Control Library",
+                            modulesort = 8
+                        },
+                        new
+                        {
+                            moduleid = "109",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Handles the receiving of incoming shipments from distribution centers until delivery to recipient.",
+                            flag = 1,
+                            icon = "interaction",
+                            modulectgid = 4,
+                            modulename = "Inbound Control Library",
+                            modulesort = 9
+                        },
+                        new
+                        {
+                            moduleid = "110",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Manages the return process due to incorrect shipments, damaged goods, or other return policies.",
+                            flag = 1,
+                            icon = "interaction",
+                            modulectgid = 4,
+                            modulename = "Return Management",
+                            modulesort = 10
+                        },
+                        new
+                        {
+                            moduleid = "111",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Inbound Processing Center",
+                            flag = 0,
+                            icon = "interaction",
+                            modulectgid = 4,
+                            modulename = "Billing Delivery System",
+                            modulesort = 11
+                        },
+                        new
+                        {
+                            moduleid = "112",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Inbound Processing Center",
+                            flag = 0,
+                            icon = "interaction",
+                            modulectgid = 4,
+                            modulename = "Credit Card System",
+                            modulesort = 12
+                        },
+                        new
+                        {
+                            moduleid = "113",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Handles cash payments upon delivery, including transaction recording and coordination with couriers.",
                             flag = 1,
                             icon = "fund",
-                            modulectgid = 4,
-                            modulename = "Dashboard & Reporting",
-                            modulesort = 7
+                            modulectgid = 5,
+                            modulename = "Cash on Delivery",
+                            modulesort = 13
+                        },
+                        new
+                        {
+                            moduleid = "114",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Provides real-time tracking for customers and internal teams to monitor shipment status and locations.",
+                            flag = 1,
+                            icon = "fund",
+                            modulectgid = 5,
+                            modulename = "Shipment Tracking Visibility",
+                            modulesort = 14
+                        },
+                        new
+                        {
+                            moduleid = "115",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Addresses operational issues such as delivery delays, lost shipments, or customer complaints, and records provided solutions.",
+                            flag = 1,
+                            icon = "fund",
+                            modulectgid = 5,
+                            modulename = "Problem Handling & Solution",
+                            modulesort = 15
+                        },
+                        new
+                        {
+                            moduleid = "116",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Generates reports and data analysis related to operational performance, sales, and financial aspects to support strategic decision-making.",
+                            flag = 1,
+                            icon = "fund",
+                            modulectgid = 5,
+                            modulename = "Analytics & Reporting",
+                            modulesort = 16
+                        },
+                        new
+                        {
+                            moduleid = "117",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Manages company financials, including transaction records, operational expenses, payment reconciliation, and invoicing.",
+                            flag = 1,
+                            icon = "fund",
+                            modulectgid = 5,
+                            modulename = "Finance Management",
+                            modulesort = 17
+                        },
+                        new
+                        {
+                            moduleid = "118",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Provides customer support to answer inquiries, handle complaints, and offer shipment and service-related information.",
+                            flag = 1,
+                            icon = "fund",
+                            modulectgid = 5,
+                            modulename = "Customer Care Services",
+                            modulesort = 18
+                        },
+                        new
+                        {
+                            moduleid = "119",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            description = "Ensures compliance with industry regulations and legal requirements, including document management and audit processes.",
+                            flag = 1,
+                            icon = "fund",
+                            modulectgid = 6,
+                            modulename = "Legal & Compliance",
+                            modulesort = 19
                         });
                 });
 
@@ -919,7 +1061,7 @@ namespace iDss.X.Migrations
                             id = 1,
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            modulectgname = "Administrasion",
+                            modulectgname = "Administration & System Management",
                             modulectgsort = 1
                         },
                         new
@@ -927,7 +1069,7 @@ namespace iDss.X.Migrations
                             id = 2,
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            modulectgname = "Operasional Cargo",
+                            modulectgname = "Data Management",
                             modulectgsort = 2
                         },
                         new
@@ -935,7 +1077,7 @@ namespace iDss.X.Migrations
                             id = 3,
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            modulectgname = "Operasional Credit Card & Billing",
+                            modulectgname = "Pre-Delivery",
                             modulectgsort = 3
                         },
                         new
@@ -943,7 +1085,7 @@ namespace iDss.X.Migrations
                             id = 4,
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            modulectgname = "Monitoring & Reports",
+                            modulectgname = "In-Transit",
                             modulectgsort = 4
                         },
                         new
@@ -951,7 +1093,7 @@ namespace iDss.X.Migrations
                             id = 5,
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            modulectgname = "Financial Management",
+                            modulectgname = "Post-Delivery",
                             modulectgsort = 5
                         },
                         new
@@ -959,8 +1101,16 @@ namespace iDss.X.Migrations
                             id = 6,
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            modulectgname = "CRM (Customer Relationship Management)",
+                            modulectgname = "Back Office",
                             modulectgsort = 6
+                        },
+                        new
+                        {
+                            id = 7,
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            modulectgname = "Warehouse Management",
+                            modulectgsort = 7
                         });
                 });
 
@@ -1231,6 +1381,36 @@ namespace iDss.X.Migrations
                     b.HasIndex("branchid");
 
                     b.ToTable("mdt_cro");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.Checkpoint", b =>
+                {
+                    b.Property<string>("cpcode")
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("cpname")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.HasKey("cpcode");
+
+                    b.ToTable("mdt_checkpoint");
                 });
 
             modelBuilder.Entity("iDss.X.Models.City", b =>
@@ -6377,13 +6557,13 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("branchid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("iDss.X.Models.CIF", "CIF")
                         .WithMany()
                         .HasForeignKey("cif")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -6394,7 +6574,7 @@ namespace iDss.X.Migrations
             modelBuilder.Entity("iDss.X.Models.AccountAddr", b =>
                 {
                     b.HasOne("iDss.X.Models.Account", "Account")
-                        .WithMany()
+                        .WithMany("AccountAddrs")
                         .HasForeignKey("acctno")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -6402,7 +6582,7 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.District", "District")
                         .WithMany()
                         .HasForeignKey("distid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Account");
@@ -6413,13 +6593,13 @@ namespace iDss.X.Migrations
             modelBuilder.Entity("iDss.X.Models.AccountCro", b =>
                 {
                     b.HasOne("iDss.X.Models.Account", "Account")
-                        .WithMany()
+                        .WithMany("AccountCros")
                         .HasForeignKey("acctno")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("iDss.X.Models.CRO", "CRO")
-                        .WithMany()
+                        .WithMany("AccountCros")
                         .HasForeignKey("crocode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -6434,13 +6614,13 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("branchid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("iDss.X.Models.Village", "Village")
                         .WithMany()
                         .HasForeignKey("villid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -6475,7 +6655,7 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.Village", "Village")
                         .WithMany()
                         .HasForeignKey("villid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Village");
@@ -6486,13 +6666,13 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.Account", "Account")
                         .WithMany()
                         .HasForeignKey("acctno")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("iDss.X.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("branchid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Account");
@@ -6505,13 +6685,13 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("branchid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("iDss.X.Models.Industry", "Industry")
-                        .WithMany()
+                        .WithMany("CIFs")
                         .HasForeignKey("industryid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -6524,7 +6704,7 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("branchid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -6535,7 +6715,7 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.Province", "Province")
                         .WithMany()
                         .HasForeignKey("provid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Province");
@@ -6546,13 +6726,13 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("branchid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("iDss.X.Models.Village", "Village")
                         .WithMany()
                         .HasForeignKey("villid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -6563,15 +6743,15 @@ namespace iDss.X.Migrations
             modelBuilder.Entity("iDss.X.Models.Courier", b =>
                 {
                     b.HasOne("iDss.X.Models.Branch", "Branch")
-                        .WithMany()
+                        .WithMany("couriers")
                         .HasForeignKey("branchid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("iDss.X.Models.District", "District")
                         .WithMany()
                         .HasForeignKey("distid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -6584,7 +6764,7 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.City", "City")
                         .WithMany()
                         .HasForeignKey("cityid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("City");
@@ -6595,10 +6775,17 @@ namespace iDss.X.Migrations
                     b.HasOne("iDss.X.Models.District", "District")
                         .WithMany()
                         .HasForeignKey("distid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("District");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.Account", b =>
+                {
+                    b.Navigation("AccountAddrs");
+
+                    b.Navigation("AccountCros");
                 });
 
             modelBuilder.Entity("iDss.X.Models.AppModule", b =>
@@ -6609,6 +6796,21 @@ namespace iDss.X.Migrations
             modelBuilder.Entity("iDss.X.Models.AppModuleCtg", b =>
                 {
                     b.Navigation("Modules");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.Branch", b =>
+                {
+                    b.Navigation("couriers");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.CRO", b =>
+                {
+                    b.Navigation("AccountCros");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.Industry", b =>
+                {
+                    b.Navigation("CIFs");
                 });
 #pragma warning restore 612, 618
         }

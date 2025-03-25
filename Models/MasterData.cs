@@ -169,14 +169,23 @@ namespace iDss.X.Models
 
     public class Industry : CommonField3
     {
-        [Key][DatabaseGenerated(DatabaseGeneratedOption.Identity)] public int id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [AutoGenerateColumn(Ignore = true)]
+        public int id { get; set; }
 
         [StringLength(100)]
         [Required]
         [Display(Name = "Industry Name")]
+        [AutoGenerateColumn(Order = 70, Cols = 12, Searchable = true, Filterable = true)]
         public String industryname { get; set; }
 
+        [AutoGenerateColumn(Order = 70, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
         public String? description { get; set; }
+
+        [ValidateNever]
+        [NotMapped]
+        public virtual ICollection<CIF> CIFs { get; set; } = new List<CIF>();
 
     }
 
@@ -192,11 +201,25 @@ namespace iDss.X.Models
         [Display(Name = "CIF Name" )]
         public String? cifname { get; set; }
 
-        [ValidateNever][Required][Display(Name = "Industry")] public int industryid { get; set; }
-        [ForeignKey("industryid")][ValidateNever] public Industry Industry { get; set; }
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Industry")]
+        public int industryid { get; set; }
+        [ForeignKey("industryid")]
+        [ValidateNever]
+        public Industry Industry { get; set; }
 
-        [ValidateNever][Required][Display(Name = "Branch")] public int branchid { get; set; }
-        [ForeignKey("branchid")][ValidateNever] public Branch Branch { get; set; }
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Branch")]
+        public int branchid { get; set; }
+        [ForeignKey("branchid")]
+        [ValidateNever]
+        public Branch Branch { get; set; }
+
+        [ValidateNever]
+        [NotMapped]
+        public virtual ICollection<Account> Accounts { get; set; } = new List<Account>();
 
     }
 
@@ -212,11 +235,22 @@ namespace iDss.X.Models
         [Display(Name = "Account Name")]
         public String acctname { get; set; }
 
-        [StringLength(30)][ValidateNever][Required][Display(Name = "CIF")] public String cif { get; set; }
-        [ForeignKey("cif")][ValidateNever] public CIF CIF { get; set; }
+        [StringLength(30)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "CIF")]
+        public String cif { get; set; }
+        [ForeignKey("cif")]
+        [ValidateNever]
+        public CIF CIF { get; set; }
 
-        [ValidateNever][Required][Display(Name = "Branch")] public int branchid { get; set; }
-        [ForeignKey("branchid")][ValidateNever] public Branch Branch { get; set; }
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Branch")]
+        public int branchid { get; set; }
+        [ForeignKey("branchid")]
+        [ValidateNever]
+        public Branch Branch { get; set; }
 
         [StringLength(50)]
         [Display(Name = "Line of Business")]
@@ -280,6 +314,12 @@ namespace iDss.X.Models
 
         public int? istrace { get; set; } = 0;
 
+        [NotMapped]
+        public virtual ICollection<AccountAddr> AccountAddrs { get; set; } = new List<AccountAddr>();
+
+        [NotMapped]
+        public virtual ICollection<AccountCro> AccountCros { get; set; } = new List<AccountCro>();
+
     }
 
     public class AccountAddr : CommonField1
@@ -289,8 +329,14 @@ namespace iDss.X.Models
         [JsonPropertyName("id")]
         public int id { get; set; }
 
-        [StringLength(30)][ValidateNever][Required][Display(Name = "Account")] public String acctno { get; set; }
-        [ForeignKey("acctno")][ValidateNever] public Account Account { get; set; }
+        [StringLength(30)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Account")]
+        public String acctno { get; set; }
+        [ForeignKey("acctno")]
+        [ValidateNever]
+        public Account Account { get; set; }
 
         [StringLength(10)]
         [Display(Name = "Address Type")]
@@ -310,8 +356,14 @@ namespace iDss.X.Models
         [Display(Name = "Address 3")]
         public string? addr3 { get; set; }
 
-        [StringLength(6)][ValidateNever][Required][Display(Name = "District")] public String distid { get; set; }
-        [ForeignKey("distid")][ValidateNever] public District District { get; set; }
+        [StringLength(6)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "District")]
+        public String distid { get; set; }
+        [ForeignKey("distid")]
+        [ValidateNever]
+        public District District { get; set; }
 
         [StringLength(50)]
         [Display(Name = "City")]
@@ -382,6 +434,9 @@ namespace iDss.X.Models
         [DisplayFormat(DataFormatString = "{yyyy/MMM/dd}", ApplyFormatInEditMode = true)]
         [Display(Name = "Join Date")]
         public DateTime? joindate { get; set; }
+
+        [NotMapped]
+        public virtual ICollection<AccountCro> AccountCros { get; set; } = new List<AccountCro>();
 
     }
 
