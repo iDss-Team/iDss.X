@@ -17,6 +17,16 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddBootstrapBlazor();
 
+// Baca Environment (Default = Development)
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables(); 
+
+// Cek Environment Name (Debugging)
+Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
+
 builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddDbContext<AuthDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("AuthDbConnection")));
@@ -38,6 +48,8 @@ builder.Services.AddTableDemoDataService();
 builder.Services.Configure<HubOptions>(option => option.MaximumReceiveMessageSize = null);
 
 builder.Services.AddBlazoredSessionStorage();
+
+builder.Services.AddResponseCompression();
 
 var app = builder.Build();
 
@@ -64,10 +76,16 @@ void ApplyMigration()
     using (var scope = app.Services.CreateScope())
     {
         var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var _db2 = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
 
         if (_db.Database.GetPendingMigrations().Count() > 0)
         {
             _db.Database.Migrate();
+        }
+
+        if (_db2.Database.GetPendingMigrations().Count() > 0)
+        {
+            _db2.Database.Migrate();
         }
     }
 }
