@@ -7,6 +7,8 @@ using Blazored.SessionStorage;
 using iDss.X.Models;
 using Microsoft.AspNetCore.Identity;
 using iDss.X.Services;
+using AutoMapper;
+using iDss.X;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,10 @@ Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddDbContext<AuthDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("AuthDbConnection")));
+
+IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
+builder.Services.AddSingleton(mapper);
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {

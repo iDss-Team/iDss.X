@@ -152,3 +152,7 @@
     font-weight: 500;
     font-size: larger;
 }
+
+.module-card {
+    cursor: pointer !important;
+}

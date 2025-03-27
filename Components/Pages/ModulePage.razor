@@ -18,15 +18,25 @@
             {
                 <Divider Text="@category.modulectgname" Alignment="Alignment.Left" AdditionalAttributes="@(new Dictionary<string, object> { { "class", "module-divider" } })" />
                 
-                <Row ItemsPerRow="ItemsPerRow.Four">
+                <Row ItemsPerRow="ItemsPerRow.Four">               
                 @foreach (var module in category.Modules)
                 {
+                    var percentage = (module.Menus.Count > 0) ? ((module.TotalActiveMenus * 100) / module.TotalMenus) : 0;
+
                     <Card IsShadow="true" IsCenter="true" onclick="@(() => NavigateToHome(module.moduleid))" class="module-card">
                         <BodyTemplate>
-                            <div class="card-content">
-                                <h5 class="card-title">@module.modulename</h5>
-                                <p class="card-text">@module.description</p>
-                            </div>
+                            <Stack IsRow="false" Justify="StackJustifyContent.Around" AlignItems="StackAlignItems.Stretch" IsWrap="true">
+                                <StackItem>
+                                    <Circle Width="60" Value="@percentage" Color="Color.Success" StrokeWidth="4" ShowProgress="false" >
+                                        <i class="@module.icon"></i>
+                                    </Circle>
+                                </StackItem>
+                                <StackItem>
+                                    <div class="module-title">
+                                        <h5 class="card-title">@module.modulename (@percentage%)</h5>
+                                    </div>
+                                </StackItem>
+                            </Stack>
                         </BodyTemplate>
                     </Card>
                 }
@@ -39,3 +49,5 @@
         <p>Loading data...</p>
     }
 </div>
+
+

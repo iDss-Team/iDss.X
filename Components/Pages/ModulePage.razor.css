@@ -3,25 +3,24 @@
     padding: 20px 100px;
 }
 
-.card-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Pusatkan secara vertikal */
-    align-items: center; /* Pusatkan secara horizontal */
-    min-height: 80px; /* Sesuai kebutuhan */
-    text-align: center; /* Agar teks tetap rata tengah */
-    cursor: pointer;
+.bb_stack_item h5 {
+    font-size: 1.1em;
+    color: #696f74;
 }
 
-    .card-content h5 {
-        font-size: 1.2em;
-        color: #696f74;
-    }
+.module-title {
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 
-    .card-content p {
-        color: #a4abb2;
-    }
 
-.module-content > .card-body {
-    cursor: pointer;
+.bb_stack_item p {
+    color: #a4abb2;
+}
+
+.bb_stack_item i {
+    font-size: x-large;
+    color: #b55e53;
 }
