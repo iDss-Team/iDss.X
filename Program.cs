@@ -29,7 +29,7 @@ builder.Configuration
 // Cek Environment Name (Debugging)
 Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 
-builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContextFactory<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddDbContext<AuthDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("AuthDbConnection")));
 
