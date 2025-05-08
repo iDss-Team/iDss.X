@@ -18,7 +18,7 @@
         </Row>
         <Table Items="couriers" IsPagination="true" PageItemsSource="@_service2.PageItemsSource" IsFixedHeader="true" ShowLoading="true"
             IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="true"
-            ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false"
+               ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" 
             OnEditAsync="ShowEditModal" EditButtonText="" OnDeleteAsync="DeleteCourier" DeleteButtonText="">
             <TableToolbarTemplate>
                 <TableToolbarButton TItem="Courier"
@@ -61,9 +61,8 @@
                     <BootstrapInput TValue="string" @bind-Value="selectedCourier.nip" DisplayText="NIP" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedCourier.couriercode" DisplayText="Courier Code" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedCourier.couriername" DisplayText="Courier Name" ShowLabel="true"></BootstrapInput>
-                    <AutoComplete TValue="int" Items="@BranchItems" @bind-Value="selectedCourier.branchname"  DisplayText="Branch"></AutoComplete>
-                    <AutoComplete TValue="string" Items="@DistrictItems" @bind-Value="selectedCourier.distid" DisplayText="District"></AutoComplete>
-                    
+                    <AutoComplete Items="@BranchItems" @bind-Value="selectedCourier.branchname" DisplayText="Branch"></AutoComplete>
+                    <AutoComplete Items="@DistrictItems" @bind-Value="selectedCourier.distid" DisplayText="District"></AutoComplete>
                     <BootstrapInput TValue="string" @bind-Value="selectedCourier.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="int?" @bind-Value="selectedCourier.freqdelivery" DisplayText="frequency Delivery" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="int?" @bind-Value="selectedCourier.fuelquota" DisplayText="fuel Quota" ShowLabel="true"></BootstrapInput>

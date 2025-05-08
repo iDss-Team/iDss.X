@@ -12,6 +12,8 @@ namespace iDss.X.Services
             services.AddScoped<MasterDataPart1Service>(); // Service Taufan
             services.AddScoped<MasterDataPart2Service>(); // Service Andri
             services.AddScoped<MasterDataPart3Service>(); // Service Arbi
+            services.AddScoped<OutboundService>(); 
+            services.AddScoped<PickupService>(); 
             services.AddSingleton<WeatherForecastService>();
             //services.AddScoped<ILookupService, VillageLookupService>(); // Daftarkan lookup service
 
