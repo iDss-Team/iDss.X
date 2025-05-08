@@ -36,6 +36,16 @@ namespace iDss.X.Data
         public DbSet<Industry> mdt_industry { get; set; }
         public DbSet<Checkpoint> mdt_checkpoint { get; set; }
 
+
+        //Pickup
+        public DbSet<PickupRequest> pum_pickuprequest { get; set; }
+        public DbSet<PickupStatusPool> pum_pickupstatuspool { get; set; }
+
+
+        //Outbound
+        public DbSet<AWBInventory> mdt_awbinventory { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -49,6 +59,32 @@ namespace iDss.X.Data
             modelBuilder.ApplyConfiguration(new CIFConfiguration());
             modelBuilder.ApplyConfiguration(new AccountAddrConfiguration());
             modelBuilder.ApplyConfiguration(new accountCROConfiguration());
+            modelBuilder.ApplyConfiguration(new PickupStatusPoolConfiguration());
+
+
+            modelBuilder.Entity<AWBInventory>()
+               .HasIndex(pr => pr.awb)
+               .IsUnique();
+
+            modelBuilder.Entity<PickupRequest>()
+                .HasIndex(pr => pr.pickupno)
+                .IsUnique();
+
+            modelBuilder.Entity<PickupStatusPool>()
+               .HasOne(psp => psp.PickupRequest)
+               .WithMany(pr => pr.PickupStatusPools)
+               .HasForeignKey(psp => psp.pickupno)
+               .HasPrincipalKey(pr => pr.pickupno);
+
+            modelBuilder.Entity<Courier>()
+                .HasIndex(pr => pr.couriercode)
+                .IsUnique();
+
+            modelBuilder.Entity<PickupRequest>()
+               .HasOne(cou => cou.Courier)
+               .WithMany(pr => pr.PickupRequests)
+               .HasForeignKey(cou => cou.couriercode)
+               .HasPrincipalKey(pr => pr.couriercode);
 
             //Seed table app_module
             modelBuilder.SeedAppModuleCtg();

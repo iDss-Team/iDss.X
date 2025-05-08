@@ -117,6 +117,9 @@ namespace iDss.X.Models
         public List<Courier> couriers {  get; set; } 
     }
 
+
+
+    [Index(nameof(couriercode), IsUnique = true)]
     public class Courier : CommonField2
     {
         [Key]
@@ -125,13 +128,13 @@ namespace iDss.X.Models
         [Required]
         public String nip { get; set; }
 
-        [StringLength(50, ErrorMessage = "Courier Name cannot be longer than 50 characters.")]
-        [Required]
-        public String couriername { get; set; }
-
         [StringLength(10)]
         [Required]
         public String couriercode { get; set; }
+
+        [StringLength(50, ErrorMessage = "Courier Name cannot be longer than 50 characters.")]
+        [Required]
+        public String couriername { get; set; }
 
         [StringLength(6)]
         [ValidateNever]
@@ -164,6 +167,9 @@ namespace iDss.X.Models
 
         [NotMapped]
         public string branchname { get; set; }
+
+        [NotMapped]
+        public virtual ICollection<PickupRequest> PickupRequests { get; set; } = new List<PickupRequest>();
 
     }
 

@@ -9,7 +9,9 @@ namespace iDss.X.Services
     {
         public static IServiceCollection AddIDSSServices(this IServiceCollection services)
         {
-            services.AddScoped<MasterDataServices>(); // Tambahkan service lainnya di sini
+            services.AddScoped<MasterDataPart1Service>(); // Service Taufan
+            services.AddScoped<MasterDataPart2Service>(); // Service Andri
+            services.AddScoped<MasterDataPart3Service>(); // Service Arbi
             services.AddSingleton<WeatherForecastService>();
             //services.AddScoped<ILookupService, VillageLookupService>(); // Daftarkan lookup service
 

@@ -14,7 +14,7 @@ namespace iDss.X.Services
             if (key == "branch.villages")
             {
                 using var scope = _provider.CreateScope();
-                var masterDataService = scope.ServiceProvider.GetRequiredService<MasterDataServices>();
+                var masterDataService = scope.ServiceProvider.GetRequiredService<MasterDataPart1Service>();
 
                 var villages = masterDataService.GetAllVillages().ToList();
                 return villages.Select(v => new SelectedItem(v.villid, v.villname ?? "Unknown")).ToList();

@@ -1,6 +1,8 @@
 ﻿@page "/master/courier"
 @using iDss.X.Models
-@inject iDss.X.Services.MasterDataServices _services
+@inject MasterDataPart1Service _service1
+@inject MasterDataPart2Service _service2
+@inject MasterDataPart3Service _service3
 @attribute [TabItemOption(Text = "Couier Code")]
 
 <PageTitle>Courier Page</PageTitle>
@@ -14,9 +16,10 @@
                 </StackItem>
             </Stack> 
         </Row>
-        <Table Items="couriers" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true"
-        IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="true"
-        EditMode="EditMode.Popup" EditDialogSize="Size.ExtraLarge" ShowEditButton="false" ShowAddButton="false">
+        <Table Items="couriers" IsPagination="true" PageItemsSource="@_service2.PageItemsSource" IsFixedHeader="true" ShowLoading="true"
+            IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="true"
+            ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false"
+            OnEditAsync="ShowEditModal" EditButtonText="" OnDeleteAsync="DeleteCourier" DeleteButtonText="">
             <TableToolbarTemplate>
                 <TableToolbarButton TItem="Courier"
                 Color="Color.Primary"
@@ -35,8 +38,13 @@
                             <p>@br</p>
                         }
                     </Template>
-                </TableColumn>   
+                </TableColumn>
                 <TableColumn @bind-Field="@context.createddate" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
+                @* <TableColumn @bind-Field="@context.nip">
+                    <Template Context="x">
+                        <Button OnClick="ShowEditModal"></Button>
+                    </Template>
+                </TableColumn> *@
             </TableColumns>
         </Table>
     </Row>
@@ -46,40 +54,21 @@
 }
 
 <Modal @ref="modals">
-    <ModalDialog Size="Size.Small" ShowResize="true" Title="Test"
-                 ShowSaveButton="true">
+    <ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCourier">
         <BodyTemplate>
-            <div class="row g-3">
-                <div class="col-12 col-sm-6">
-                    <BootstrapInput PlaceHolder="enter module id ..."
-                                    TValue="int"
-                                    IsAutoFocus="true"
-                                    IsSelectAllTextOnFocus="true"
-                                    ShowLabel="true"
-                                    DisplayText="Module ID"/>
-                </div>
-            </div>
-            <div class="row g-3">
-                <div class="col-12 col-sm-6">
-                    <BootstrapInput PlaceHolder="enter module name ..."
-                                    TValue="string"
-                                    IsAutoFocus="true"
-                                    IsSelectAllTextOnFocus="true"
-                                    ShowLabel="true"
-                                    DisplayText="Module Name" />
-                </div>
-            </div>
-            <div class="row g-3">
-                <div class="col-12 col-sm-6">
-                    <Textarea PlaceHolder="enter description ..."
-                              rows="4"
-                              TValue="string"
-                              IsAutoFocus="true"
-                              IsSelectAllTextOnFocus="true"
-                              ShowLabel="true"
-                              DisplayText="Description" />
-                </div>
-            </div>
+            <ValidateForm Model="couriers" >
+                <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                    <BootstrapInput TValue="string" @bind-Value="selectedCourier.nip" DisplayText="NIP" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="string" @bind-Value="selectedCourier.couriercode" DisplayText="Courier Code" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="string" @bind-Value="selectedCourier.couriername" DisplayText="Courier Name" ShowLabel="true"></BootstrapInput>
+                    <AutoComplete TValue="int" Items="@BranchItems" @bind-Value="selectedCourier.branchname"  DisplayText="Branch"></AutoComplete>
+                    <AutoComplete TValue="string" Items="@DistrictItems" @bind-Value="selectedCourier.distid" DisplayText="District"></AutoComplete>
+                    
+                    <BootstrapInput TValue="string" @bind-Value="selectedCourier.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="int?" @bind-Value="selectedCourier.freqdelivery" DisplayText="frequency Delivery" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="int?" @bind-Value="selectedCourier.fuelquota" DisplayText="fuel Quota" ShowLabel="true"></BootstrapInput>
+                </Row>
+            </ValidateForm>
         </BodyTemplate>
     </ModalDialog>
 </Modal>
@@ -88,8 +77,8 @@
     Modal modals;
     public List<Courier> couriers = new();
     // private List<Branch> branches = new();
-    private IEnumerable<SelectedItem>? DistrictItems { get; set; }
-    private IEnumerable<String>? BranchItems { get; set; }
+    private IEnumerable<string>? DistrictItems { get; set; }
+    private IEnumerable<string>? BranchItems { get; set; }
 
     private bool isModalOpen = false;
     private string modalTitle = "Add Courier";
@@ -104,15 +93,18 @@
 
     private async Task LoadData()
     {
-        couriers = await _services.GetCourierAsync();
+        couriers = await _service2.GetCourierAsync();
 
 
-        // var districts = await _services.LoadDistrictAsync();
+        var districts = await _service1.LoadDistrictAsync();
         // DistrictItems = districts.Select(b => new SelectedItem(b.distid.ToString(), b.distname));
+        DistrictItems = districts.Select(b => b.distname);
 
-        // var branches = await _services.LoadBranchAsync();
-        // BranchItems = branches.Select(b => b.branchname);
+        var branches = await _service3.LoadBranchAsync();
+        // BranchItems = branches.Select(b => new SelectedItem(b.branchid.ToString(), b.branchname));
+        BranchItems = branches.Select(b => b.branchname);
 
+        StateHasChanged();
     }
 
     private async Task ShowAddModal(IEnumerable<Courier> items)
@@ -124,7 +116,7 @@
         modals.Show();
     }
 
-    private void ShowEditModal(Courier courier)
+    private async Task ShowEditModal(Courier courier)
     {
         selectedCourier = new Courier
             {
@@ -134,37 +126,45 @@
                 branchid = courier.branchid,
                 phone = courier.phone
             };
+
         modalTitle = "Update Courier Data";
         isModalOpen = true;
+        modals.Show();
     }
 
-    private async Task SaveCourier()
+    private async Task<bool> SaveCourier()
     {
         bool result;
         if (couriers.Any(c => c.nip == selectedCourier.nip))
         {
-            result = await _services.UpdateCourierAsync(selectedCourier);
+            result = await _service2.UpdateCourierAsync(selectedCourier);
         }
         else
         {
-            result = await _services.CreateCourierAsync(selectedCourier);
+            result = await _service2.CreateCourierAsync(selectedCourier);
         }
 
         if (result)
         {
             isModalOpen = false;
             await LoadData();
+            StateHasChanged();
         }
+
+        return result;
     }
 
-    // private async Task DeleteCourier(Courier courier)
-    // {
-    //     bool result = await _services.DeleteCourierAsync(courier.nip);
-    //     if (result)
-    //     {
-    //         await LoadData();
-    //     }
-    // }
+    private async Task<bool> DeleteCourier(IEnumerable<Courier> couriers)
+    {
+        bool result = await _service2.DeleteCourierAsync(couriers);
+        if (result)
+        {
+            await LoadData();
+            StateHasChanged();
+        }
+
+        return result;
+    }
 
     private void CloseModal()
     {

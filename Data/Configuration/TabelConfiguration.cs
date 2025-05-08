@@ -47,4 +47,17 @@ namespace iDss.X.Data.Configuration
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
+
+    public class PickupStatusPoolConfiguration : IEntityTypeConfiguration<PickupStatusPool>
+    {
+        public void Configure(EntityTypeBuilder<PickupStatusPool> builder)
+        {
+            builder.HasKey(m => m.id); // Menentukan Primary Key
+
+            builder.HasOne(m => m.PickupRequest) // Relasi ke mdt_account
+                .WithMany(c => c.PickupStatusPools)
+                .HasForeignKey(m => m.pickupno) // Foreign Key
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
 }

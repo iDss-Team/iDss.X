@@ -12,6 +12,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Components\Pages\LoginPage.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Components\Pages\LoginPage.razor.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Locales\en.json" />
     <EmbeddedResource Include="Locales\zh.json" />
   </ItemGroup>
@@ -41,6 +51,11 @@
     <Content Update="Components\Pages\MasterData\CourierPage.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Pages\Inbound\" />
+    <Folder Include="Components\Pages\Reporting\" />
   </ItemGroup>
 
 </Project>
