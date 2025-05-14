@@ -97,7 +97,7 @@ namespace iDss.X.Services
             var result = _db.mdt_branch
                                 .Select(p => new Branch()
                                 {
-                                    branchcode = p.branchcode,
+                                    branchid = p.branchid,
                                     branchname = p.branchname,
                                 })
                 .ToListAsync();

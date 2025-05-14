@@ -104,10 +104,12 @@ namespace iDss.X.Models
         [Required]
         public string couriername { get; set; }
 
-        [StringLength(20, ErrorMessage = "Courier Name cannot be longer than 50 characters.")]
+        [StringLength(20)]
+        [Display(Name = "Transport Type")]
         public string? transporttype { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:dd/MMM/yyyy}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Pickup Date")]
         [Required]
         public DateOnly pickupdate { get; set; }
 
@@ -120,6 +122,7 @@ namespace iDss.X.Models
         public TimeOnly timeto { get; set; }
 
         [StringLength(200, ErrorMessage = "notes cannot be longer than 50 characters.")]
+        [Display(Name = "Notes")]
         public string? notes { get; set; }
 
         [NotMapped]
