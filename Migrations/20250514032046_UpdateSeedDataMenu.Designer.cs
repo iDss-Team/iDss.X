@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using iDss.X.Data;
 
@@ -11,9 +12,11 @@ using iDss.X.Data;
 namespace iDss.X.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250514032046_UpdateSeedDataMenu")]
+    partial class UpdateSeedDataMenu
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -983,8 +986,21 @@ namespace iDss.X.Migrations
                             menuname = "View Timeline Status",
                             menusort = 1,
                             moduleid = "106",
-                            parentid = "6.3",
+                            parentid = "6.2",
                             path = "/pickup/viewstatuspickup"
+                        },
+                        new
+                        {
+                            menuid = "6.3.2",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
+                            icon = "fa-solid fa-diamond",
+                            menuname = "TBA",
+                            menusort = 2,
+                            moduleid = "106",
+                            parentid = "6.2",
+                            path = ""
                         },
                         new
                         {
@@ -7348,167 +7364,6 @@ namespace iDss.X.Migrations
                         });
                 });
 
-            modelBuilder.Entity("iDss.X.Models.ShipmentDetail", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<decimal>("actweight")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("apireqid")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("awb")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("buyerorderno")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<decimal>("chargeweight")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("content")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("curr")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("deliveryitem")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("donumber")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<string>("hubcode")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("intruction")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("iscod")
-                        .HasColumnType("int");
-
-                    b.Property<int>("isedit")
-                        .HasColumnType("int");
-
-                    b.Property<int>("isinsurance")
-                        .HasColumnType("int");
-
-                    b.Property<int>("isnfd")
-                        .HasColumnType("int");
-
-                    b.Property<int>("isnotif")
-                        .HasColumnType("int");
-
-                    b.Property<int>("isprint")
-                        .HasColumnType("int");
-
-                    b.Property<int>("isrev")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("itemvalue")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("linehaul")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<DateTime?>("modifieddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("modifier")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("packingtype")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateOnly>("pickupdate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("pickupno")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<int>("pieces")
-                        .HasColumnType("int");
-
-                    b.Property<string>("refno")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("service")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("session")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("sla")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("trxtype")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("unitweight")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<decimal>("volweight")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("vouchercode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("awb")
-                        .IsUnique();
-
-                    b.HasIndex("pickupno");
-
-                    b.ToTable("trx_shipmentdetail");
-                });
-
             modelBuilder.Entity("iDss.X.Models.Village", b =>
                 {
                     b.Property<string>("villid")
@@ -7814,17 +7669,6 @@ namespace iDss.X.Migrations
                     b.Navigation("PickupRequest");
                 });
 
-            modelBuilder.Entity("iDss.X.Models.ShipmentDetail", b =>
-                {
-                    b.HasOne("iDss.X.Models.PickupRequest", "PickupRequest")
-                        .WithMany("ShipmentDetails")
-                        .HasForeignKey("pickupno")
-                        .HasPrincipalKey("pickupno")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("PickupRequest");
-                });
-
             modelBuilder.Entity("iDss.X.Models.Village", b =>
                 {
                     b.HasOne("iDss.X.Models.District", "District")
@@ -7876,8 +7720,6 @@ namespace iDss.X.Migrations
             modelBuilder.Entity("iDss.X.Models.PickupRequest", b =>
                 {
                     b.Navigation("PickupStatusPools");
-
-                    b.Navigation("ShipmentDetails");
                 });
 #pragma warning restore 612, 618
         }

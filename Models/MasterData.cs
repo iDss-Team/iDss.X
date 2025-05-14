@@ -457,7 +457,7 @@ namespace iDss.X.Models
         [ForeignKey("crocode")][ValidateNever] public CRO CRO { get; set; }
     }
 
-    public class Province
+    public class Province  
     {
         [Key][StringLength(2)]
         [Required]
@@ -469,7 +469,7 @@ namespace iDss.X.Models
 
     }
 
-    public class City
+    public class City 
     {
         [Key]
         [StringLength(4)]

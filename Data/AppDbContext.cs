@@ -42,6 +42,9 @@ namespace iDss.X.Data
         public DbSet<PickupStatusPool> pum_pickupstatuspool { get; set; }
 
 
+        //Transaction
+        public DbSet<ShipmentDetail> trx_shipmentdetail { get; set; }
+
         //Outbound
         public DbSet<AWBInventory> mdt_awbinventory { get; set; }
 
@@ -85,6 +88,12 @@ namespace iDss.X.Data
                .WithMany(pr => pr.PickupRequests)
                .HasForeignKey(cou => cou.couriercode)
                .HasPrincipalKey(pr => pr.couriercode);
+
+            modelBuilder.Entity<ShipmentDetail>()
+               .HasOne(psp => psp.PickupRequest)
+               .WithMany(trx => trx.ShipmentDetails)
+               .HasForeignKey(psp => psp.pickupno)
+               .HasPrincipalKey(trx => trx.pickupno);
 
             //Seed table app_module
             modelBuilder.SeedAppModuleCtg();
