@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using iDss.X.Data;
 using iDss.X.Models;
 using BootstrapBlazor.Components;
@@ -20,13 +19,11 @@ namespace iDss.X.Services
 
         public IEnumerable<int> PageItemsSource => new int[] { 10, 20, 40 };
 
-        #region "Entry Data"
-        #endregion
-
-        #region "Reconsile"
-        #endregion
-
-        #region "Bagging"
-        #endregion
+        public async Task<List<Province>> GetAllProvinceAsync()
+        {
+            return await _db.mdt_province
+                .OrderBy(p => p.provname)
+                .ToListAsync();
+        }
     }
 }
