@@ -61,8 +61,10 @@
                     <BootstrapInput TValue="string" @bind-Value="selectedCourier.nip" DisplayText="NIP" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedCourier.couriercode" DisplayText="Courier Code" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedCourier.couriername" DisplayText="Courier Name" ShowLabel="true"></BootstrapInput>
-                    <AutoComplete Items="@BranchItems" @bind-Value="selectedCourier.branchname" DisplayText="Branch"></AutoComplete>
-                    <AutoComplete Items="@DistrictItems" @bind-Value="selectedCourier.distid" DisplayText="District"></AutoComplete>
+                    @* <AutoComplete Items="@BranchItems" @bind-Value="selectedCourier.branchname" DisplayText="Branch"></AutoComplete>
+                    <AutoComplete Items="@DistrictItems" @bind-Value="selectedCourier.distid" DisplayText="District"></AutoComplete> *@
+                    <Select Items="@BranchItems" @bind-Value="selectedCourier.branchid" DisplayText="Branch"></Select>
+                    <Select Items="@DistrictItems" @bind-Value="selectedCourier.distid" DisplayText="District"></Select>
                     <BootstrapInput TValue="string" @bind-Value="selectedCourier.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="int?" @bind-Value="selectedCourier.freqdelivery" DisplayText="frequency Delivery" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="int?" @bind-Value="selectedCourier.fuelquota" DisplayText="fuel Quota" ShowLabel="true"></BootstrapInput>
@@ -76,8 +78,8 @@
     Modal modals;
     public List<Courier> couriers = new();
     // private List<Branch> branches = new();
-    private IEnumerable<string>? DistrictItems { get; set; }
-    private IEnumerable<string>? BranchItems { get; set; }
+    private IEnumerable<SelectedItem>? DistrictItems { get; set; }
+    private IEnumerable<SelectedItem>? BranchItems { get; set; }
 
     private bool isModalOpen = false;
     private string modalTitle = "Add Courier";
@@ -96,12 +98,12 @@
 
 
         var districts = await _service1.LoadDistrictAsync();
-        // DistrictItems = districts.Select(b => new SelectedItem(b.distid.ToString(), b.distname));
-        DistrictItems = districts.Select(b => b.distname);
+        DistrictItems = districts.Select(b => new SelectedItem(b.distid.ToString(), b.distname));
+        // DistrictItems = districts.Select(b => b.distname);
 
         var branches = await _service3.LoadBranchAsync();
-        // BranchItems = branches.Select(b => new SelectedItem(b.branchid.ToString(), b.branchname));
-        BranchItems = branches.Select(b => b.branchname);
+        BranchItems = branches.Select(b => new SelectedItem(b.branchid.ToString(), b.branchname));
+        // BranchItems = branches.Select(b => b.branchname);
 
         StateHasChanged();
     }
@@ -127,8 +129,8 @@
             };
 
         modalTitle = "Update Courier Data";
-        isModalOpen = true;
-        modals.Show();
+        // isModalOpen = true;
+        // modals.Show();
     }
 
     private async Task<bool> SaveCourier()
