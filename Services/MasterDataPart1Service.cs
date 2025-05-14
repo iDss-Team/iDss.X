@@ -12,11 +12,11 @@ namespace iDss.X.Services
 {
     public class MasterDataPart1Service
     {
-        private readonly AppDbContext _db;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public MasterDataPart1Service(AppDbContext context)
+        public MasterDataPart1Service(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _db = context;
+            _contextFactory = contextFactory;
         }
 
         public IEnumerable<int> PageItemsSource => new int[] { 10, 20, 40 };
@@ -26,7 +26,8 @@ namespace iDss.X.Services
         #region "Province"
         public async Task<List<Province>> GetProvinceAsync()
         {
-            var result = _db.mdt_province
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_province
                 .OrderByDescending(c => c.provid)
                 .ToListAsync();
             return await result;
@@ -34,7 +35,8 @@ namespace iDss.X.Services
 
         public async Task<List<Province>> LoadProvinceAsync()
         {
-            var result = _db.mdt_province
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_province
                                 .Select(p => new Province()
                                 {
                                     provid = p.provid,
@@ -46,7 +48,8 @@ namespace iDss.X.Services
 
         public Task<QueryData<Province>> OnQueryProvinceAsync(QueryPageOptions options)
         {
-            var items = _db.mdt_province.ToList();
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_province.ToList();
 
             var isSearched = false;
 
@@ -95,13 +98,14 @@ namespace iDss.X.Services
 
         public async Task<bool> SaveProvinceAsync(Province data, ItemChangedType changedType)
         {
+            using var _context = _contextFactory.CreateDbContext();
             try
             {
                 if (changedType == ItemChangedType.Add)
                 {
                     //data.createdby = "System";
                     //data.createddate = DateTime.Now;
-                    _db.mdt_province.Add(data);
+                    _context.mdt_province.Add(data);
                 }
                 //else if (changedType == ItemChangedType.Update)
                 //{
@@ -109,17 +113,17 @@ namespace iDss.X.Services
                 //}
                 else
                 {
-                    var existingEntity = await _db.mdt_province.FindAsync(data.provid);
+                    var existingEntity = await _context.mdt_province.FindAsync(data.provid);
                     if (existingEntity != null)
                     {
-                        _db.Entry(existingEntity).State = EntityState.Detached;
+                        _context.Entry(existingEntity).State = EntityState.Detached;
                     }
 
-                    _db.Attach(data);
-                    _db.Entry(data).State = EntityState.Modified;
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
 
                 }
-                await _db.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -133,17 +137,18 @@ namespace iDss.X.Services
 
         public async Task<bool> DeleteProvinceByIDAsync(IEnumerable<Province> provincies)
         {
+            using var _context = _contextFactory.CreateDbContext();
             try
             {
                 foreach (var province in provincies)
                 {
-                    var existingEntity = await _db.mdt_province.FindAsync(province.provid);
+                    var existingEntity = await _context.mdt_province.FindAsync(province.provid);
                     if (existingEntity != null)
                     {
-                        _db.mdt_province.Remove(existingEntity);
+                        _context.mdt_province.Remove(existingEntity);
                     }
                 }
-                await _db.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return true;
 
             }
@@ -161,7 +166,8 @@ namespace iDss.X.Services
         #region "City"
         public async Task<List<City>> GetCityAsync()
         {
-            var result = _db.mdt_city
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_city
                 .Include(c => c.Province)
                 .OrderByDescending(c => c.cityid)
                 .ToListAsync();
@@ -170,11 +176,14 @@ namespace iDss.X.Services
 
         public async Task<IEnumerable<City>> GetCitiesAsync()
         {
-            return await _db.mdt_city.ToListAsync();
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_city.ToListAsync();
         }
 
         public Task<QueryData<City>>OnQueryCityAsync(QueryPageOptions options){
-            var items = _db.mdt_city.ToList();
+
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_city.ToList();
 
             var isSearched = false;
 
@@ -223,7 +232,8 @@ namespace iDss.X.Services
 
         public async Task<List<City>> LoadCityAsync()
         {
-            var result = _db.mdt_city
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_city
                                 .Select(p => new City()
                                 {
                                     cityid = p.cityid,
@@ -236,13 +246,14 @@ namespace iDss.X.Services
 
         public async Task<bool> SaveCityAsync(City data, ItemChangedType changedType)
         {
+            using var _context = _contextFactory.CreateDbContext();
             try
             {
                 if (changedType == ItemChangedType.Add)
                 {
                     //data.createdby = "System";
                     //data.createddate = DateTime.Now;
-                    _db.mdt_city.Add(data);
+                    _context.mdt_city.Add(data);
                 }
                 //else if (changedType == ItemChangedType.Update)
                 //{
@@ -250,17 +261,17 @@ namespace iDss.X.Services
                 //}
                 else
                 {
-                    var existingEntity = await _db.mdt_city.FindAsync(data.cityid);
+                    var existingEntity = await _context.mdt_city.FindAsync(data.cityid);
                     if (existingEntity != null)
                     {
-                        _db.Entry(existingEntity).State = EntityState.Detached;
+                        _context.Entry(existingEntity).State = EntityState.Detached;
                     }
 
-                    _db.Attach(data);
-                    _db.Entry(data).State = EntityState.Modified;
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
 
                 }
-                   await _db.SaveChangesAsync();
+                   await _context.SaveChangesAsync();
                    return true;
             }
             catch (Exception ex)
@@ -274,17 +285,18 @@ namespace iDss.X.Services
 
         public async Task<bool>DeleteCityByIDAsync(IEnumerable<City> cities)
         {
+            using var _context = _contextFactory.CreateDbContext();
             try
             {
                 foreach(var city in cities)
                 {
-                    var existingEntity = await _db.mdt_city.FindAsync(city.cityid);
+                    var existingEntity = await _context.mdt_city.FindAsync(city.cityid);
                     if (existingEntity != null)
                     {
-                        _db.mdt_city.Remove(existingEntity);
+                        _context.mdt_city.Remove(existingEntity);
                     }
                 }
-                await _db.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return true;
 
             }
@@ -300,7 +312,8 @@ namespace iDss.X.Services
         #region "District"
         public async Task<List<District>> GetDistrictAsync()
         {
-            var result = _db.mdt_district
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_district
                 .Include(c => c.City)
                 .OrderByDescending(c => c.distid)
                 .ToListAsync();
@@ -309,7 +322,8 @@ namespace iDss.X.Services
 
         public async Task<List<District>> LoadDistrictAsync()
         {
-            var result = _db.mdt_district
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_district
                                 .Select(p => new District()
                                 {
                                     distid = p.distid,
@@ -324,7 +338,8 @@ namespace iDss.X.Services
         #region "Village"
         public async Task<List<Village>> GetVillageAsync()
         {
-            var result = _db.mdt_village
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_village
                 .Include(c => c.District)
                 .OrderByDescending(c => c.villid)
                 .ToListAsync();
@@ -333,7 +348,8 @@ namespace iDss.X.Services
 
         public async Task<List<Village>> LoadVillageAsync()
         {
-            var result = _db.mdt_village
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_village
                                 .Select(p => new Village()
                                 {
                                     villid = p.villid,
@@ -346,7 +362,8 @@ namespace iDss.X.Services
 
         public IEnumerable<Village> GetAllVillages()
         {
-            return _db.mdt_village.AsNoTracking().ToList();
+            using var _context = _contextFactory.CreateDbContext();
+            return _context.mdt_village.AsNoTracking().ToList();
         }
 
         #endregion
@@ -356,7 +373,18 @@ namespace iDss.X.Services
         #endregion
 
         #region "Account"
-
+        public async Task<List<Account>> LoadAccountAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_account
+                                .Select(p => new Account()
+                                {
+                                    acctno = p.acctno,
+                                    acctname = p.acctname
+                                })
+                .ToListAsync();
+            return await result;
+        }
         #endregion
     }
 }
