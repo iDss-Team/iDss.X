@@ -121,6 +121,15 @@ namespace iDss.X.Services
                 data.createddate = DateTime.Now.ToUniversalTime();
                 _db.pum_pickuprequest.Add(data);
                 await _db.SaveChangesAsync();
+
+                var status = new PickupStatusPool
+                {
+                    pickupno = data.pickupno,
+                    pickupstatus = "request pickup"
+                };
+                _db.pum_pickupstatuspool.Add(status);
+                await _db.SaveChangesAsync();
+
                 result = true;
             }
             catch (Exception ex)
