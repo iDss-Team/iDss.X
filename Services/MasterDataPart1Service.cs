@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
+using System.Linq;
 
 namespace iDss.X.Services
 {
@@ -45,6 +46,7 @@ namespace iDss.X.Services
             return await result;
         }
 
+
         public Task<QueryData<Province>> OnQueryProvinceAsync(QueryPageOptions options)
         {
             var items = _db.mdt_province.ToList();
@@ -65,7 +67,7 @@ namespace iDss.X.Services
 
             if (options.Searches.Any())
             {
-                items = items.Where(options.Filters.GetFilterFunc<Province>(FilterLogic.Or)).ToList();
+                items = items.Where(options.Searches.GetFilterFunc<Province>(FilterLogic.Or)).ToList();
             }
 
 
@@ -157,6 +159,7 @@ namespace iDss.X.Services
 
 
 
+
         #endregion
 
         #region "City"
@@ -175,6 +178,7 @@ namespace iDss.X.Services
 
             return result;
         }
+
 
         public async Task<IEnumerable<City>> GetCitiesAsync()
         {
@@ -203,7 +207,7 @@ namespace iDss.X.Services
 
             if (options.Searches.Any())
             {
-                items = items.Where(options.Filters.GetFilterFunc<City>(FilterLogic.Or)).ToList();
+                items = items.Where(options.Searches.GetFilterFunc<City>(FilterLogic.Or)).ToList();
             }
 
 
@@ -229,6 +233,27 @@ namespace iDss.X.Services
 
         }
 
+        public async Task<bool> CreateCityAsync(City data)
+        {
+            bool result;
+            try
+            {
+                _db.mdt_city.Add(data);
+                await _db.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging purposes
+                System.Console.WriteLine($"Error in CreateCityAsync: {ex.Message}");
+                result = false;
+            }
+            return result;
+        }
+
+
+
+
         public async Task<List<City>> LoadCityAsync()
         {
             var result = _db.mdt_city
@@ -241,6 +266,7 @@ namespace iDss.X.Services
                 .ToListAsync();
             return await result;
         }
+
 
         public async Task<bool> SaveCityAsync(City data, ItemChangedType changedType)
         {
@@ -279,29 +305,51 @@ namespace iDss.X.Services
 
         }
 
+        public async Task<bool> UpdateCityAsync(City data)
+        {
+            bool result;
+            try
+            {
+                _db.Entry(data).State = EntityState.Modified;
+                await _db.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                // Log the error for debugging purposes
+                System.Console.WriteLine($"Error in UpdateCityAsync: {ex.Message}");
+                result = false;
+            }
+            return result;
+        }
 
-        public async Task<bool>DeleteCityByIDAsync(IEnumerable<City> cities)
+
+
+
+        public async Task<bool> DeleteCityByIDAsync(IEnumerable<City> cities)
         {
             try
             {
-                foreach(var city in cities)
+                var tasks = cities.Select(async city =>
                 {
                     var existingEntity = await _db.mdt_city.FindAsync(city.cityid);
                     if (existingEntity != null)
                     {
                         _db.mdt_city.Remove(existingEntity);
                     }
-                }
+                });
+
+                await Task.WhenAll(tasks); // Delete cities concurrently
                 await _db.SaveChangesAsync();
                 return true;
-
             }
             catch (Exception ex)
             {
-                // Handle exception
+                System.Console.WriteLine($"Error in DeleteCityByIDAsync: {ex.Message}");
                 return false;
             }
         }
+
 
         #endregion
 
@@ -506,13 +554,151 @@ namespace iDss.X.Services
                 return false;
             }
         }
-      
+
 
 
 
         #endregion
 
         #region "Account"
+
+
+        public async Task<IEnumerable<Account>> GetAllAccountAsync()
+        {
+            return await _db.mdt_account
+                .Include(a => a.Branch)
+                .ToListAsync();
+        }
+
+        public async Task<Account?> GetAccountByAcctNoAsync(string acctno)
+        {
+            return await _db.mdt_account.FirstOrDefaultAsync(a => a.acctno == acctno);
+        }
+
+        public async Task<Account> CreateAccountAsync(Account account)
+        {
+            string prefix = "NCS";
+            string generatedAccountNo = await GenerateUniqueAccountAsync(prefix);
+            account.acctno = generatedAccountNo;
+
+            _db.mdt_account.Add(account);
+            await _db.SaveChangesAsync();
+            return account;
+        }
+
+
+        public async Task<string> GenerateUniqueAccountAsync(string prefix)
+        {
+            int retryCount = 0;
+            const int maxRetries = 5;
+
+            while (retryCount < maxRetries)
+            {
+                var lastAccount = await _db.mdt_account.AsNoTracking()
+                    .Where(a => a.acctno.StartsWith(prefix))
+                    .OrderByDescending(a => a.acctno)
+                    .FirstOrDefaultAsync();
+                string newAcctNo;
+
+                if (lastAccount == null)
+                {
+                    newAcctNo= $"{prefix}001";
+                }
+                else
+                {
+                    string lastNumberId = lastAccount.acctno.Substring(prefix.Length);
+                    if (!int.TryParse(lastNumberId, out int lastNumber))
+                    {
+                        throw new InvalidOperationException("Invalid account number format in database");
+                    }
+
+                    if (lastNumber >= 999)
+                    {
+                        throw new InvalidOperationException("Account number overflow.Cannot generate a new number");
+                    }
+
+                    newAcctNo = $"{prefix}{(lastNumber+1):D3}";
+
+                }
+
+                bool acctNoExists = await _db.mdt_account.AsNoTracking()
+                    .AnyAsync(a => a.acctno == newAcctNo);
+
+                if (!acctNoExists)
+                {
+                    return newAcctNo;
+                }
+
+                retryCount++;
+
+            }
+            throw new InvalidOperationException("Unable to generate a unique account number after multiple attempts");
+
+        }
+
+
+        public async Task<bool> UpdateAccountAsync(string acctno, Account updatedAccount)
+        {
+            var account = await _db.mdt_account.FirstOrDefaultAsync(a => a.acctno == acctno);
+            if (account == null)
+            {
+                return false;
+            }
+            account.acctname = updatedAccount.acctname;
+            account.cif = updatedAccount.cif;
+            account.branchid = updatedAccount.branchid;
+            account.lob = updatedAccount.lob;
+            account.costcenter = updatedAccount.costcenter;
+            account.bankacctno = updatedAccount.bankacctno;
+            account.bankacctname = updatedAccount.bankacctname;
+            account.bankcode = updatedAccount.bankcode;
+            account.frp = updatedAccount.frp;
+            account.agreedate = updatedAccount.agreedate;
+            account.agreeexpire = updatedAccount.agreeexpire;
+            account.termofpayment = updatedAccount.termofpayment;
+            account.creditlimit = updatedAccount.creditlimit;
+            account.creditperiod = updatedAccount.creditperiod;
+            account.iscod = updatedAccount.iscod;
+            account.feecod = updatedAccount.feecod;
+            account.isintl = updatedAccount.isintl;
+            account.isnl = updatedAccount.isnl;
+            account.discrates = updatedAccount.discrates;
+            account.isrev = updatedAccount.isrev;
+            account.istrace = updatedAccount.istrace;
+            //account.status = updatedAccount.status;
+            account.modifieddate = System.DateTime.Now;
+            account.modifier = updatedAccount.modifier;
+
+            await _db.SaveChangesAsync();
+            return true;
+
+
+        }
+
+        public async Task<bool> DeleteAccountAsync(IEnumerable<Account> accountItems)
+        {
+            bool allDeleted = true;
+
+            foreach (var account in accountItems)
+            {
+                var dbAccount = await _db.mdt_account.FirstOrDefaultAsync(a => a.acctno == account.acctno);
+                if (dbAccount != null)
+                {
+                    _db.mdt_account.Remove(dbAccount);
+                }
+                else
+                {
+                    allDeleted = false; // Something was not found
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            return allDeleted;
+        }
+
+
+
+
 
         #endregion
 
