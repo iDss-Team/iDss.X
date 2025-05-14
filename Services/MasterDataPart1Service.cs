@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.EntityFrameworkCore;
 using iDss.X.Data;
 using iDss.X.Models;
@@ -7,16 +7,17 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
+using System.Linq;
 
 namespace iDss.X.Services
 {
     public class MasterDataPart1Service
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _db;
 
-        public MasterDataPart1Service(IDbContextFactory<AppDbContext> contextFactory)
+        public MasterDataPart1Service(AppDbContext context)
         {
-            _contextFactory = contextFactory;
+            _db = context;
         }
 
         public IEnumerable<int> PageItemsSource => new int[] { 10, 20, 40 };
@@ -26,17 +27,16 @@ namespace iDss.X.Services
         #region "Province"
         public async Task<List<Province>> GetProvinceAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_province
+            var result = _db.mdt_province
                 .OrderByDescending(c => c.provid)
+                .AsNoTracking()
                 .ToListAsync();
             return await result;
         }
 
         public async Task<List<Province>> LoadProvinceAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_province
+            var result = _db.mdt_province
                                 .Select(p => new Province()
                                 {
                                     provid = p.provid,
@@ -46,10 +46,10 @@ namespace iDss.X.Services
             return await result;
         }
 
+
         public Task<QueryData<Province>> OnQueryProvinceAsync(QueryPageOptions options)
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var items = _context.mdt_province.ToList();
+            var items = _db.mdt_province.ToList();
 
             var isSearched = false;
 
@@ -67,7 +67,7 @@ namespace iDss.X.Services
 
             if (options.Searches.Any())
             {
-                items = items.Where(options.Filters.GetFilterFunc<Province>(FilterLogic.Or)).ToList();
+                items = items.Where(options.Searches.GetFilterFunc<Province>(FilterLogic.Or)).ToList();
             }
 
 
@@ -98,14 +98,13 @@ namespace iDss.X.Services
 
         public async Task<bool> SaveProvinceAsync(Province data, ItemChangedType changedType)
         {
-            using var _context = _contextFactory.CreateDbContext();
             try
             {
                 if (changedType == ItemChangedType.Add)
                 {
                     //data.createdby = "System";
                     //data.createddate = DateTime.Now;
-                    _context.mdt_province.Add(data);
+                    _db.mdt_province.Add(data);
                 }
                 //else if (changedType == ItemChangedType.Update)
                 //{
@@ -113,17 +112,17 @@ namespace iDss.X.Services
                 //}
                 else
                 {
-                    var existingEntity = await _context.mdt_province.FindAsync(data.provid);
+                    var existingEntity = await _db.mdt_province.FindAsync(data.provid);
                     if (existingEntity != null)
                     {
-                        _context.Entry(existingEntity).State = EntityState.Detached;
+                        _db.Entry(existingEntity).State = EntityState.Detached;
                     }
 
-                    _context.Attach(data);
-                    _context.Entry(data).State = EntityState.Modified;
+                    _db.Attach(data);
+                    _db.Entry(data).State = EntityState.Modified;
 
                 }
-                await _context.SaveChangesAsync();
+                await _db.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -137,18 +136,17 @@ namespace iDss.X.Services
 
         public async Task<bool> DeleteProvinceByIDAsync(IEnumerable<Province> provincies)
         {
-            using var _context = _contextFactory.CreateDbContext();
             try
             {
                 foreach (var province in provincies)
                 {
-                    var existingEntity = await _context.mdt_province.FindAsync(province.provid);
+                    var existingEntity = await _db.mdt_province.FindAsync(province.provid);
                     if (existingEntity != null)
                     {
-                        _context.mdt_province.Remove(existingEntity);
+                        _db.mdt_province.Remove(existingEntity);
                     }
                 }
-                await _context.SaveChangesAsync();
+                await _db.SaveChangesAsync();
                 return true;
 
             }
@@ -161,29 +159,34 @@ namespace iDss.X.Services
 
 
 
+
         #endregion
 
         #region "City"
         public async Task<List<City>> GetCityAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_city
+            var result = await  _db.mdt_city
                 .Include(c => c.Province)
+                .AsNoTracking()
                 .OrderByDescending(c => c.cityid)
                 .ToListAsync();
-            return await result;
+            
+            foreach(var item in result)
+            {
+                System.Console.WriteLine($"City : {item.cityname}, Province : {(item.Province != null ? item.Province.provname : "NULL")}");
+            }
+
+            return result;
         }
+
 
         public async Task<IEnumerable<City>> GetCitiesAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            return await _context.mdt_city.ToListAsync();
+            return await _db.mdt_city.ToListAsync();
         }
 
         public Task<QueryData<City>>OnQueryCityAsync(QueryPageOptions options){
-
-            using var _context = _contextFactory.CreateDbContext();
-            var items = _context.mdt_city.ToList();
+            var items = _db.mdt_city.ToList();
 
             var isSearched = false;
 
@@ -204,7 +207,7 @@ namespace iDss.X.Services
 
             if (options.Searches.Any())
             {
-                items = items.Where(options.Filters.GetFilterFunc<City>(FilterLogic.Or)).ToList();
+                items = items.Where(options.Searches.GetFilterFunc<City>(FilterLogic.Or)).ToList();
             }
 
 
@@ -230,10 +233,30 @@ namespace iDss.X.Services
 
         }
 
+        public async Task<bool> CreateCityAsync(City data)
+        {
+            bool result;
+            try
+            {
+                _db.mdt_city.Add(data);
+                await _db.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging purposes
+                System.Console.WriteLine($"Error in CreateCityAsync: {ex.Message}");
+                result = false;
+            }
+            return result;
+        }
+
+
+
+
         public async Task<List<City>> LoadCityAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_city
+            var result = _db.mdt_city
                                 .Select(p => new City()
                                 {
                                     cityid = p.cityid,
@@ -244,16 +267,16 @@ namespace iDss.X.Services
             return await result;
         }
 
+
         public async Task<bool> SaveCityAsync(City data, ItemChangedType changedType)
         {
-            using var _context = _contextFactory.CreateDbContext();
             try
             {
                 if (changedType == ItemChangedType.Add)
                 {
                     //data.createdby = "System";
                     //data.createddate = DateTime.Now;
-                    _context.mdt_city.Add(data);
+                    _db.mdt_city.Add(data);
                 }
                 //else if (changedType == ItemChangedType.Update)
                 //{
@@ -261,17 +284,17 @@ namespace iDss.X.Services
                 //}
                 else
                 {
-                    var existingEntity = await _context.mdt_city.FindAsync(data.cityid);
+                    var existingEntity = await _db.mdt_city.FindAsync(data.cityid);
                     if (existingEntity != null)
                     {
-                        _context.Entry(existingEntity).State = EntityState.Detached;
+                        _db.Entry(existingEntity).State = EntityState.Detached;
                     }
 
-                    _context.Attach(data);
-                    _context.Entry(data).State = EntityState.Modified;
+                    _db.Attach(data);
+                    _db.Entry(data).State = EntityState.Modified;
 
                 }
-                   await _context.SaveChangesAsync();
+                   await _db.SaveChangesAsync();
                    return true;
             }
             catch (Exception ex)
@@ -282,38 +305,58 @@ namespace iDss.X.Services
 
         }
 
-
-        public async Task<bool>DeleteCityByIDAsync(IEnumerable<City> cities)
+        public async Task<bool> UpdateCityAsync(City data)
         {
-            using var _context = _contextFactory.CreateDbContext();
+            bool result;
             try
             {
-                foreach(var city in cities)
-                {
-                    var existingEntity = await _context.mdt_city.FindAsync(city.cityid);
-                    if (existingEntity != null)
-                    {
-                        _context.mdt_city.Remove(existingEntity);
-                    }
-                }
-                await _context.SaveChangesAsync();
-                return true;
-
+                _db.Entry(data).State = EntityState.Modified;
+                await _db.SaveChangesAsync();
+                result = true;
             }
             catch (Exception ex)
             {
-                // Handle exception
+                // Log the error for debugging purposes
+                System.Console.WriteLine($"Error in UpdateCityAsync: {ex.Message}");
+                result = false;
+            }
+            return result;
+        }
+
+
+
+
+        public async Task<bool> DeleteCityByIDAsync(IEnumerable<City> cities)
+        {
+            try
+            {
+                var tasks = cities.Select(async city =>
+                {
+                    var existingEntity = await _db.mdt_city.FindAsync(city.cityid);
+                    if (existingEntity != null)
+                    {
+                        _db.mdt_city.Remove(existingEntity);
+                    }
+                });
+
+                await Task.WhenAll(tasks); // Delete cities concurrently
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in DeleteCityByIDAsync: {ex.Message}");
                 return false;
             }
         }
+
 
         #endregion
 
         #region "District"
         public async Task<List<District>> GetDistrictAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_district
+            var result = _db.mdt_district
                 .Include(c => c.City)
                 .OrderByDescending(c => c.distid)
                 .ToListAsync();
@@ -322,8 +365,7 @@ namespace iDss.X.Services
 
         public async Task<List<District>> LoadDistrictAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_district
+            var result = _db.mdt_district
                                 .Select(p => new District()
                                 {
                                     distid = p.distid,
@@ -338,8 +380,7 @@ namespace iDss.X.Services
         #region "Village"
         public async Task<List<Village>> GetVillageAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_village
+            var result = _db.mdt_village
                 .Include(c => c.District)
                 .OrderByDescending(c => c.villid)
                 .ToListAsync();
@@ -348,8 +389,7 @@ namespace iDss.X.Services
 
         public async Task<List<Village>> LoadVillageAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_village
+            var result = _db.mdt_village
                                 .Select(p => new Village()
                                 {
                                     villid = p.villid,
@@ -362,29 +402,453 @@ namespace iDss.X.Services
 
         public IEnumerable<Village> GetAllVillages()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            return _context.mdt_village.AsNoTracking().ToList();
+            return _db.mdt_village.AsNoTracking().ToList();
         }
 
         #endregion
 
         #region "CIF"
+        public async Task<List<CIF>> GetCifAsync()
+        {
+            return await _db.mdt_cif
+                .Include(c => c.Industry)
+                .Include(c => c.Branch)
+                .AsNoTracking()
+                .OrderByDescending(c => c.cif)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<CIF>> GetCifListAsync()
+        {
+            return await _db.mdt_cif.ToListAsync();
+        }
+
+        public Task<QueryData<CIF>> OnQueryCifAsync(QueryPageOptions options)
+        {
+            var items = _db.mdt_cif
+                .Include(c => c.Industry)
+                .Include(c => c.Branch)
+                .AsNoTracking()
+                .ToList();
+
+            var isSearched = false;
+
+            if (options.SearchModel is CIF cif)
+            {
+                if (!string.IsNullOrEmpty(cif.cif))
+                {
+                    items = items.Where(item => item.cif?.Contains(cif.cif, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(cif.cifname))
+                {
+                    items = items.Where(item => item.cifname?.Contains(cif.cifname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(cif.cif) || !string.IsNullOrEmpty(cif.cifname);
+            }
+
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<CIF>(FilterLogic.Or)).ToList();
+            }
+
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<CIF>()).ToList();
+                isFiltered = true;
+            }
+
+            var total = items.Count;
+
+            return Task.FromResult(new QueryData<CIF>
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<bool> CreateCifAsync(CIF data)
+        {
+            try
+            {
+                _db.mdt_cif.Add(data);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in CreateCifAsync: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateCifAsync(CIF data)
+        {
+            try
+            {
+                _db.Entry(data).State = EntityState.Modified;
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in UpdateCifAsync: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> SaveCifAsync(CIF data, ItemChangedType changedType)
+        {
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _db.mdt_cif.Add(data);
+                }
+                else
+                {
+                    var existing = await _db.mdt_cif.FindAsync(data.cif);
+                    if (existing != null)
+                    {
+                        _db.Entry(existing).State = EntityState.Detached;
+                    }
+
+                    _db.Attach(data);
+                    _db.Entry(data).State = EntityState.Modified;
+                }
+
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in SaveCifAsync: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteCifByIDAsync(IEnumerable<CIF> cifs)
+        {
+            try
+            {
+                var tasks = cifs.Select(async cif =>
+                {
+                    var entity = await _db.mdt_cif.FindAsync(cif.cif);
+                    if (entity != null)
+                    {
+                        _db.mdt_cif.Remove(entity);
+                    }
+                });
+
+                await Task.WhenAll(tasks);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in DeleteCifByIDAsync: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
 
         #endregion
 
         #region "Account"
-        public async Task<List<Account>> LoadAccountAsync()
+
+
+        public async Task<IEnumerable<Account>> GetAllAccountAsync()
         {
-            using var _context = _contextFactory.CreateDbContext();
-            var result = _context.mdt_account
-                                .Select(p => new Account()
+            return await _db.mdt_account
+                .Include(a => a.Branch)
+                .ToListAsync();
+        }
+
+        public async Task<Account?> GetAccountByAcctNoAsync(string acctno)
+        {
+            return await _db.mdt_account.FirstOrDefaultAsync(a => a.acctno == acctno);
+        }
+
+        public async Task<Account> CreateAccountAsync(Account account)
+        {
+            string prefix = "NCS";
+            string generatedAccountNo = await GenerateUniqueAccountAsync(prefix);
+            account.acctno = generatedAccountNo;
+
+            _db.mdt_account.Add(account);
+            await _db.SaveChangesAsync();
+            return account;
+        }
+
+
+        public async Task<string> GenerateUniqueAccountAsync(string prefix)
+        {
+            int retryCount = 0;
+            const int maxRetries = 5;
+
+            while (retryCount < maxRetries)
+            {
+                var lastAccount = await _db.mdt_account.AsNoTracking()
+                    .Where(a => a.acctno.StartsWith(prefix))
+                    .OrderByDescending(a => a.acctno)
+                    .FirstOrDefaultAsync();
+                string newAcctNo;
+
+                if (lastAccount == null)
+                {
+                    newAcctNo= $"{prefix}001";
+                }
+                else
+                {
+                    string lastNumberId = lastAccount.acctno.Substring(prefix.Length);
+                    if (!int.TryParse(lastNumberId, out int lastNumber))
+                    {
+                        throw new InvalidOperationException("Invalid account number format in database");
+                    }
+
+                    if (lastNumber >= 999)
+                    {
+                        throw new InvalidOperationException("Account number overflow.Cannot generate a new number");
+                    }
+
+                    newAcctNo = $"{prefix}{(lastNumber+1):D3}";
+
+                }
+
+                bool acctNoExists = await _db.mdt_account.AsNoTracking()
+                    .AnyAsync(a => a.acctno == newAcctNo);
+
+                if (!acctNoExists)
+                {
+                    return newAcctNo;
+                }
+
+                retryCount++;
+
+            }
+            throw new InvalidOperationException("Unable to generate a unique account number after multiple attempts");
+
+        }
+
+
+        public async Task<bool> UpdateAccountAsync(string acctno, Account updatedAccount)
+        {
+            var account = await _db.mdt_account.FirstOrDefaultAsync(a => a.acctno == acctno);
+            if (account == null)
+            {
+                return false;
+            }
+            account.acctname = updatedAccount.acctname;
+            account.cif = updatedAccount.cif;
+            account.branchid = updatedAccount.branchid;
+            account.lob = updatedAccount.lob;
+            account.costcenter = updatedAccount.costcenter;
+            account.bankacctno = updatedAccount.bankacctno;
+            account.bankacctname = updatedAccount.bankacctname;
+            account.bankcode = updatedAccount.bankcode;
+            account.frp = updatedAccount.frp;
+            account.agreedate = updatedAccount.agreedate;
+            account.agreeexpire = updatedAccount.agreeexpire;
+            account.termofpayment = updatedAccount.termofpayment;
+            account.creditlimit = updatedAccount.creditlimit;
+            account.creditperiod = updatedAccount.creditperiod;
+            account.iscod = updatedAccount.iscod;
+            account.feecod = updatedAccount.feecod;
+            account.isintl = updatedAccount.isintl;
+            account.isnl = updatedAccount.isnl;
+            account.discrates = updatedAccount.discrates;
+            account.isrev = updatedAccount.isrev;
+            account.istrace = updatedAccount.istrace;
+            //account.status = updatedAccount.status;
+            account.modifieddate = System.DateTime.Now;
+            account.modifier = updatedAccount.modifier;
+
+            await _db.SaveChangesAsync();
+            return true;
+
+
+        }
+
+        public async Task<bool> DeleteAccountAsync(IEnumerable<Account> accountItems)
+        {
+            bool allDeleted = true;
+
+            foreach (var account in accountItems)
+            {
+                var dbAccount = await _db.mdt_account.FirstOrDefaultAsync(a => a.acctno == account.acctno);
+                if (dbAccount != null)
+                {
+                    _db.mdt_account.Remove(dbAccount);
+                }
+                else
+                {
+                    allDeleted = false; // Something was not found
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            return allDeleted;
+        }
+
+
+
+
+
+        #endregion
+
+        #region "Industry"
+        public async Task<List<Industry>> GetIndustryAsync()
+        {
+            var result = _db.mdt_industry
+                .OrderByDescending(c => c.id)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+
+        public async Task<List<Industry>> LoadIndustryAsync()
+        {
+            var result = _db.mdt_industry
+                                .Select(p => new Industry()
                                 {
-                                    acctno = p.acctno,
-                                    acctname = p.acctname
+                                    id = p.id,
+                                    industryname = p.industryname
                                 })
                 .ToListAsync();
             return await result;
         }
+
+        public Task<QueryData<Industry>> OnQueryIndustryAsync(QueryPageOptions options)
+        {
+            var items = _db.mdt_industry.ToList();
+
+            var isSearched = false;
+
+            if (options.SearchModel is Industry industry)
+            {
+                if (!string.IsNullOrEmpty(industry.industryname))
+                {
+                    items = items.Where(item => item.industryname?.Contains(industry.industryname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+
+
+                isSearched = !string.IsNullOrEmpty(industry.industryname);
+            }
+
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<Industry>(FilterLogic.Or)).ToList();
+            }
+
+
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Industry>()).ToList();
+                isFiltered = true;
+            }
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<Industry>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+
+
+
+        }
+
+
+
+
+        public async Task<bool> SaveIndustryAsync(Industry data, ItemChangedType changedType)
+        {
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    //data.createdby = "System";
+                    //data.createddate = DateTime.Now;
+                    _db.mdt_industry.Add(data);
+                }
+                //else if (changedType == ItemChangedType.Update)
+                //{
+                //    _db.mdt_city.Update(data);
+                //}
+                else
+                {
+                    var existingEntity = await _db.mdt_industry.FindAsync(data.id);
+                    if (existingEntity != null)
+                    {
+                        _db.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    _db.Attach(data);
+                    _db.Entry(data).State = EntityState.Modified;
+
+                }
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                return false;
+            }
+
+        }
+
+
+        public async Task<bool> DeleteIndustryByIDAsync(IEnumerable<Industry> industries)
+        {
+            try
+            {
+                foreach (var industry in industries)
+                {
+                    var existingEntity = await _db.mdt_industry.FindAsync(industry.id);
+                    if (existingEntity != null)
+                    {
+                        _db.mdt_industry.Remove(existingEntity);
+                    }
+                }
+                await _db.SaveChangesAsync();
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                return false;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
         #endregion
+
+
     }
+
+
+
 }
