@@ -25,5 +25,12 @@ namespace iDss.X.Services
                 .OrderBy(p => p.provname)
                 .ToListAsync();
         }
+
+        public async Task<List<Branch>> GetAllBranchAsync()
+        {
+            return await _db.mdt_branch
+                .OrderBy(b => b.branchname)
+                .ToListAsync();
+        }
     }
 }
