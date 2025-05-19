@@ -458,6 +458,14 @@ namespace iDss.X.Services
             return await _context.mdt_cif.ToListAsync();
         }
 
+
+        public async Task<CIF?> GetCifByCIFAsync(string cif)
+        {
+            return await _db.mdt_cif.FirstOrDefaultAsync(a => a.cif == cif);
+        }
+
+
+
         public Task<QueryData<CIF>> OnQueryCifAsync(QueryPageOptions options)
         {
             using var _context = _contextFactory.CreateDbContext();
@@ -523,12 +531,17 @@ namespace iDss.X.Services
             }
         }
 
-        public async Task<bool> UpdateCifAsync(CIF data)
+        public async Task<bool> UpdateCifAsync(string cif, CIF updatedCIF)
         {
             using var _context = _contextFactory.CreateDbContext();
+            var _cif = await _context.mdt_cif.FirstOrDefaultAsync(a => a.cif == cif);
+            if (_cif == null)
+            {
+                return false;
+            }
+
             try
             {
-                _context.Entry(data).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -539,62 +552,29 @@ namespace iDss.X.Services
             }
         }
 
-        public async Task<bool> SaveCifAsync(CIF data, ItemChangedType changedType)
+        public async Task<CIF> CreateCIFAsync(CIF cif)
         {
             using var _context = _contextFactory.CreateDbContext();
-            try
-            {
-                if (changedType == ItemChangedType.Add)
-                {
-                    _context.mdt_cif.Add(data);
-                }
-                else
-                {
-                    var existing = await _context.mdt_cif.FindAsync(data.cif);
-                    if (existing != null)
-                    {
-                        _context.Entry(existing).State = EntityState.Detached;
-                    }
-
-                    _context.Attach(data);
-                    _context.Entry(data).State = EntityState.Modified;
-                }
-
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"Error in SaveCifAsync: {ex.Message}");
-                return false;
-            }
+            _context.mdt_cif.Add(cif);
+            await _context.SaveChangesAsync();
+            return cif;
         }
 
-        public async Task<bool> DeleteCifByIDAsync(IEnumerable<CIF> cifs)
+        public async Task<bool> DeleteCIFAsync(string cif)
         {
             using var _context = _contextFactory.CreateDbContext();
-            try
-            {
-                var tasks = cifs.Select(async cif =>
-                {
-                    var entity = await _context.mdt_cif.FindAsync(cif.cif);
-                    if (entity != null)
-                    {
-                        _context.mdt_cif.Remove(entity);
-                    }
-                });
+            var data = await _context.mdt_cif.FirstOrDefaultAsync(a => a.cif == cif);
 
-                await Task.WhenAll(tasks);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
+            if (data == null)
             {
-                System.Console.WriteLine($"Error in DeleteCifByIDAsync: {ex.Message}");
                 return false;
             }
-        }
 
+            _context.mdt_cif.Remove(data);
+            await _.SaveChangesAsync();
+            return true;
+
+        }
 
 
 
@@ -610,6 +590,8 @@ namespace iDss.X.Services
                 .Include(a => a.Branch)
                 .ToListAsync();
         }
+
+
 
         public async Task<Account?> GetAccountByAcctNoAsync(string acctno)
         {
@@ -719,31 +701,21 @@ namespace iDss.X.Services
 
 
         }
+     public async Task<bool> DeleteAccountAsync(string acctno)
+     {
+         using var _context = _contextFactory.CreateDbContext();
+         var account = await _context.mdt_account.FirstOrDefaultAsync(a => a.acctno == acctno);
 
-        public async Task<bool> DeleteAccountAsync(IEnumerable<Account> accountItems)
-        {
-            using var _context = _contextFactory.CreateDbContext();
-            bool allDeleted = true;
+         if (account == null)
+         {
+             return false;
+         }
 
-            foreach (var account in accountItems)
-            {
-                var dbAccount = await _context.mdt_account.FirstOrDefaultAsync(a => a.acctno == account.acctno);
-                if (dbAccount != null)
-                {
-                    _context.mdt_account.Remove(dbAccount);
-                }
-                else
-                {
-                    allDeleted = false; // Something was not found
-                }
-            }
+         _context.mdt_account.Remove(account);
+         await _context.SaveChangesAsync();
+         return true;
 
-            await _context.SaveChangesAsync();
-            return allDeleted;
-        }
-
-
-
+     }
 
 
         #endregion
@@ -760,6 +732,20 @@ namespace iDss.X.Services
         }
 
 
+        public async Task<IEnumerable<Industry>> GetAllIndustryAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_industry.ToListAsync();
+        }
+
+
+
+
+        public async Task<Industry?> GetIndustryByIdAsync(int id)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_industry.FirstOrDefaultAsync(a => a.id == id);
+        }
         public async Task<List<Industry>> LoadIndustryAsync()
         {
             using var _context = _contextFactory.CreateDbContext();
@@ -822,68 +808,52 @@ namespace iDss.X.Services
 
 
 
+   public async Task<bool> UpdateIndustryAsync(int _id, Industry updatedIndustry)
+   {
+       using var _context = _contextFactory.CreateDbContext();
+       var industry = await _context.mdt_industry.FirstOrDefaultAsync(a => a.id == _id);
+       if (industry == null)
+       {
+           return false;
+       }
+       industry.industryname = updatedIndustry.industryname;
+       industry.description = updatedIndustry.description;
+       industry.flag = updatedIndustry.flag;
+       await _context.SaveChangesAsync();
+       return true;
 
-        public async Task<bool> SaveIndustryAsync(Industry data, ItemChangedType changedType)
+
+   }
+
+
+
+
+
+
+   
+     public async Task<Industry> CreateIndustryAsync(Industry industry)
+   {
+       using var _context = _contextFactory.CreateDbContext();
+       _context.mdt_industry.Add(industry);
+       await _context.SaveChangesAsync();
+       return industry;
+   }
+
+
+
+        public async Task<bool> DeleteIndustryByIdAsync(int _id)
         {
             using var _context = _contextFactory.CreateDbContext();
-            try
-            {
-                if (changedType == ItemChangedType.Add)
-                {
-                    //data.createdby = "System";
-                    //data.createddate = DateTime.Now;
-                    _context.mdt_industry.Add(data);
-                }
-                //else if (changedType == ItemChangedType.Update)
-                //{
-                //    _db.mdt_city.Update(data);
-                //}
-                else
-                {
-                    var existingEntity = await _context.mdt_industry.FindAsync(data.id);
-                    if (existingEntity != null)
-                    {
-                        _context.Entry(existingEntity).State = EntityState.Detached;
-                    }
+            var industry = await _context.mdt_industry.FirstOrDefaultAsync(a => a.id == _id);
 
-                    _context.Attach(data);
-                    _context.Entry(data).State = EntityState.Modified;
-
-                }
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
+            if (industry == null)
             {
-                // Handle exception
                 return false;
             }
 
-        }
-
-
-        public async Task<bool> DeleteIndustryByIDAsync(IEnumerable<Industry> industries)
-        {
-            using var _context = _contextFactory.CreateDbContext();
-            try
-            {
-                foreach (var industry in industries)
-                {
-                    var existingEntity = await _context.mdt_industry.FindAsync(industry.id);
-                    if (existingEntity != null)
-                    {
-                        _context.mdt_industry.Remove(existingEntity);
-                    }
-                }
-                await _context.SaveChangesAsync();
-                return true;
-
-            }
-            catch (Exception ex)
-            {
-                // Handle exception
-                return false;
-            }
+            _context.mdt_industry.Remove(industry);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
 
