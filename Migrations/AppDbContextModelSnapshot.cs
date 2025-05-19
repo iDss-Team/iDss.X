@@ -2085,8 +2085,8 @@ namespace iDss.X.Migrations
 
                     b.Property<string>("provid")
                         .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("cityid");
 

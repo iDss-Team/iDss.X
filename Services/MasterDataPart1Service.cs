@@ -423,6 +423,14 @@ namespace iDss.X.Services
             return await _db.mdt_cif.ToListAsync();
         }
 
+
+        public async Task<CIF?> GetCifByCIFAsync(string cif)
+        {
+            return await _db.mdt_cif.FirstOrDefaultAsync(a => a.cif == cif);
+        }
+
+
+
         public Task<QueryData<CIF>> OnQueryCifAsync(QueryPageOptions options)
         {
             var items = _db.mdt_cif
@@ -486,11 +494,16 @@ namespace iDss.X.Services
             }
         }
 
-        public async Task<bool> UpdateCifAsync(CIF data)
+        public async Task<bool> UpdateCifAsync(string cif, CIF updatedCIF)
         {
+            var _cif = await _db.mdt_cif.FirstOrDefaultAsync(a => a.cif == cif);
+            if (_cif == null)
+            {
+                return false;
+            }
+
             try
             {
-                _db.Entry(data).State = EntityState.Modified;
                 await _db.SaveChangesAsync();
                 return true;
             }
@@ -501,58 +514,26 @@ namespace iDss.X.Services
             }
         }
 
-        public async Task<bool> SaveCifAsync(CIF data, ItemChangedType changedType)
+        public async Task<CIF> CreateCIFAsync(CIF cif)
         {
-            try
-            {
-                if (changedType == ItemChangedType.Add)
-                {
-                    _db.mdt_cif.Add(data);
-                }
-                else
-                {
-                    var existing = await _db.mdt_cif.FindAsync(data.cif);
-                    if (existing != null)
-                    {
-                        _db.Entry(existing).State = EntityState.Detached;
-                    }
-
-                    _db.Attach(data);
-                    _db.Entry(data).State = EntityState.Modified;
-                }
-
-                await _db.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"Error in SaveCifAsync: {ex.Message}");
-                return false;
-            }
+            _db.mdt_cif.Add(cif);
+            await _db.SaveChangesAsync();
+            return cif;
         }
 
-        public async Task<bool> DeleteCifByIDAsync(IEnumerable<CIF> cifs)
+        public async Task<bool> DeleteCIFAsync(string cif)
         {
-            try
-            {
-                var tasks = cifs.Select(async cif =>
-                {
-                    var entity = await _db.mdt_cif.FindAsync(cif.cif);
-                    if (entity != null)
-                    {
-                        _db.mdt_cif.Remove(entity);
-                    }
-                });
+            var data = await _db.mdt_cif.FirstOrDefaultAsync(a => a.cif == cif);
 
-                await Task.WhenAll(tasks);
-                await _db.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
+            if (data == null)
             {
-                System.Console.WriteLine($"Error in DeleteCifByIDAsync: {ex.Message}");
                 return false;
             }
+
+            _db.mdt_cif.Remove(data);
+            await _db.SaveChangesAsync();
+            return true;
+
         }
 
 
@@ -675,29 +656,20 @@ namespace iDss.X.Services
 
         }
 
-        public async Task<bool> DeleteAccountAsync(IEnumerable<Account> accountItems)
+        public async Task<bool> DeleteAccountAsync(string acctno)
         {
-            bool allDeleted = true;
+            var account = await _db.mdt_account.FirstOrDefaultAsync(a => a.acctno == acctno);
 
-            foreach (var account in accountItems)
+            if (account == null)
             {
-                var dbAccount = await _db.mdt_account.FirstOrDefaultAsync(a => a.acctno == account.acctno);
-                if (dbAccount != null)
-                {
-                    _db.mdt_account.Remove(dbAccount);
-                }
-                else
-                {
-                    allDeleted = false; // Something was not found
-                }
+                return false;
             }
 
+            _db.mdt_account.Remove(account);
             await _db.SaveChangesAsync();
-            return allDeleted;
+            return true;
+
         }
-
-
-
 
 
         #endregion
@@ -713,6 +685,18 @@ namespace iDss.X.Services
         }
 
 
+        public async Task<IEnumerable<Industry>> GetAllIndustryAsync()
+        {
+            return await _db.mdt_industry.ToListAsync();
+        }
+
+
+
+
+        public async Task<Industry?> GetIndustryByIdAsync(int id)
+        {
+            return await _db.mdt_industry.FirstOrDefaultAsync(a => a.id == id);
+        }
         public async Task<List<Industry>> LoadIndustryAsync()
         {
             var result = _db.mdt_industry
@@ -773,66 +757,46 @@ namespace iDss.X.Services
 
 
 
-
-        public async Task<bool> SaveIndustryAsync(Industry data, ItemChangedType changedType)
+        public async Task<bool> UpdateIndustryAsync(int _id, Industry updatedIndustry)
         {
-            try
+            var industry = await _db.mdt_industry.FirstOrDefaultAsync(a => a.id == _id);
+            if (industry == null)
             {
-                if (changedType == ItemChangedType.Add)
-                {
-                    //data.createdby = "System";
-                    //data.createddate = DateTime.Now;
-                    _db.mdt_industry.Add(data);
-                }
-                //else if (changedType == ItemChangedType.Update)
-                //{
-                //    _db.mdt_city.Update(data);
-                //}
-                else
-                {
-                    var existingEntity = await _db.mdt_industry.FindAsync(data.id);
-                    if (existingEntity != null)
-                    {
-                        _db.Entry(existingEntity).State = EntityState.Detached;
-                    }
-
-                    _db.Attach(data);
-                    _db.Entry(data).State = EntityState.Modified;
-
-                }
-                await _db.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                // Handle exception
                 return false;
             }
+            industry.industryname = updatedIndustry.industryname;
+            industry.description = updatedIndustry.description;
+            industry.flag = updatedIndustry.flag;
+            await _db.SaveChangesAsync();
+            return true;
+
 
         }
 
 
-        public async Task<bool> DeleteIndustryByIDAsync(IEnumerable<Industry> industries)
-        {
-            try
-            {
-                foreach (var industry in industries)
-                {
-                    var existingEntity = await _db.mdt_industry.FindAsync(industry.id);
-                    if (existingEntity != null)
-                    {
-                        _db.mdt_industry.Remove(existingEntity);
-                    }
-                }
-                await _db.SaveChangesAsync();
-                return true;
 
-            }
-            catch (Exception ex)
+
+
+        public async Task<Industry> CreateIndustryAsync(Industry industry)
+        {
+            _db.mdt_industry.Add(industry);
+            await _db.SaveChangesAsync();
+            return industry;
+        }
+
+
+        public async Task<bool> DeleteIndustryByIdAsync(int _id)
+        {
+            var industry = await _db.mdt_industry.FirstOrDefaultAsync(a => a.id == _id);
+
+            if (industry == null)
             {
-                // Handle exception
                 return false;
             }
+
+            _db.mdt_industry.Remove(industry);
+            await _db.SaveChangesAsync();
+            return true;
         }
 
 
