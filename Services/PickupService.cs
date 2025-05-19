@@ -255,7 +255,6 @@ namespace iDss.X.Services
             var data = await _db.mdt_account.FirstOrDefaultAsync(p => p.acctno == acctNooo);
 
             return data;
-
         }
         public async Task<Courier> FindCourierName(string courierCode)
         {

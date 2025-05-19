@@ -351,7 +351,6 @@ namespace iDss.X.Services
                         _context.mdt_city.Remove(existingEntity);
                     }
                 });
-
                 await Task.WhenAll(tasks); // Delete cities concurrently
                 await _context.SaveChangesAsync();
                 return true;

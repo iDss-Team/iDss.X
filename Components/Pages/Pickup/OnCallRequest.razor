@@ -172,7 +172,6 @@ else
         var distnew = await _service1.GetDistrictById(data);
         data.distid = distnew;
         selectedPickupno = Mapper.Map<PickupRequest>(data);
-
         editModals.Show();
         StateHasChanged();
     }
