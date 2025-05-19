@@ -461,7 +461,8 @@ namespace iDss.X.Services
 
         public async Task<CIF?> GetCifByCIFAsync(string cif)
         {
-            return await _db.mdt_cif.FirstOrDefaultAsync(a => a.cif == cif);
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_cif.FirstOrDefaultAsync(a => a.cif == cif);
         }
 
 
@@ -571,7 +572,7 @@ namespace iDss.X.Services
             }
 
             _context.mdt_cif.Remove(data);
-            await _.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return true;
 
         }
