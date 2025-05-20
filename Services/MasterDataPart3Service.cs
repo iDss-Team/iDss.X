@@ -179,21 +179,25 @@ namespace iDss.X.Services
 
         public async Task<bool> DeleteBranchByIDAsync(int id)
         {
+            bool result;
             try
             {
-                var existing = await _db.mdt_checkpoint.FindAsync(id);
-                if (existing != null)
-                {
-                    _db.mdt_checkpoint.Remove(existing);
-                }
-
-                await _db.SaveChangesAsync();
-                return true;
+                var affectedRows = await _db.mdt_branch.Where(x => x.branchid.Equals(id)).ExecuteDeleteAsync();
+                result = true;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                if (ex.Message.Contains("23503"))
+                {
+                    //msg = "Cannot delete: This record is linked to other data already.";
+                    result = false;
+                }
+                else
+                {
+                    result = false;
+                }
             }
+            return result;
         }
         #endregion
 
