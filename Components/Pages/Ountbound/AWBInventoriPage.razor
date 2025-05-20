@@ -5,6 +5,7 @@
 @inject MasterDataPart2Service _service2
 @inject MasterDataPart3Service _service3
 @inject OutboundService _oclservice
+@inject ToastService toastService
 @attribute [TabItemOption(Text = "AWB Inventory")]
 
 <PageTitle>AWB Inventory</PageTitle>
@@ -19,90 +20,97 @@
 </Row>
 
 @* Content *@
-<Row ItemsPerRow="ItemsPerRow.Two" Style="padding-left: 16px; padding-right: 16px; margin-bottom: 16px;">
-    <Row ColSpan="1">
-        <Select TValue="string"
-                Items="provinceItems"
-                @bind-Value="selectedProvince"
-                DisplayText="Provinsi:"
-                ShowLabel="true"
-                style="width: 100%; max-width:350px;" />
-    </Row>
-    <Row ColSpan="1">
-        <BootstrapInput TValue="string"
-                        IsAutoFocus="true"
-                        IsSelectAllTextOnFocus="true"
-                        ShowLabel="true"
-                        DisplayText="Available AWB"
-                        style="width: 100%; max-width:100px;" />
-    </Row>
-</Row>
 
-<Row ItemsPerRow="ItemsPerRow.Two" Style="padding-left: 16px; padding-right: 16px; margin-bottom: 16px;">
-    <Row ColSpan="1">
-        <Select TValue="int" 
-                Items="branchItems"
-                @bind-Value="selectedBranch" 
-                DisplayText="Branch:" 
-                ShowLabel="true" 
-                style="width: 100%; max-width: 350px;" />
-    </Row>
-    <Row Colspan="1"></Row>
-</Row>
+@* layout 1 *@
+<Row ItemsPerRow="ItemsPerRow.One" Style="padding-left: 16px; padding-right: 16px; margin-bottom: 16px;">
+    <div class="row g-4">
+        <div class="col-6">
+            <div class="mb-3" style="width: 100%; max-width: 300px">
+                <Select TValue="string"
+                        Items="provinceItems"
+                        @bind-Value="selectedProvince"
+                        DisplayText="Provinsi:"
+                        ShowLabel="true" />
+            </div>
 
-<Row ItemsPerRow="ItemsPerRow.Two" Style="padding-left: 16px; padding-right: 16px; margin-bottom: 16px;">
-    <Row ColSpan="1">
-        @* <BootstrapInputNumber Value="@BindValue" Max="10000" Min="0" IsSelectAllTextOnFocus="true" ShowLabel="true" DisplayText="Total Request" style="width: 100px;" />  *@
-        <div style="display: flex; flex-direction: column; width: 100px;">
-            <BootstrapInputNumber @bind-Value="@BindValue"
-                                  Max="10000"
-                                  Min="0"
-                                  IsSelectAllTextOnFocus="true"
-                                  ShowLabel="true"
-                                  DisplayText="Total Request"
-                                  style="width: 100%;" />
-            <div style="text-align: center; font-size: 12px; color: gray;font-style: italic; margin-top: 2px;">
-                Max 10.000 pcs
+            <div class="mb-3" style="width: 100%; max-width: 300px">
+                <Select TValue="int"
+                        Items="branchItems"
+                        @bind-Value="selectedBranch"
+                        DisplayText="Branch:"
+                        ShowLabel="true" />
+            </div>
+
+            <div class="mb-3">
+                <Stack IsRow="true" style="gap: 24px">
+
+                    <div style="display: flex; flex-direction: column; width: 100px;">
+                        <BootstrapInputNumber @bind-Value="@totalRequest"
+                                                Max="10000"
+                                                Min="0"
+                                                IsSelectAllTextOnFocus="true"
+                                                ShowLabel="true"
+                                                DisplayText="Total Request"
+                                                style="width: 100%;" />
+                        <div style="text-align: center; font-size: 12px; color: gray;font-style: italic; margin-top: 2px;">
+                            Max 10.000 pcs
+                        </div>
+                    </div>
+
+
+                    <div style="display: flex; flex-direction: column; width: 100px;">
+                        <BootstrapInput TValue="string"
+                                        IsAutoFocus="true"
+                                        Readonly="true"
+                                        IsSelectAllTextOnFocus="true"
+                                        ShowLabel="true"
+                                        DisplayText="Available AWB"
+                                        style="width: 100%;" />
+                    </div>
+
+                </Stack>
+            </div>
+
+            <div class="mb-3">
+                <Stack IsRow="true" style="gap: 24px">
+                    <Button ButtonType="ButtonType.Submit"
+                            Size="Size.Small"
+                            Color="Color.Success"
+                            Icon="fa-solid fa-circle-plus me-2"
+                            Style="min-width: 100px;" @onclick="HandleCreate">
+                        CREATE
+                    </Button>
+
+                    <Button ButtonType="ButtonType.Reset"
+                            Size="Size.Small"
+                            Color="Color.Danger"
+                            Icon="fa-solid fa-arrows-rotate me-2"
+                            Style="min-width: 100px;" @onclick="HandleReset">
+                        Reset
+                    </Button>
+
+                </Stack>
             </div>
         </div>
-    </Row>
-    <Row Colspan="1"></Row>
+        <div class="col-6">
+            <Console Items="@Messages" Height="200" ShowAutoScroll="true" OnClear="@OnClear" />
+        </div>
+    </div>
 </Row>
 
-<Row ItemsPerRow="ItemsPerRow.One" Style="padding-left: 16px; padding-right: 16px; margin-top: 16px; margin-bottom: 16px;">
-    <Button ButtonType="ButtonType.Submit" 
-            Size="Size.Small" 
-            Color="Color.Success" 
-            Icon="fa-solid fa-circle-plus me-2" 
-            Style="min-width: 100px;" @onclick="HandleCreate">CREATE</Button>
 
-    <Row ItemsPerRow="ItemsPerRow.Two">
-        <Row ColSpan="1">
-            <Textarea style="width: 100%; max-width: 350px;" @bind-Value="awbListText"></Textarea>
-        </Row>
-        <Row Colspan="1"></Row>
-    </Row>
-
-    <Button ButtonType="ButtonType.Reset" 
-            Size="Size.Small" 
-            Color="Color.Danger" 
-            Icon="fa-solid fa-arrows-rotate me-2" 
-            Style="min-width: 100px;" @onclick="HandleReset">
-        Reset
-    </Button>
-</Row>
 
 
 @code {
-    public int BindValue { get; set; } = 0;
+    public int totalRequest { get; set; } = 0;
 
-    private AWBInventory awbInventory = new();
-
+    private List<ConsoleMessageItem> Messages { get; set; } = new();
     private List<SelectedItem> provinceItems = new();
     private List<SelectedItem> branchItems = new();
     private string selectedProvince;
-    private string awbListText = string.Empty;
     private int selectedBranch;
+
+    private readonly Random _random = new Random();
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,37 +143,93 @@
         branchItems.Insert(0, new SelectedItem { Text = "Please Select ...", Value = "0" });
     }
 
+    private async Task<bool> ValidateInputAsync()
+    {
+        // Validasi Provinsi
+        if (string.IsNullOrEmpty(selectedProvince) || selectedProvince == "0")
+        {
+            await toastService.Show(new ToastOption
+                {
+                    Category = ToastCategory.Warning,
+                    Content = "⚠️ Silakan pilih provinsi terlebih dahulu.",
+                    ShowHeader = false,
+                });
+
+            return false;
+        }
+
+        // Validasi Branch
+        if (selectedBranch == 0)
+        {
+            await toastService.Show(new ToastOption
+                {
+                    Category = ToastCategory.Warning,
+                    Content = "⚠️ Silakan pilih branch terlebih dahulu.",
+                    ShowHeader = false
+                });
+
+            return false;
+        }
+
+        // Validasi Total Request
+        if (totalRequest <= 0 || totalRequest > 10000)
+        {
+            await toastService.Show(new ToastOption
+                {
+                    Category = ToastCategory.Warning,
+                    Content = "⚠️ Jumlah harus antara 1 sampai 10.000.",
+                    ShowHeader = false,
+                });
+
+            return false;
+        }
+
+        return true;
+    }
+
     private async Task HandleCreate()
     {
-        if (BindValue <= 0 || BindValue > 10000)
-        {
-            awbListText = "Jumlah harus antara 1 sampai 10.000";
-            return;
-        }
+        if (!await ValidateInputAsync()) return;
 
         var sb = new StringBuilder();
 
-        for (int i = 0; i < BindValue; i++)
+        for (int i = 0; i < totalRequest; i++)
         {
-            var awb = GenerateRandomAWB();
-            sb.AppendLine(awb);
+            sb.AppendLine(GenerateRandomAWB());
         }
 
-        awbListText = sb.ToString();
+        Messages.Add(new ConsoleMessageItem
+            {
+                Message = $"[{DateTime.Now:HH:mm:ss}] Generate {totalRequest} AWB sukses.",
+                Color = Color.Success
+            });
+
+
+        await toastService.Show(new ToastOption
+            {
+                Category = ToastCategory.Success,
+                Title = "Sukses",
+                Content = $"✅ Berhasil generate {totalRequest} AWB."
+            });
     }
+
 
     private string GenerateRandomAWB()
     {
-        return DateTime.Now.ToString("yyMMdd") + new Random().Next(100000, 999999).ToString();
+        return DateTime.Now.ToString("yyMMdd") + _random.Next(100000, 999999).ToString();
     }
 
     private void HandleReset()
     {
-        awbListText = string.Empty;
-        BindValue = 0;
+        totalRequest = 0;
         selectedProvince = "0";
         selectedBranch = 0;
     }
+    private void OnClear()
+    {
+        Messages.Clear();
+    }
+
 
 }
 
