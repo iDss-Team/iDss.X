@@ -104,13 +104,13 @@ namespace iDss.X.Services
             return await result;
         }
 
-        public async Task<Branch> GetBranchByIDAsync(Guid id)
+        public async Task<Branch> GetBranchByIDAsync(int id)
         {
             var result = _db.mdt_branch.FindAsync(id);
             return await result;
         }
 
-        public async Task<bool> CreateBranchAsync(Branch data, ItemChangedType changedType)
+        public async Task<bool> CreateBranchAsync(Branch data)
         {
             bool result;
             try
@@ -161,33 +161,30 @@ namespace iDss.X.Services
             }
         }
 
-        public async Task<string> UpdateBranchAsync(Branch data)
+        public async Task<bool> UpdateBranchAsync(Branch data)
         {
-            string result;
+            bool result;
             try
             {
                 _db.Entry(data).State = EntityState.Modified;
                 await _db.SaveChangesAsync();
-                result = "ok";
+                result = true;
             }
             catch (Exception ex)
             {
-                result = ex.Message;
+                result = false;
             }
             return result;
         }
 
-        public async Task<bool> DeleteBranchByIDAsync(IEnumerable<Branch> branchs)
+        public async Task<bool> DeleteBranchByIDAsync(int id)
         {
             try
             {
-                foreach (var branch in branchs)
+                var existing = await _db.mdt_checkpoint.FindAsync(id);
+                if (existing != null)
                 {
-                    var existing = await _db.mdt_checkpoint.FindAsync(branch.branchid);
-                    if (existing != null)
-                    {
-                        _db.mdt_checkpoint.Remove(existing);
-                    }
+                    _db.mdt_checkpoint.Remove(existing);
                 }
 
                 await _db.SaveChangesAsync();
