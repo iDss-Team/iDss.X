@@ -1,0 +1,238 @@
+﻿@page "/master/cif"
+@using iDss.X.Models
+@using BootstrapBlazor.Components
+@inject ToastService _toastService
+@inject MasterDataPart1Service _services
+@inject MasterDataPart3Service _services3
+@attribute [TabItemOption(Text = "CIF")]
+
+<PageTitle>CIF Management</PageTitle>
+
+@if (cifs != null)
+{
+    <Row ItemsPerRow="ItemsPerRow.One">
+        <Row ItemsPerRow="ItemsPerRow.Two">
+            <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+                <StackItem><h5>CIF</h5></StackItem>
+            </Stack>
+        </Row>
+
+
+
+
+
+
+        <Table Items="cifs" IsPagination="true" PageItemsSource="@_services.PageItemsSource"
+        IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+        ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+        ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" >
+
+            <TableToolbarTemplate>
+                <TableToolbarButton TItem="CIF" Color="Color.Primary" Icon="fa-solid fa-plus"
+                Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
+            </TableToolbarTemplate>
+
+            <TableColumns>
+                <TableColumn @bind-Field="@context.cif" Searchable="true" />
+                <TableColumn @bind-Field="@context.cifname" Searchable="true" />
+                <TableColumn @bind-Field="@context.Industry" Text="Industry">
+                    <Template Context="x">@x.Row.Industry?.industryname</Template>
+                </TableColumn>
+                <TableColumn @bind-Field="@context.Branch" Text="Branch">
+                    <Template Context="x">@x.Row.Branch?.branchname</Template>
+                </TableColumn>
+
+
+                <TableColumn @bind-Field="@context.createdby" Text="">
+                    <Template Context="item">
+                        <div class="d-grip gap-2 d-md-block">
+                            <Button Text="Edit" OnClick="() => ShowEditModal(item.Row.cif)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+                            <PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+                            Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+                            IsAsync="true" OnConfirm="() => DeleteCIF(item.Row.cif)"></PopConfirmButton>
+                        </div>
+                    </Template>
+                </TableColumn>
+
+            </TableColumns>
+        </Table>
+    </Row>
+}
+else
+{
+    <h5>Loading...</h5>
+}
+
+<Modal @ref="addModals">
+    <ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCIF">
+        <BodyTemplate>
+            <ValidateForm @ref="addForm" Model="selectedCif" @key="formKey">
+                <Row ItemsPerRow="ItemsPerRow.Two">
+                    <BootstrapInput TValue="string" @bind-Value="selectedCif.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Input CIF"/>
+                    <BootstrapInput TValue="string" @bind-Value="selectedCif.cifname" DisplayText="CIF Name" ShowLabel="true" PlaceHolder="Input CIF Name"/>
+                    <Select TValue="int" @bind-Value="selectedCif.industryid"
+                    Items="IndustryItems" ShowLabel="true" DisplayText="Industry"
+                    ValueField="Value" TextField="Text" PlaceHolder="Select Industry"/>
+                    <Select TValue="int" @bind-Value="selectedCif.branchid"
+							Items="BranchItems" ShowLabel="true" DisplayText="Branch" PlaceHolder="Select Branch" ShowSearch="true"
+                    ValueField="Value" TextField="Text" />
+                </Row>
+            </ValidateForm>
+        </BodyTemplate>
+    </ModalDialog>
+</Modal>
+
+
+
+
+
+<Modal @ref="editModals">
+    <ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCIF">
+        <BodyTemplate>
+            <ValidateForm Model="selectedCif">
+                <Row ItemsPerRow="ItemsPerRow.Two">
+                    <BootstrapInput TValue="string" @bind-Value="selectedCif.cif" DisplayText="CIF" ShowLabel="true" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedCif.cifname" DisplayText="CIF Name" ShowLabel="true" />
+                    <Select TValue="int" @bind-Value="selectedCif.industryid"
+                    Items="IndustryItems" ShowLabel="true" DisplayText="Industry"
+                    ValueField="Value" TextField="Text" />
+                    <Select TValue="int" @bind-Value="selectedCif.branchid"
+                    Items="BranchItems" ShowLabel="true" DisplayText="Branch"
+                    ValueField="Value" TextField="Text" />
+                </Row>
+            </ValidateForm>
+        </BodyTemplate>
+    </ModalDialog>
+</Modal>
+
+
+@code {
+    private Modal addModals;
+    private Modal editModals;
+    private ValidateForm addForm;
+
+    public List<CIF> cifs = new();
+    private CIF selectedCif = new();
+    string modalTitle = "Add CIF";
+
+    private IEnumerable<SelectedItem> IndustryItems { get; set; } = new List<SelectedItem>();
+    private IEnumerable<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
+    private bool IsEditMode => modalTitle == "Edit CIF";
+    private Guid formKey = Guid.NewGuid();
+
+
+
+    private string selectedIndustryId;
+    private string selectedBranchId;
+
+    // public class SelectedItem
+    // {
+    //     public string Text { get; set; }
+    //     public int Value { get; set; }
+    // }
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        cifs = await _services.GetCifAsync();
+
+        var industries = await _services.LoadIndustryAsync();
+        IndustryItems = industries
+        .Select(x => new SelectedItem
+        {
+            Text = x.industryname,
+            Value = x.id.ToString()
+        }).ToList();
+
+        var branches = await _services3.LoadBranchAsync();
+        BranchItems = branches
+            .DistinctBy(x => x.branchid)
+            .OrderBy(x => x.branchname)
+            .Select(x => new SelectedItem
+                {
+                    Text = x.branchname,
+                    Value = x.branchid.ToString()
+                }).ToList();
+
+        StateHasChanged();
+    }
+
+    private async Task ShowAddModal(IEnumerable<CIF> items)
+    {
+        selectedCif = new CIF();
+        modalTitle = "Create New CIF";
+        formKey = Guid.NewGuid();
+        addModals.Show();
+        await Task.Delay(10);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ShowEditModal(string cif)
+    {
+		var data = await _services.GetCifByCIFAsync(cif);
+
+        selectedCif = new CIF
+            {
+                cif = data.cif,
+                cifname = data.cifname,
+                industryid = data.industryid,
+                branchid = data.branchid
+            };
+
+        selectedIndustryId = data.industryid.ToString();
+        selectedBranchId = data.branchid.ToString();
+
+        modalTitle = "Edit CIF";
+        editModals.Show();
+    }
+
+    private async Task<bool> SaveCIF()
+    {
+        if (string.IsNullOrWhiteSpace(selectedCif.cif))
+            return false;
+
+        bool isExisting = cifs.Any(c => c.cif == selectedCif.cif);
+
+        bool result;
+        if (isExisting)
+        {
+            selectedCif.modifieddate = DateTime.Now;
+            selectedCif.modifier = "System";
+            result = await _services.UpdateCifAsync(selectedCif.cif, selectedCif);
+            await _toastService.Success("CIF updated successfully", "Success");
+        }
+        else
+        {
+            selectedCif.createddate = DateTime.Now;
+            selectedCif.createdby = "System";
+            result = await _services.CreateCifAsync(selectedCif);
+            await _toastService.Success("CIF saved successfully", "Success");
+        }
+
+        if (result)
+        {
+            addModals.Close();
+            await LoadData();
+        }
+
+        return result;
+    }
+
+    private async Task<bool> DeleteCIF(string cif)
+    {
+        var result = await _services.DeleteCIFAsync(cif);
+        if (result)
+        {
+            await LoadData();
+        }
+        StateHasChanged();
+        return result;
+    }
+}

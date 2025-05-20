@@ -1,9 +1,11 @@
 ﻿@page "/pickup/entrypickuponcall"
 @using iDss.X.Models
+@using AutoMapper;
 @inject MasterDataPart1Service _service1
 @inject MasterDataPart2Service _service2
 @inject MasterDataPart3Service _service3
 @inject PickupService _pickupService
+@inject IMapper Mapper;
 @attribute [TabItemOption(Text = "On-Call Request")]
 
 <PageTitle>On-Call Request</PageTitle>
@@ -16,9 +18,9 @@
                 <h5>On-Call Request</h5>
             </span>
         </Row>
-        <Table Items="pickupRequests" TItem="PickupRequest" IsMultipleSelect="true" IsPagination="false" PageItemsSource="@_pickupService.PageItemsSource" IsFixedHeader="true" ShowLoading="true"
+        <Table Items="pickupRequests" TItem="PickupRequest" IsPagination="false" PageItemsSource="@_pickupService.PageItemsSource" IsFixedHeader="true" ShowLoading="true"
         IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="false"
-        ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" 
+        ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" IsAutoRefresh AutoRefreshInterval="1000"
         OnDeleteAsync="@_pickupService.DeletePickupRequestByIDAsync" DeleteButtonText="">
             <TableToolbarTemplate>
                 <TableToolbarButton TItem="PickupRequest"
@@ -35,8 +37,15 @@
                 <TableColumn @bind-Field="@context.createddate" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
                 <TableColumn @bind-Field="@context.id" Text="">
                     <Template Context="item">
-                        <Button Text="edit" OnClick="() => ShowEditModal(context.pickupno)"  ></Button>
-                        <PopConfirmButton Color="Color.Primary" Text="delete" ConfirmIcon="" ConfirmButtonColor="Color.Dark" Size="Size.ExtraSmall" />
+                        <div class="d-grip gap-2 d-md-block">
+                            <Button Text="" OnClick="@(() => ShowEditModal(item.Row.pickupno))" Color="Color.Success" Icon="fa-solid fa-pen"></Button>
+                            <PopConfirmButton Color="Color.Danger"
+                            Text="" Icon="fa-solid fa-trash"
+                            Content="Are you sure you want to delete the data?"
+                            ConfirmButtonColor="Color.Danger" Size="Size.None"
+                            ConfirmIcon="fa-solid fa-triangle-exclamation text-danger"
+                            OnConfirm="@(() => DeletePickupById(item.Row.pickupno))"/>
+                        </div>
                     </Template>
                 </TableColumn>
             </TableColumns>
@@ -53,30 +62,31 @@ else
         <BodyTemplate>
             <ValidateForm Model="pickupRequests">
                 <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                    <Alert Color="Color.Dark" >Detail Pickup</Alert>
+                    <Alert Color="Color.Dark">From Account (Shipper)</Alert>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.apireqid" DisplayText="Api Req Id" ShowLabel="true"></BootstrapInput>
                     <AutoComplete Items="@PickupTypes" @bind-Value="selectedPickupno.pickuptype" DisplayText="Pickup Type"></AutoComplete>
-                    <AutoComplete Items="@AccountItems" @bind-Value="selectedPickupno.acctno" DisplayText="Account No"></AutoComplete>
-                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.acctname" ShowLabel="true"></BootstrapInput>
+                    <AutoComplete Items="@AccountItems" @bind-Value="selectedPickupno.acctno" OnSelectedItemChanged="OnAccountSelected" DisplayText="Account No"></AutoComplete>
+                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.acctname" IsDisabled="true" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.pickuppoint" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.addr" ShowLabel="true"></BootstrapInput>
                     <AutoComplete Items="@DistrictItems" @bind-Value="selectedPickupno.distid" DisplayText="District"></AutoComplete>
-
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.postcode" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.latitude" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.longitude" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.picname" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.email" ShowLabel="true"></BootstrapInput>
-                    <BootstrapInput TValue="int?" @bind-Value="selectedPickupno.branchid" ShowLabel="true"></BootstrapInput>
-                    <AutoComplete Items="@BranchItems" @bind-Value="selectedPickupno.branchname" DisplayText="Branch"></AutoComplete>
-                    <AutoComplete Items="@CourierItems" @bind-Value="selectedPickupno.couriercode" DisplayText="Courier Code"></AutoComplete>
-                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.couriername" DisplayText="Courier Name" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="int?" @bind-Value="selectedPickupno.branchid" IsDisabled="true" ShowLabel="true" DisplayText="Branch Id"></BootstrapInput>
+                    <AutoComplete Items="@BranchItems" @bind-Value="selectedPickupno.branchname" OnSelectedItemChanged="OnBranchSelected" DisplayText="Branch Name"></AutoComplete>
+                    <AutoComplete Items="@CourierItems" @bind-Value="selectedPickupno.couriercode" OnSelectedItemChanged="OnCourierSelected" DisplayText="Courier Code"></AutoComplete>
+                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.couriername" IsDisabled="true" DisplayText="Courier Name" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.transporttype" ShowLabel="true"></BootstrapInput>
-
                     <DateTimePicker @bind-Value="DateTimeView" />
-                    <BootstrapInput TValue="TimeOnly" @bind-Value="selectedPickupno.timefrom"> </BootstrapInput>
-                    <BootstrapInput TValue="TimeOnly" @bind-Value="selectedPickupno.timeto"> </BootstrapInput>
-
+                    <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                        <BootstrapInput TValue="TimeOnly" @bind-Value="selectedPickupno.timefrom"> </BootstrapInput>
+                        <BootstrapInput TValue="TimeOnly" @bind-Value="selectedPickupno.timeto"> </BootstrapInput>
+                    </Row>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.notes" ShowLabel="true"></BootstrapInput>
                 </Row>
             </ValidateForm>
@@ -89,31 +99,29 @@ else
         <BodyTemplate>
             <ValidateForm Model="pickupRequests">
                 <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
-                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.pickupno" DisplayText="Pickup NO" ShowLabel="true"></BootstrapInput>
-                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.apireqid" ShowLabel="true"></BootstrapInput>
-                    <AutoComplete Items="@PickupTypes" @bind-Value="selectedPickupno.pickuptype" DisplayText="Pickup Type" ></AutoComplete>
-                    <AutoComplete  Items="@AccountItems" @bind-Value="selectedPickupno.acctno" DisplayText="Account No" ></AutoComplete>
-                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.acctname" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.apireqid" DisplayText="Api Req Id" ShowLabel="true"></BootstrapInput>
+                    <AutoComplete Items="@PickupTypes" @bind-Value="selectedPickupno.pickuptype" DisplayText="Pickup Type"></AutoComplete>
+                    <AutoComplete Items="@AccountItems" @bind-Value="selectedPickupno.acctno" OnSelectedItemChanged="OnAccountSelected" DisplayText="Account No"></AutoComplete>
+                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.acctname" IsDisabled="true" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.pickuppoint" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.addr" ShowLabel="true"></BootstrapInput>
-                    <AutoComplete  Items="@DistrictItems" @bind-Value="selectedPickupno.distid" DisplayText="District"></AutoComplete>
-
+                    <AutoComplete Items="@DistrictItems" @bind-Value="selectedPickupno.distid" DisplayText="District"></AutoComplete>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.postcode" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.latitude" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.longitude" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.picname" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.email" ShowLabel="true"></BootstrapInput>
-                    <BootstrapInput TValue="int?" @bind-Value="selectedPickupno.branchid" ShowLabel="true"></BootstrapInput>
-                    <AutoComplete  Items="@BranchItems" @bind-Value="selectedPickupno.branchname" DisplayText="Branch"></AutoComplete>
-                    <AutoComplete  Items="@CourierItems" @bind-Value="selectedPickupno.couriercode" DisplayText="Courier Code"></AutoComplete>
-                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.couriername" DisplayText="Courier Name" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="int?" @bind-Value="selectedPickupno.branchid" IsDisabled="true" ShowLabel="true" DisplayText="Branch Id"></BootstrapInput>
+                    <AutoComplete Items="@BranchItems" @bind-Value="selectedPickupno.branchname" OnSelectedItemChanged="OnBranchSelected" DisplayText="Branch Name"></AutoComplete>
+                    <AutoComplete Items="@CourierItems" @bind-Value="selectedPickupno.couriercode" OnSelectedItemChanged="OnCourierSelected" DisplayText="Courier Code"></AutoComplete>
+                    <BootstrapInput TValue="string" @bind-Value="selectedPickupno.couriername" IsDisabled="true" DisplayText="Courier Name" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.transporttype" ShowLabel="true"></BootstrapInput>
-
                     <DateTimePicker @bind-Value="DateTimeView" />
-                    <BootstrapInput TValue="TimeOnly" @bind-Value="selectedPickupno.timefrom"> </BootstrapInput>
-                    <BootstrapInput TValue="TimeOnly" @bind-Value="selectedPickupno.timeto"> </BootstrapInput>
-
+                    <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                        <BootstrapInput TValue="TimeOnly" @bind-Value="selectedPickupno.timefrom"> </BootstrapInput>
+                        <BootstrapInput TValue="TimeOnly" @bind-Value="selectedPickupno.timeto"> </BootstrapInput>
+                    </Row>
                     <BootstrapInput TValue="string" @bind-Value="selectedPickupno.notes" ShowLabel="true"></BootstrapInput>
                 </Row>
             </ValidateForm>
@@ -133,6 +141,7 @@ else
 
     private List<string>? DistrictItems { get; set; }
     private IEnumerable<string>? BranchItems { get; set; }
+    private IEnumerable<string>? BranchItemsSelected { get; set; }
     private List<string>? AccountItems { get; set; }
     private IEnumerable<string>? CourierItems { get; set; }
     private bool showClock = false;
@@ -157,15 +166,20 @@ else
         await LoadData();
     }
 
-    private async Task ShowEditModal(string pickupNoo)
+    private async void ShowEditModal(string pickupNoo)
     {
-
+        var data = await _pickupService.GetPickupRequestByPickno(pickupNoo);
+        var distnew = await _service1.GetDistrictById(data);
+        data.distid = distnew;
+        selectedPickupno = Mapper.Map<PickupRequest>(data);
         editModals.Show();
+        StateHasChanged();
     }
 
     private async Task ShowAddModal(IEnumerable<PickupRequest> items)
     {
         selectedPickupno = new PickupRequest();
+        StateHasChanged();
         addModals.Show();
     }
 
@@ -173,9 +187,8 @@ else
     {
         pickupRequests = await _pickupService.GetPickupRequestAsync();
 
-
         var districts = await _service1.LoadDistrictAsync();
-        DistrictItems = districts.Select(b => b.distid).Distinct().ToList();
+        DistrictItems = districts.Select(b => b.distname).Distinct().ToList();
 
         var branches = await _service3.LoadBranchAsync();
         BranchItems = branches.Select(b => b.branchname);
@@ -183,10 +196,55 @@ else
         var couriers = await _service2.GetCourierComboAsync();
         CourierItems = couriers.Select(b => b.couriercode);
 
-        var accounts = await _service1.LoadAccountAsync();
+        var accounts = await _service1.GetAllAccountAsync();
         AccountItems = accounts.Select(b => b.acctno).ToList();
 
         StateHasChanged();
+    }
+
+    private async Task OnBranchSelected(string branchNamee)
+    {
+        var data = await _pickupService.FindBranchName(branchNamee);
+
+        if(data != null)
+        {
+            selectedPickupno.branchid = data.branchid;
+        }
+        StateHasChanged();
+    }
+
+    private async Task OnAccountSelected(string acctNooo)
+    {
+        var data = await _pickupService.FindAccountName(acctNooo);
+
+        if (data != null)
+        {
+            selectedPickupno.acctname = data.acctname;
+        }
+        StateHasChanged();
+    }
+
+    private async Task OnCourierSelected(string courierCode)
+    {
+        var data = await _pickupService.FindCourierName(courierCode);
+
+        if (data != null)
+        {
+            selectedPickupno.couriername = data.couriername;
+        }
+        StateHasChanged();
+    }
+
+    private async Task<string> DeletePickupById(string picknoo)
+    {
+        if (picknoo == null)
+        {
+            return "pickno not found";
+        }
+        var result = await _pickupService.DeletePickupByPickno(picknoo);
+        await LoadData();
+        StateHasChanged();
+        return result;
     }
 
     private async Task<bool> SavePickupRequest()
@@ -199,22 +257,23 @@ else
         else
         {
             var pickupNo = await _pickupService.GeneratePickupNoAsync();
-
             if (pickupNo == null)
             {
                 return false;
             }
+            var distNameToDistId = await _service1.GetDistrictByName(selectedPickupno);
 
             selectedPickupno.pickupno = pickupNo;
+            selectedPickupno.distid = distNameToDistId;
             result = await _pickupService.CreatePickupRequestAsync(selectedPickupno);
         }
 
-        if (true)
+        if (result)
         {
             addModals.Close();
-            StateHasChanged();
+            await LoadData();
         }
 
-        return false;
+        return result;
     }
 }
