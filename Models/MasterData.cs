@@ -189,6 +189,7 @@ namespace iDss.X.Models
         [AutoGenerateColumn(Order = 70, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
         public String? description { get; set; }
 
+        [AutoGenerateColumn(Ignore = true)]
         [ValidateNever]
         [NotMapped]
         public virtual ICollection<CIF> CIFs { get; set; } = new List<CIF>();
@@ -492,7 +493,7 @@ namespace iDss.X.Models
         public String hubcode { get; set; }
 
 
-        [StringLength(2)][ValidateNever][Required][Display(Name = "Province")] public String provid { get; set; }
+        [StringLength(20)][ValidateNever][Required][Display(Name = "Province")] public String provid { get; set; }
         [ForeignKey("provid")][ValidateNever] public Province Province { get; set; }
     }
 

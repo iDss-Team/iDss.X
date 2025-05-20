@@ -1,31 +1,186 @@
-﻿@page "/master/city"
+@page "/master/city"
 @using iDss.X.Models
 @inject MasterDataPart1Service _services
 @attribute [TabItemOption(Text = "City")]
 
 
-<PageTitle>City</PageTitle>
+<PageTitle>City Page</PageTitle>
+@if (cities != null)
+{
+	<Row ItemsPerRow="ItemsPerRow.One">
+		<Row ItemsPerRow="ItemsPerRow.Two">
+			<Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+				<StackItem>
+					<h5>City</h5>
+				</StackItem>
+			</Stack>
+		</Row>
+		<Table Items="cities" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" ShowLoading="true"
+		IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="true"
+		ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false"
+		OnEditAsync="ShowEditModal" EditButtonText="" OnDeleteAsync="DeleteCity" DeleteButtonText="">
+			<TableToolbarTemplate>
+				<TableToolbarButton TItem="City"
+									Color="Color.Primary"
+									Icon="fa-solid fa-plus"
+									Text="Add"
+									IsAsync OnClickCallback="@ShowAddModal" />
+			</TableToolbarTemplate>
+			<TableColumns>
+				<TableColumn @bind-Field="@context.cityid" Searchable="true" Filterable="true" />
+				<TableColumn @bind-Field="@context.cityname" Searchable="true" Filterable="true" />
+				<TableColumn @bind-Field="@context.citymerger" Searchable="true" Filterable="true" />
+				<TableColumn @bind-Field="@context.citycode" Searchable="true" Filterable="true" />
+				<TableColumn @bind-Field="@context.hubcode" Searchable="true" Filterable="true" />
+				@* <TableColumn @bind-Field="@context.nip">
+                    <Template Context="x">
+                        <Button OnClick="ShowEditModal"></Button>
+                    </Template>
+                </TableColumn> *@
+				<TableColumn @bind-Field="@context.Province" Text="Province Name">
+					<Template Context="x">
+						@{
+							var br = x.Row.Province.provname;
+							<p>@br</p>
+						}
+					</Template>
+				</TableColumn>
+			</TableColumns>
+		</Table>
 
-<Row ItemsPerRow="ItemsPerRow.One">
-	<Row ItemsPerRow="ItemsPerRow.Two">
-		<Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
-			<StackItem>
-				<h5>City</h5>
-			</StackItem>
-		</Stack>
+
 	</Row>
-	<Table TItem="City"  OnQueryAsync="@_services.OnQueryCityAsync"IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
-		   IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
-		   EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" OnSaveAsync="@_services.SaveCityAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteCityByIDAsync">
+}
+else
+{
+	<h5>Loading . . .</h5>
+}
 
-	</Table>
+
+<Modal @ref="modals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCity">
+		<BodyTemplate>
+			<ValidateForm Model="selectedCity">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<BootstrapInput TValue="string" @bind-Value="selectedCity.cityname" DisplayText="City Name" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCity.citymerger" DisplayText="City Merger" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCity.citycode" DisplayText="City Code" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCity.hubcode" DisplayText="Hub Code" ShowLabel="true"></BootstrapInput>
+					<AutoComplete TItem="Province"
+								  TValue="string"
+								  Items="@(ProvinceItems.Select(p => p.provname))"
+								  @bind-Value="selectedCity.provid"
+								  TextSelector="x => x.provname"
+								  ValueSelector="x => x.provid"
+								  DisplayText="Province"
+								  ShowLabel="true">
+					</AutoComplete>
 
 
-</Row>
-
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
 
 
 @code {
+	Modal modals;
+	public List<City> cities = new();
+	private List<Province> ProvinceItems { get; set; } = new();
 
+
+
+
+	private bool isModalOpen = false;
+	private string modalTitle = "Add City";
+	private City selectedCity = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadData();
+	}
+
+
+	private async Task LoadData()
+	{
+		cities = await _services.GetCityAsync();
+
+		ProvinceItems = await _services.LoadProvinceAsync();
+
+
+
+		StateHasChanged();
+
+	}
+
+	private async Task ShowAddModal(IEnumerable<City> items)
+	{
+		selectedCity = new City();
+		modalTitle = "Create New City Data";
+		isModalOpen = true;
+
+		modals.Show();
+	}
+
+
+	private async Task ShowEditModal(City city)
+	{
+		selectedCity = new City
+		{
+			cityname = city.cityname,
+			citymerger = city.citymerger,
+			citycode = city.citycode,
+			hubcode = city.hubcode,
+			provid = city.provid,
+		};
+
+		modalTitle = "Edit City";
+		isModalOpen = true;
+		StateHasChanged();
+	}
+
+
+	private async Task<bool> SaveCity()
+	{
+		System.Console.WriteLine($"Saving City: {selectedCity.cityname}, {selectedCity.citymerger}, {selectedCity.citycode}, {selectedCity.hubcode}");
+
+		bool result;
+		if (cities.Any(c => c.cityid == selectedCity.cityid))
+		{
+			result = await _services.UpdateCityAsync(selectedCity);
+		}
+		else
+		{
+			result = await _services.CreateCityAsync(selectedCity);
+		}
+
+		if (result)
+		{
+			isModalOpen = false;
+			await LoadData();
+			StateHasChanged();
+		}
+		return result;
+	}
+
+
+
+	private async Task<bool> DeleteCity(IEnumerable<City> cities)
+	{
+		bool result = await _services.DeleteCityByIDAsync(cities);
+		if(result)
+		{
+			await LoadData();
+			StateHasChanged();
+		}
+		return result;
+	}
+
+	private void CloseModal()
+	{
+		isModalOpen = false;
+		StateHasChanged();
+	}
 
 }

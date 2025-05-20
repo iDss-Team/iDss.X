@@ -6,6 +6,7 @@ using BootstrapBlazor.Components;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace iDss.X.Services
 {
@@ -139,6 +140,11 @@ namespace iDss.X.Services
             return result;
         }
 
+        public async Task<PickupRequest> GetPickupRequestByPickno(string pickno)
+        {
+            return await _db.pum_pickuprequest.FirstOrDefaultAsync(p => p.pickupno == pickno);
+        }
+
         public async Task<bool> SavePickupRequestAsync(PickupRequest data, ItemChangedType changedType)
         {
             try
@@ -210,6 +216,54 @@ namespace iDss.X.Services
                 return false;
             }
         }
+
+        public async Task<string> DeletePickupByPickno(string picknoo)
+        {
+            try
+            {
+                var deletePickup = await _db.pum_pickuprequest.FirstOrDefaultAsync(p => p.pickupno == picknoo);
+                if (deletePickup == null)
+                {
+                    return "not found";
+                }
+
+                _db.pum_pickuprequest.Remove(deletePickup);
+                await _db.SaveChangesAsync();
+
+                return "Delete Success";
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return $"Database error: {dbEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                return $"An unexpected error occurred: {ex.Message}";
+            }
+        }
+
+        public async Task<Branch> FindBranchName(string branchNamee)
+        {
+            var data = await _db.mdt_branch.FirstOrDefaultAsync(p => p.branchname == branchNamee);
+
+            return data;
+            
+        }
+
+        public async Task<Account> FindAccountName(string acctNooo)
+        {
+            var data = await _db.mdt_account.FirstOrDefaultAsync(p => p.acctno == acctNooo);
+
+            return data;
+        }
+        public async Task<Courier> FindCourierName(string courierCode)
+        {
+            var data = await _db.mdt_courier.FirstOrDefaultAsync(p => p.couriercode == courierCode);
+
+            return data;
+
+        }
+
         #endregion
 
         #region "Control Status Pickup"
