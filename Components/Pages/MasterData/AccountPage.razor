@@ -75,31 +75,31 @@ else
         <BodyTemplate>
             <ValidateForm @ref="addForm" Model="selectedAccount" @key="@formKey">
                 <Row ItemsPerRow="ItemsPerRow.Two">
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" PlaceHolder="Input Account Name"/>
                     <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Select CIF">
 
                     </AutoComplete>
                     <Select TValue="string" @bind-Value="branchidStr"
                     Items="BranchItems" ShowLabel="true" DisplayText="Branch"
-                    PlaceHolder="Select Branch" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="LoB" ShowLabel="true" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank AcctNo" ShowLabel="true" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Account Name" ShowLabel="true" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" />
+                    PlaceHolder="Select Branch" ShowSearch="true"/>
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="LoB" ShowLabel="true" PlaceHolder="Input LoB"/>
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" PlaceHolder="Input Cost Center"/>
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank AcctNo" ShowLabel="true" PlaceHolder="Input Bank Account Number"/>
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Account Name" ShowLabel="true" PlaceHolder="Input Bank Account Name"/>
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" PlaceHolder="Input Bank Code"/>
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true"  PlaceHolder="Input FRP"/>
                     <DateTimePicker @bind-Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date"/>
                     <DateTimePicker @bind-Value="selectedAccount.agreeexpire"  Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date"/>
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
                     <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Period" ShowLabel="true" />
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" Placeholder="Input Credit Period" ShowLabel="true" />
-                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.iscod" DisplayText="CoD" Placeholder="" ShowLabel="true"  Max="1" Min="0"/>
+                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.iscod" DisplayText="CoD" ShowLabel="true"  Max="1" Min="0"/>
                     <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" />
-                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isintl" DisplayText="INTL" Placeholder="" ShowLabel="true" Max="1" Min="0" />
-                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isnl" DisplayText="NL" Placeholder="" ShowLabel="true" Max="1" Min="0" />
+                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isintl" DisplayText="INTL" ShowLabel="true" Max="1" Min="0" Placeholder="Input INTL" />
+                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isnl" DisplayText="NL" ShowLabel="true" Max="1" Min="0" Placeholder="Input NL"/>
                     <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" />
-                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isrev" DisplayText="Rev" Placeholder="" ShowLabel="true" Max="1" Min="0" />
-                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.istrace" DisplayText="Trace" Placeholder="" ShowLabel="true" Max="1" Min="0" />
+                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isrev" DisplayText="Rev"  ShowLabel="true" Max="1" Min="0" Placeholder="Input Rev"/>
+                    <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.istrace" DisplayText="Trace" ShowLabel="true" Max="1" Min="0" PlaceHolder="Input Trace"/>
 
                 </Row>
             </ValidateForm>
@@ -212,7 +212,7 @@ else
                     Value = x.branchid.ToString()
                 }).ToList();
 
-        var cifs = await _services.GetCifAsync();
+        var cifs = await _services.GetCifListAsync();
         CifItems = cifs.Select(x => x.cif);
 
 

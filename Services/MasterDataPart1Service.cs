@@ -405,6 +405,107 @@ namespace iDss.X.Services
 
             return dist?.distname ?? string.Empty;
         }
+
+
+        public async Task<string> GetDistrictByDistrictId(District distId)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var dist = await _context.mdt_district.FirstOrDefaultAsync(p => p.distid == distId.distid);
+
+            return dist?.distname ?? string.Empty;
+        }
+
+
+        public async Task<District> CreateDistrictAsync(District district)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.mdt_district.Add(district);
+            await _context.SaveChangesAsync();
+            return district;
+        }
+
+
+        public async Task<bool> SaveDistrictAsync(District data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    //data.createdby = "System";
+                    //data.createddate = DateTime.Now;
+                    _context.mdt_district.Add(data);
+                }
+                //else if (changedType == ItemChangedType.Update)
+                //{
+                //    _db.mdt_city.Update(data);
+                //}
+                else
+                {
+                    var existingEntity = await _context.mdt_district.FindAsync(data.distid);
+                    if (existingEntity != null)
+                    {
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                return false;
+            }
+
+        }
+
+        public async Task<bool> UpdateDistrictAsync(string distid, District updatedDistrict)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var _district = await _context.mdt_district.FirstOrDefaultAsync(a => a.distid == distid);
+            if (_district == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in Update District Async: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
+
+        public async Task<bool> DeleteDistrictAsync(string distid)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var data = await _context.mdt_district.FirstOrDefaultAsync(a => a.distid == distid);
+
+            if (data == null)
+            {
+                return false;
+            }
+
+            _context.mdt_district.Remove(data);
+            await _context.SaveChangesAsync();
+            return true;
+
+        }
+
+
+
+
         #endregion
 
         #region "Village"

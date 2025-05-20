@@ -67,8 +67,8 @@ else
 		<BodyTemplate>
 			<ValidateForm @ref="addForm" Model="selectedIndustry" @key="formKey">
 				<Row ItemsPerRow="ItemsPerRow.Two">
-					<BootstrapInput TValue="string" @bind-Value="selectedIndustry.industryname" DisplayText="Industry Name" ShowLabel="true" />
-					<BootstrapInput TValue="string" @bind-Value="selectedIndustry.description" DisplayText="Description" ShowLabel="true" />
+					<BootstrapInput TValue="string" @bind-Value="selectedIndustry.industryname" DisplayText="Industry Name" ShowLabel="true" PlaceHolder="Input Industry Name"/>
+					<BootstrapInput TValue="string" @bind-Value="selectedIndustry.description" DisplayText="Description" ShowLabel="true" PlaceHolder="Input Description" />
 				</Row>
 			</ValidateForm>
 		</BodyTemplate>
