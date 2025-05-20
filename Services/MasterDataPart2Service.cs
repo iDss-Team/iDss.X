@@ -354,6 +354,25 @@ namespace iDss.X.Services
                 return false;
             }
         }
+
+        public async Task<bool> DeleteCourierByIDAsync(string id)
+        {
+            try
+            {
+                var existing = await _db.mdt_courier.FindAsync(id);
+                if (existing != null)
+                {
+                    _db.mdt_courier.Remove(existing);
+                }
+
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         #endregion
 
     }
