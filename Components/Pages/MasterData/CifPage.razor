@@ -68,13 +68,13 @@ else
         <BodyTemplate>
             <ValidateForm @ref="addForm" Model="selectedCif" @key="formKey">
                 <Row ItemsPerRow="ItemsPerRow.Two">
-                    <BootstrapInput TValue="string" @bind-Value="selectedCif.cif" DisplayText="CIF" ShowLabel="true" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedCif.cifname" DisplayText="CIF Name" ShowLabel="true" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedCif.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Input CIF"/>
+                    <BootstrapInput TValue="string" @bind-Value="selectedCif.cifname" DisplayText="CIF Name" ShowLabel="true" PlaceHolder="Input CIF Name"/>
                     <Select TValue="int" @bind-Value="selectedCif.industryid"
                     Items="IndustryItems" ShowLabel="true" DisplayText="Industry"
-                    ValueField="Value" TextField="Text" />
+                    ValueField="Value" TextField="Text" PlaceHolder="Select Industry"/>
                     <Select TValue="int" @bind-Value="selectedCif.branchid"
-                    Items="BranchItems" ShowLabel="true" DisplayText="Branch"
+							Items="BranchItems" ShowLabel="true" DisplayText="Branch" PlaceHolder="Select Branch" ShowSearch="true"
                     ValueField="Value" TextField="Text" />
                 </Row>
             </ValidateForm>
