@@ -110,6 +110,12 @@ namespace iDss.X.Services
             return await result;
         }
 
+        public async Task<Branch> GetBranchByBranchIdAsync(int id)
+        {
+            var result = _db.mdt_branch.FirstOrDefaultAsync(p => p.branchid == id);
+            return await result;
+        }
+
         public async Task<bool> CreateBranchAsync(Branch data, ItemChangedType changedType)
         {
             bool result;
