@@ -18,7 +18,7 @@
             </Stack>
         </Row>
 
-        <Table Items="accounts" IsPagination="true" PageItemsSource="@_services.PageItemsSource"
+        <Table Items="accounts" IsPagination="true"   PageItemsSource="@_services.PageItemsSource"
         IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
         ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
         ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
@@ -161,6 +161,11 @@ else
 
     private ValidateForm addForm;
 
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalCount = 0;
+
+
 
     private DateTime AllowValue = DateTime.Today;
     private IEnumerable<string>? CifItems { get; set; } 
@@ -218,6 +223,17 @@ else
 
         StateHasChanged();
     }
+
+
+    private async Task LoadPagedAccounts()
+    {
+        var result = await _services.GetAccountsPagedAsync(currentPage, pageSize);
+        accounts = result.Accounts;
+        totalCount = result.TotalCount;
+
+        StateHasChanged();
+    }
+
 
 
     private async Task LoadDropdownData()
@@ -310,7 +326,7 @@ else
             selectedAccount.modifieddate = DateTime.Now;
             selectedAccount.modifier = "System";
             result = await _services.UpdateAccountAsync(selectedAccount.acctno, selectedAccount);
-            await _toastService.Success($"Account {selectedAccount.acctno} updated successfully", "Success");
+            await _toastService.Success("Success", $"Account {selectedAccount.acctno} updated successfully");
         }
         else
         {
@@ -320,7 +336,7 @@ else
 
             var createdAccount = await _services.CreateAccountAsync(selectedAccount);
             result = createdAccount != null;
-            await _toastService.Success($"Account {selectedAccount.acctno} saved successfully", "Success");
+            await _toastService.Success("Success", $"Account {selectedAccount.acctno} created successfully");
         }
 
         if (result)
