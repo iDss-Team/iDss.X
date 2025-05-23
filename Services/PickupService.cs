@@ -113,33 +113,6 @@ namespace iDss.X.Services
             return datePart + serialPart;
         }
 
-
-        public async Task<bool> CreatePickupRequestAsync(PickupRequest data)
-        {
-            bool result;
-            try
-            {
-                data.createddate = DateTime.Now.ToUniversalTime();
-                _db.pum_pickuprequest.Add(data);
-                await _db.SaveChangesAsync();
-
-                var status = new PickupStatusPool
-                {
-                    pickupno = data.pickupno,
-                    pickupstatus = "request pickup"
-                };
-                _db.pum_pickupstatuspool.Add(status);
-                await _db.SaveChangesAsync();
-
-                result = true;
-            }
-            catch (Exception ex)
-            {
-                result = false;
-            }
-            return result;
-        }
-
         public async Task<PickupRequest> GetPickupRequestByPickno(string pickno)
         {
             return await _db.pum_pickuprequest.FirstOrDefaultAsync(p => p.pickupno == pickno);
@@ -179,20 +152,36 @@ namespace iDss.X.Services
             }
         }
 
-        public async Task<bool> UpdatePickupRequestAsync(PickupRequest data)
+        public async Task<bool> UpdatePickupRequestAsync(PickupRequest data, ItemChangedType changedType)
         {
-            bool result;
             try
             {
-                _db.Entry(data).State = EntityState.Modified;
+                if (changedType == ItemChangedType.Update)
+                {
+                    data.modifier = "user.login"; //ganti dengan username by session login
+                    data.modifieddate = DateTime.Now.ToUniversalTime();
+                    _db.pum_pickuprequest.Update(data);
+                }
+                else
+                {
+                    var existingEntity = await _db.pum_pickuprequest.FindAsync(data.pickupno);
+
+                    if (existingEntity != null )
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _db.Entry(existingEntity).State = EntityState.Detached;
+                    }
+                    // Attach ulang data yang baru dan update
+                    _db.Attach(data);
+                    _db.Entry(data).State = EntityState.Modified;
+                }
                 await _db.SaveChangesAsync();
-                result = true;
+                return true;
             }
             catch (Exception ex)
             {
-                result = false;
+                return false;
             }
-            return result;
         }
 
         public async Task<bool> DeletePickupRequestByIDAsync(IEnumerable<PickupRequest> pickupRequests)
@@ -240,28 +229,6 @@ namespace iDss.X.Services
             {
                 return $"An unexpected error occurred: {ex.Message}";
             }
-        }
-
-        public async Task<Branch> FindBranchName(string branchNamee)
-        {
-            var data = await _db.mdt_branch.FirstOrDefaultAsync(p => p.branchname == branchNamee);
-
-            return data;
-            
-        }
-
-        public async Task<Account> FindAccountName(string acctNooo)
-        {
-            var data = await _db.mdt_account.FirstOrDefaultAsync(p => p.acctno == acctNooo);
-
-            return data;
-        }
-        public async Task<Courier> FindCourierName(string courierCode)
-        {
-            var data = await _db.mdt_courier.FirstOrDefaultAsync(p => p.couriercode == courierCode);
-
-            return data;
-
         }
 
         #endregion

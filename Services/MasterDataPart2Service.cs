@@ -264,6 +264,12 @@ namespace iDss.X.Services
             return await result;
         }
 
+        public async Task<Courier?> GetCourierByCodeAsync(string? code)
+        {
+            var result = _db.mdt_courier.FirstOrDefaultAsync(p => p.couriercode == code);
+            return await result;
+        }
+
         public async Task<bool> CreateCourierAsync(Courier data)
         {
             bool result;
