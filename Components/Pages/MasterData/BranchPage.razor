@@ -1,24 +1,215 @@
 ﻿@page "/master/branch"
 @using iDss.X.Models
-@inject MasterDataPart3Service _services
+@inject MasterDataPart1Service _service1
+@inject MasterDataPart2Service _service2
+@inject MasterDataPart3Service _service3
+@inject ToastService ToastService
 @attribute [TabItemOption(Text = "Branch")]
 
 <PageTitle>Checkpoint Code</PageTitle>
 
-<Row  ItemsPerRow="ItemsPerRow.One">
+<Block OnQueryCondition="OnQueryCondition" Name="table">
+    @if (branches != null) {
+        <Row ItemsPerRow="ItemsPerRow.One">
+            <Row ItemsPerRow="ItemsPerRow.Two">
+                <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+                    <StackItem>
+                        <h5>Branch</h5>
+                    </StackItem>
+                </Stack>
+            </Row>
+            <Table Items="branches" IsPagination="true" PageItemsSource="@_service2.PageItemsSource" IsFixedHeader="true" ShowLoading="true"
+                   IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="false"
+                   ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" EditButtonText="" DeleteButtonText="">
+                <TableToolbarTemplate>
+                    <TableToolbarButton TItem="Branch"
+                                        Color="Color.Primary"
+                                        Icon="fa-solid fa-plus"
+                                        Text="Add"
+                                        OnClick="() => AddNew()" />
+                </TableToolbarTemplate>
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.branchid" />
+                    <TableColumn @bind-Field="@context.branchcode" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.branchname" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.branchtype" Filterable="true" />
+                    <TableColumn @bind-Field="@context.cityname" />
+                    @* <TableColumn @bind-Field="@context.Branch" Text="Branch Name">
+                        <Template Context="x">
+                            @{
+                                var br = x.Row.Branch.branchname;
+                                <p>@br</p>
+                            }
+                        </Template>
+                    </TableColumn> *@
+                    <TableColumn @bind-Field="@context.createddate" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
+                    <TableColumn @bind-Field="@context.branchid" Text="" Width="70">
+                        <Template Context="x">
+                            <Button Color="Color.None" Icon="fa-solid fa-pen" Size="Size.ExtraSmall" OnClick="() => UpdateByID(x.Value)" />
+                            <span class="w-50"></span>
+                            <PopConfirmButton Color="Color.None" Icon="fa-solid fa-trash" IsAsync="true"
+                                              Size="Size.ExtraSmall" Content="Are you sure to remove this item?"
+                                              OnConfirm="() => RemoveByID(x.Value)" />
+                        </Template>
+                    </TableColumn>
+                </TableColumns>
+            </Table>
+        </Row>
+    }
+    else
+    {
+        <h5>Loading . . .</h5>
+    }
+</Block>
+<Block OnQueryCondition="OnQueryCondition2" Name="detail">
     <Row ItemsPerRow="ItemsPerRow.Two">
-        <span>
-            <h5>Checkpoint Code</h5>
-        </span>    
-    </Row> 
-    <Table TItem="Branch" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
-           IsStriped="true" IsBordered="true" OnQueryAsync="@_services.OnQueryBranchAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true" AddModalTitle="Create New Branch" EditModalTitle="Update Branch"
-           EditMode="EditMode.Popup" EditDialogSize="Size.ExtraLarge" ShowEditButton="false" OnSaveAsync="@_services.SaveBranchAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteBranchByIDAsync">
-    </Table>
-</Row>
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>@titlePage</h5>
+            </StackItem>
+        </Stack>
+    </Row>
+    <ValidateForm Model="@data" OnValidSubmit="@OnValidSubmit" OnInvalidSubmit="@OnInvalidSubmit">
+        <Card>
+            <BodyTemplate>
+                <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                    <BootstrapInput TValue="string" @bind-Value="@data.branchcode" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="string" @bind-Value="@data.branchname" ShowLabel="true"></BootstrapInput>
+                    <Select TValue="string" Items="BranchTypes" @bind-Value="@data.branchtype" ShowLabel="true"></Select>
+                    <Textarea TValue="string" @bind-Value="@data.addr1" ShowLabel="true"></Textarea>
+                    <Select TValue="string" Items="VillageItems" @bind-Value="@data.villid" ShowSearch></Select>
+                    <BootstrapInput TValue="string" @bind-Value="@data.latitude" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="string" @bind-Value="@data.longitude" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="string" @bind-Value="@data.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="string" @bind-Value="@data.email" DisplayText="Email" ShowLabel="true"></BootstrapInput>
+                </Row>
+            </BodyTemplate>
+        </Card>
+        <Divider />
+        <Stack IsRow="true" Justify="StackJustifyContent.Evenly" AlignItems="StackAlignItems.Center" IsWrap="true">
+            <StackItem>
+                <Button ButtonType="@ButtonType.Submit" Color="Color.Success" Icon="fa-solid fa-floppy-disk" IsAsync="true" Text="Save" />
+                <Divider IsVertical="true" />
+                <Button ButtonType="@ButtonType.Button" Color="Color.Secondary" Icon="fa-solid fa-xmark" IsAsync="true" Text="Cancel" OnClick="Cancel" />
+            </StackItem>
+        </Stack>
+    </ValidateForm>
+</Block>
+
 
 @code {
-    
+    Modal modals;
+    private bool IsTable { get; set; } = true;
+    string mode;
+    string titlePage;
+    string resultString;
+    public List<Branch> branches = new();
+    private Branch data = new();
+    private IEnumerable<SelectedItem>? VillageItems { get; set; }
+    private IEnumerable<SelectedItem>? BranchTypes { get; set; } = new[]
+    {
+        new SelectedItem ("", ""),
+        new SelectedItem ("Central", "Central"),
+        new SelectedItem ("Branch", "Branch"),
+        new SelectedItem ("Sub-Branch", "Sub-Branch")
+    };
+    private Task<bool> OnQueryCondition(string name) => Task.FromResult(IsTable);
+    private Task<bool> OnQueryCondition2(string name) => Task.FromResult(!IsTable);
 
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+
+    }
+
+    private async Task LoadData()
+    {
+        await RefreshTable();
+
+
+        var districts = await _service1.LoadVillageAsync();
+        VillageItems = districts.Select(b => new SelectedItem(b.villid.ToString(), b.villname));
+
+        StateHasChanged();
+    }
+
+    private async Task RefreshTable()
+    {
+        branches = await _service3.GetBranchAsync();
+        IsTable = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddNew()
+    {
+        mode = "input";
+        IsTable = false;
+        titlePage = "Create Data";
+        data = new();
+    }
+
+    private async Task UpdateByID(int id)
+    {
+        data = await _service3.GetBranchByIDAsync(id);
+        if (data != null)
+        {
+            mode = "edit";
+            IsTable = false;
+            titlePage = "Update Data";
+        }
+    }
+
+    private async Task RemoveByID(int id)
+    {
+        bool result = await _service3.DeleteBranchByIDAsync(id);
+        if (result)
+        {
+            await RefreshTable();
+
+            await ToastService.Success("Success", "Selected data was successfully deleted");
+
+        }
+        else
+        {
+            await ToastService.Error("Failed", "an error occurred while deleting data");
+        }
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        bool result = mode == "input"
+           ? await _service3.CreateBranchAsync(data)
+           : await _service3.UpdateBranchAsync(data);
+        if (result)
+        {
+            await RefreshTable();
+
+            if (mode == "input")
+            {
+                resultString = "Data successfully added";
+            }
+            else
+            {
+                resultString = "Data successfully upadated";
+            }
+
+            await ToastService.Success("Success", resultString);
+        }
+        else
+        {
+            await ToastService.Error("Failed", "an error occurred while saving data");
+        }
+    }
+
+    private async Task OnInvalidSubmit(EditContext context)
+    {
+
+    }
+
+    private async Task Cancel()
+    {
+        IsTable = true;
+    }
 }
 
