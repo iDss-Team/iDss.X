@@ -16,6 +16,12 @@ namespace iDss.X.Components.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            //var authState = await AuthProvider.GetAuthenticationStateAsync();
+            //var user = authState.User;
+
+            //System.Console.WriteLine("Authenticated: " + user.Identity?.IsAuthenticated);
+            //System.Console.WriteLine("Username: " + user.Identity?.Name);
+
             CategoriesWithModules = await _db.app_modulectg
                 .Include(ctg => ctg.Modules)
                 .ThenInclude(mod => mod.Menus)

@@ -1,9 +1,11 @@
 ﻿@page "/"
+@* @attribute [Authorize] *@
 @layout iDss.X.Components.Shared.ModuleLayout
 
 @using iDss.X.Models;
 @inject ISessionStorageService session
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthProvider
 
 <PageTitle>Name List</PageTitle>
 
@@ -49,5 +51,3 @@
         <p>Loading data...</p>
     }
 </div>
-
-

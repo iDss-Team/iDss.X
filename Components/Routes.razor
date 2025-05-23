@@ -3,7 +3,14 @@
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
-                    <p>Anda tidak memiliki akses ke halaman ini. <a href="/login">Login</a></p>
+                    @if (!context.User.Identity.IsAuthenticated)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <p>You're not authorized to access this page.</p>
+                    }
                 </NotAuthorized>
             </AuthorizeRouteView>
         </Found>
@@ -18,3 +25,15 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    public partial class RedirectToLogin : ComponentBase
+    {
+        [Inject] NavigationManager Navigation { get; set; }
+
+        protected override void OnInitialized()
+        {
+            Navigation.NavigateTo("/login", true);
+        }
+    }
+}
