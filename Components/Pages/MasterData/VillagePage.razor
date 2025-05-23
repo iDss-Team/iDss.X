@@ -1,0 +1,281 @@
+﻿@page "/master/village"
+@using iDss.X.Models
+@inject ToastService _toastService
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "Village")]
+
+<PageTitle>Village Page</PageTitle>
+
+
+@if (villages!= null)
+{
+	<Row ItemsPerRow="ItemsPerRow.One">
+		<Row ItemsPerRow="ItemsPerRow.Two">
+			<Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+				<StackItem><h5>District</h5></StackItem>
+			</Stack>
+		</Row>
+
+		<Table IsPagination="true" @ref="villageTable" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryVillageAsync"
+		IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+		ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+		ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+
+			<TableToolbarTemplate>
+				<TableToolbarButton TItem="Village" Color="Color.Primary" Icon="fa-solid fa-plus"
+				Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
+			</TableToolbarTemplate>
+
+			<TableColumns>
+				<TableColumn @bind-Field="@context.villid" Searchable="true" />
+				<TableColumn @bind-Field="@context.villname" Searchable="true" />
+				<TableColumn @bind-Field="@context.distid" Searchable="true" />
+
+
+				<TableColumn @bind-Field="@context.villid" Text="">
+					<Template Context="item">
+						<div class="d-grip gap-2 d-md-block">
+							<Button Text="Edit" OnClick="() => ShowEditModal(item.Row.villid)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+							<PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+							Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+							IsAsync="true" OnConfirm="() => DeleteVillage(item.Row.villid)"></PopConfirmButton>
+						</div>
+					</Template>
+				</TableColumn>
+
+
+			</TableColumns>
+
+
+
+
+
+
+		</Table>
+	</Row>
+}
+else
+{
+	<h5>Loading...</h5>
+}
+
+
+<Modal @ref="addModals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveVillage">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedVillage" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<Select TValue="string"
+					Items="districtItems"
+					@bind-Value="SelectedDistrict"
+					DisplayText="District:"
+							ShowLabel="true" ShowSearch="true" />
+					<BootstrapInput TValue="string" @bind-Value="selectedVillage.villname" DisplayText="Village Name" ShowLabel="true"></BootstrapInput>
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+<Modal @ref="editModals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveVillage">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedDistrict" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<Select TValue="string"
+					Items="districtItems"
+					@bind-Value="SelectedDistrict"
+					DisplayText="District:"
+							ShowLabel="true" ShowSearch="true" />
+					<BootstrapInput TValue="string" @bind-Value="selectedVillage.villid" DisplayText="District ID" IsDisabled="true" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedVillage.villname" DisplayText="District Name" ShowLabel="true"></BootstrapInput>
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+
+@code {
+	private Modal addModals;
+	private Modal editModals;
+	private ValidateForm addForm;
+
+	private Table<Village> villageTable;
+	public List<Village> villages = new();
+	private List<District> DistrictItems { get; set; } = new();
+	private List<SelectedItem> districtItems = new();
+	private Guid formKey = Guid.NewGuid();
+	private string selectedDistrict;
+
+
+	private bool isEditMode = false;
+	private bool isModalOpen = false;
+	private string modalTitle = "Add Village";
+	private Village selectedVillage = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadData();
+		await LoadDistrict();
+	}
+
+
+
+
+	private async Task LoadData()
+	{
+		villages = await _services.GetVillageAsync();
+
+		// CityItems = await _services.GetCityAsync();
+
+		StateHasChanged();
+	}
+
+
+	private async Task LoadDistrict()
+	{
+		var dataDistrict = await _services.GetDistrictAsync();
+
+		districtItems = dataDistrict.Select(c => new SelectedItem
+			{
+				Value = c.distid,
+				Text = $"{c.distid} | {c.distname}"
+			}).ToList();
+
+		districtItems.Insert(0, new SelectedItem { Text = "Please Select...", Value="0" });
+	}
+
+
+
+	private async Task ShowAddModal(IEnumerable<Village> items)
+	{
+
+		modalTitle = "Create New Village";
+		selectedVillage = new Village();
+		SelectedDistrict = "0";
+		await addModals.Show();
+		await Task.Delay(10);
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private string SelectedDistrict
+	{
+		get => selectedDistrict;
+		set
+		{
+			if (selectedDistrict != value)
+			{
+				selectedDistrict = value;
+				selectedVillage.distid = value;
+			}
+		}
+	}
+
+
+
+
+	private async Task ShowEditModal(string villid)
+	{
+		var data = await _services.GetVillageByVillageId(villid);
+		selectedVillage = new Village
+			{
+				villid = data.villid,
+				villname    = data.villname,
+				distid    = data.distid,
+			};
+		selectedDistrict = selectedVillage.distid;
+		modalTitle = "Edit Village";
+		editModals.Show();
+		StateHasChanged();
+	}
+
+	private async Task<string> GenerateVillageId(string distid)
+	{
+		var villageInDistrict = villages.Where(c => c.distid == distid).ToList();
+
+		int maxSuffix = 0;
+
+		foreach (var village in villageInDistrict)
+		{
+			if (village.villid.StartsWith(distid))
+			{
+				var suffixStr = village.villid.Substring(distid.Length);
+				if (int.TryParse(suffixStr, out int suffixNum))
+				{
+					if (suffixNum > maxSuffix)
+					{
+						maxSuffix = suffixNum;
+					}
+				}
+			}
+		}
+
+		int newSuffix = maxSuffix + 1;
+		string newVillageId = $"{distid}{newSuffix.ToString("D4")}";
+
+
+		return newVillageId;
+
+	}
+
+
+
+	private async Task<bool> SaveVillage()
+	{
+		if (string.IsNullOrWhiteSpace(SelectedDistrict) || SelectedDistrict == "0")
+		{
+			await _toastService.Error("Validation Error", "Please select a valid district.");
+			return false;
+		}
+
+		bool isExisting = !string.IsNullOrWhiteSpace(selectedVillage.villid)
+						&& villages.Any(c => c.villid == selectedVillage.villid);
+
+		bool result;
+		if (isExisting)
+		{
+			result = await _services.UpdateVillageAsync(selectedVillage.villid, selectedVillage);
+			await _toastService.Success("Success", "Village updated successfully");
+		}
+		else
+		{
+			selectedVillage.villid = await GenerateVillageId(SelectedDistrict);
+			var createdVillage = await _services.CreateVillageAsync(selectedVillage);
+			result = createdVillage != null;
+			await _toastService.Success("Success", "Village created successfully");
+		}
+
+		if (result)
+		{
+			addModals.Close();
+			editModals.Close(); 
+			await villageTable.QueryAsync();
+		}
+
+		return result;
+	}
+
+
+
+	private async Task<bool> DeleteVillage(string villid)
+	{
+		var result = await _services.DeleteVillageAsync(villid);
+		if (result)
+		{
+			await villageTable.QueryAsync();
+			await _toastService.Success("Success", "Village deleted successfully");
+		}
+		StateHasChanged();
+		return result;
+	}
+
+
+
+
+
+}

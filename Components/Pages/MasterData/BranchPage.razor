@@ -75,7 +75,7 @@
                 <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
                     <BootstrapInput TValue="string" @bind-Value="@data.branchcode" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="@data.branchname" ShowLabel="true"></BootstrapInput>
-                    <Select TValue="string" Items="BranchTypes" @bind-Value="@data.branchtype" ShowLabel="true"></Select>
+                    <Select TValue="string" Items="BranchTypes" @bind-Value="@data.branchtype" DisplayText="Branch Type" ShowLabel="true"></Select>
                     <Textarea TValue="string" @bind-Value="@data.addr1" ShowLabel="true"></Textarea>
                     <Select TValue="string" Items="VillageItems" @bind-Value="@data.villid" ShowSearch></Select>
                     <BootstrapInput TValue="string" @bind-Value="@data.latitude" ShowLabel="true"></BootstrapInput>

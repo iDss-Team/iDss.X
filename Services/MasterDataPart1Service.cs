@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using System.Linq;
+using Microsoft.AspNetCore.SignalR;
 
 namespace iDss.X.Services
 {
@@ -47,6 +48,9 @@ namespace iDss.X.Services
                 .ToListAsync();
             return await result;
         }
+
+
+
 
 
         public Task<QueryData<Province>> OnQueryProvinceAsync(QueryPageOptions options)
@@ -94,6 +98,27 @@ namespace iDss.X.Services
 
 
 
+        }
+
+
+        public async Task<string> GenerateCityIdByProvinceAsync(string provid)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+
+            var cityIds = await _context.mdt_city
+                .Where(c => c.cityid.StartsWith(provid))
+                .Select(c => c.cityid)
+                .ToListAsync();
+
+            // Extract the last two digits, parse them as int, and find the max
+            int maxSuffix = cityIds
+                .Select(id => id.Length >= 4 ? int.Parse(id.Substring(2, 2)) : 0)
+                .DefaultIfEmpty(0)
+                .Max();
+
+            // Increment and pad to ensure two digits
+            int nextSuffix = maxSuffix + 1;
+            return $"{provid}{nextSuffix.ToString("D2")}";
         }
 
 
@@ -185,6 +210,26 @@ namespace iDss.X.Services
             return result;
         }
 
+        public async Task<(List<City> Items, int TotalCount)> GetCitiesPagedAsync(int pageIndex, int pageSize)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+
+            var query = _context.mdt_city
+                .Include(c => c.Province)
+                .AsNoTracking();
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(c => c.cityid)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+
 
         public async Task<IEnumerable<City>> GetCitiesAsync()
         {
@@ -192,9 +237,21 @@ namespace iDss.X.Services
             return await _context.mdt_city.ToListAsync();
         }
 
+        public async Task<City?> GetCityByCityIdAsync(string cityid)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_city.FirstOrDefaultAsync(a => a.cityid == cityid);
+        }
+
+
+
         public Task<QueryData<City>>OnQueryCityAsync(QueryPageOptions options){
             using var _context = _contextFactory.CreateDbContext();
-            var items = _context.mdt_city.ToList();
+              var items = _context.mdt_city
+        .Include(c => c.Province)
+        .AsNoTracking()
+        .ToList();
+
 
             var isSearched = false;
 
@@ -278,6 +335,17 @@ namespace iDss.X.Services
         }
 
 
+        public async Task<List<string>> GetHubCodesByCityCodeAsync(string cityCode)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var hubCodes = await _context.mdt_city
+                .Where(c => c.citycode == cityCode)
+                .Select(c => c.hubcode)
+                .Distinct()
+                .ToListAsync();
+            return hubCodes;
+        }
+
         public async Task<bool> SaveCityAsync(City data, ItemChangedType changedType)
         {
             using var _context = _contextFactory.CreateDbContext();
@@ -310,56 +378,48 @@ namespace iDss.X.Services
             }
             catch (Exception ex)
             {
-                // Handle exception
+             
                 return false;
             }
 
         }
 
-        public async Task<bool> UpdateCityAsync(City data)
+        public async Task<bool> UpdateCityAsync(string cityid, City updatedCity)
         {
             using var _context = _contextFactory.CreateDbContext();
-            bool result;
-            try
+            var data = await _context.mdt_city.FirstOrDefaultAsync(a => a.cityid == cityid);
+            if (data == null)
             {
-                _context.Entry(data).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                result = true;
+                return false;
             }
-            catch (Exception ex)
-            {
-                // Log the error for debugging purposes
-                System.Console.WriteLine($"Error in UpdateCityAsync: {ex.Message}");
-                result = false;
-            }
-            return result;
+            data.cityname = updatedCity.cityname;
+            data.citymerger = updatedCity.citymerger;
+            data.citycode = updatedCity.citycode;
+            data.hubcode = updatedCity.hubcode;
+            data.provid = updatedCity.provid;
+            await _context.SaveChangesAsync();
+            return true;
+
+
         }
 
 
 
 
-        public async Task<bool> DeleteCityByIDAsync(IEnumerable<City> cities)
+        public async Task<bool> DeleteCityAsync(string cityid)
         {
             using var _context = _contextFactory.CreateDbContext();
-            try
+            var city = await _context.mdt_city.FirstOrDefaultAsync(a => a.cityid == cityid);
+
+            if (city == null)
             {
-                var tasks = cities.Select(async city =>
-                {
-                    var existingEntity = await _context.mdt_city.FindAsync(city.cityid);
-                    if (existingEntity != null)
-                    {
-                        _context.mdt_city.Remove(existingEntity);
-                    }
-                });
-                await Task.WhenAll(tasks); // Delete cities concurrently
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"Error in DeleteCityByIDAsync: {ex.Message}");
                 return false;
             }
+
+            _context.mdt_city.Remove(city);
+            await _context.SaveChangesAsync();
+            return true;
+
         }
 
 
@@ -407,12 +467,61 @@ namespace iDss.X.Services
         }
 
 
-        public async Task<string> GetDistrictByDistrictId(District distId)
+        public async Task<District?> GetDistrictByDistrictId(string distid)
         {
             using var _context = _contextFactory.CreateDbContext();
-            var dist = await _context.mdt_district.FirstOrDefaultAsync(p => p.distid == distId.distid);
+            return await _context.mdt_district.FirstOrDefaultAsync(a => a.distid == distid);
+        }
 
-            return dist?.distname ?? string.Empty;
+
+        public  Task<QueryData<District>> OnQueryDistrictAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_district.
+                Include(c => c.City)
+                .AsNoTracking()
+                .ToList();
+
+            var isSearched = false;
+            if (options.SearchModel is District district)
+            {
+                if (!string.IsNullOrEmpty(district.distname))
+                {
+                    items = items.Where(item => item.distname?.Contains(district.distname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+                if (!string.IsNullOrEmpty(district.distid))
+                {
+                    items = items.Where(item => item.distid?.Contains(district.distid, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(district.distname) || !string.IsNullOrEmpty(district.distid);
+            }
+
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<District>(FilterLogic.Or)).ToList();
+            }
+
+            var isFiltered = false;
+
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<District>()).ToList();
+                isFiltered = true;
+            }
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<District>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+
+
         }
 
 
@@ -538,6 +647,154 @@ namespace iDss.X.Services
             using var _context = _contextFactory.CreateDbContext();
             return _context.mdt_village.AsNoTracking().ToList();
         }
+
+        public async Task<Village?> GetVillageByVillageId(string villid)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_village.FirstOrDefaultAsync(a => a.villid == villid);
+        }
+
+
+        public Task<QueryData<Village>> OnQueryVillageAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_village.
+                Include(c => c.District)
+                .AsNoTracking()
+                .ToList();
+
+            var isSearched = false;
+            if (options.SearchModel is Village village)
+            {
+                if (!string.IsNullOrEmpty(village.villname))
+                {
+                    items = items.Where(item => item.villname?.Contains(village.villname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+                if (!string.IsNullOrEmpty(village.villid))
+                {
+                    items = items.Where(item => item.villid?.Contains(village.villid, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(village.villname) || !string.IsNullOrEmpty(village.villid);
+            }
+
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<Village>(FilterLogic.Or)).ToList();
+            }
+
+            var isFiltered = false;
+
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Village>()).ToList();
+                isFiltered = true;
+            }
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<Village>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+
+        }
+
+
+        public async Task<Village> CreateVillageAsync(Village village)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.mdt_village.Add(village);
+            await _context.SaveChangesAsync();
+            return village;
+        }
+
+
+        public async Task<bool> SaveVillageAsync(Village village, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    //data.createdby = "System";
+                    //data.createddate = DateTime.Now;
+                    _context.mdt_village.Add(village);
+                }
+                //else if (changedType == ItemChangedType.Update)
+                //{
+                //    _db.mdt_city.Update(data);
+                //}
+                else
+                {
+                    var existingEntity = await _context.mdt_village.FindAsync(village.villid);
+                    if (existingEntity != null)
+                    {
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    _context.Attach(village);
+                    _context.Entry(village).State = EntityState.Modified;
+
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                return false;
+            }
+
+        }
+
+        public async Task<bool> UpdateVillageAsync(string villid, Village updatedVillage)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var _village = await _context.mdt_village.FirstOrDefaultAsync(a => a.villid == villid);
+            if (_village == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in Update District Async: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
+
+        public async Task<bool> DeleteVillageAsync(string villid)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var data = await _context.mdt_village.FirstOrDefaultAsync(a => a.villid == villid);
+
+            if (data == null)
+            {
+                return false;
+            }
+
+            _context.mdt_village.Remove(data);
+            await _context.SaveChangesAsync();
+            return true;
+
+        }
+
+
+
+
 
         #endregion
 
@@ -693,6 +950,22 @@ namespace iDss.X.Services
                 .ToListAsync();
         }
 
+        public async Task<(List<Account> Accounts, int TotalCount)> GetAccountsPagedAsync(int pageIndex, int pageSize)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+
+            var query = _context.mdt_account.Include(a => a.Branch).AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var accounts = await query
+                .OrderBy(a => a.acctno) // Or any order you want
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (accounts, totalCount);
+        }
 
 
         public async Task<Account?> GetAccountByAcctNoAsync(string acctno)
@@ -926,11 +1199,6 @@ namespace iDss.X.Services
 
 
    }
-
-
-
-
-
 
    
      public async Task<Industry> CreateIndustryAsync(Industry industry)
