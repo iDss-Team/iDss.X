@@ -176,17 +176,7 @@ else
 		provinceItems.Insert(0, new SelectedItem { Text = "Please Select ...", Value = "0" });
 	}
 
-	// private async Task LoadHubCodesByCityCode(string cityCode)
-	// {
-	// 	var hubList = await _services.GetHubCodesByCityCodeAsync(cityCode);
 
-	// 	hubCodeItems = hubList.Select(hubCodeItems => new SelectedItem
-	// 		{
-	// 			Text = hubCodeItems,
-	// 			Value = hubCodeItems
-	// 		}).ToList();
-	// 	hubCodeItems.Insert(0, new SelectedItem { Text = "Please Select ...", Value = "0" });
-	// }
 
 
 	private async Task LoadHubCodes()
