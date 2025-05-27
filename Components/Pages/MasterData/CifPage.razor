@@ -206,14 +206,14 @@ else
             selectedCif.modifieddate = DateTime.Now;
             selectedCif.modifier = "System";
             result = await _services.UpdateCifAsync(selectedCif.cif, selectedCif);
-            await _toastService.Success("CIF updated successfully", "Success");
+            await _toastService.Success("Success", "CIF updated successfully");
         }
         else
         {
             selectedCif.createddate = DateTime.Now;
             selectedCif.createdby = "System";
             result = await _services.CreateCifAsync(selectedCif);
-            await _toastService.Success("CIF saved successfully", "Success");
+            await _toastService.Success("Success", "CIF saved successfully");
         }
 
         if (result)

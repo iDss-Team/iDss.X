@@ -161,6 +161,9 @@ else
 	}
 
 
+
+
+
 	private async Task<bool> SaveIndustry()
 	{
 		bool isExisting = !string.IsNullOrWhiteSpace(selectedIndustry.id.ToString())
@@ -170,7 +173,7 @@ else
 		if (isExisting)
 		{
 			result = await _services.UpdateIndustryAsync(selectedIndustry.id, selectedIndustry);
-			await _toastService.Success("Industry updated successfully", "Success");
+			await _toastService.Success("Success" , "Industry updated successfully");
 		}
 		else
 		{
@@ -180,7 +183,7 @@ else
 
 			var createdIndustry = await _services.CreateIndustryAsync(selectedIndustry);
 			result = createdIndustry != null;
-			await _toastService.Success("Industry saved successfully", "Success");
+			await _toastService.Success( "Success" , "Industry created successfully");
 		}
 
 		if (result)
