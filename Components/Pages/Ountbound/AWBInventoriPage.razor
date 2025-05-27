@@ -21,9 +21,9 @@
 
 @* Content *@
 
-@* layout 1 *@
 <Row ItemsPerRow="ItemsPerRow.One" Style="padding-left: 16px; padding-right: 16px; margin-bottom: 16px;">
     <div class="row g-4">
+        @* coloumn 1 *@
         <div class="col-6">
             <div class="mb-3" style="width: 100%; max-width: 300px">
                 <Select TValue="string"
@@ -31,14 +31,17 @@
                         @bind-Value="selectedProvince"
                         DisplayText="Provinsi:"
                         ShowLabel="true" />
+                        @* OnSelectedItemChanged="OnProvinceChanged" *@ 
+
             </div>
 
             <div class="mb-3" style="width: 100%; max-width: 300px">
-                <Select TValue="int"
+                <Select TValue="string"
                         Items="branchItems"
                         @bind-Value="selectedBranch"
                         DisplayText="Branch:"
-                        ShowLabel="true" />
+                        ShowLabel="true"
+                        OnSelectedItemChanged="OnBranchChanged" />
             </div>
 
             <div class="mb-3">
@@ -59,8 +62,10 @@
 
 
                     <div style="display: flex; flex-direction: column; width: 100px;">
-                        <BootstrapInput TValue="string"
+                        <BootstrapInput TValue="int"
+                                        @bind-Value="@availableAwb"
                                         IsAutoFocus="true"
+                                        IsDisabled="true"
                                         Readonly="true"
                                         IsSelectAllTextOnFocus="true"
                                         ShowLabel="true"
@@ -73,25 +78,33 @@
 
             <div class="mb-3">
                 <Stack IsRow="true" style="gap: 24px">
-                    <Button ButtonType="ButtonType.Submit"
-                            Size="Size.Small"
-                            Color="Color.Success"
-                            Icon="fa-solid fa-circle-plus me-2"
-                            Style="min-width: 100px;" @onclick="HandleCreate">
-                        CREATE
-                    </Button>
+                    <PopConfirmButton Text="@((isLoading ? "Loading..." : "CREATE"))"
+                                      Content="Are you sure you want to generate AWB?"
+                                      ConfirmButtonText="Yes"
+                                      CloseButtonText="No"
+                                      ConfirmButtonColor="Color.Success"
+                                      CloseButtonColor="Color.Secondary"
+                                      Color="Color.Success"
+                                      Icon="fa-solid fa-circle-plus me-2"
+                                      Trigger="click"
+                                      OnConfirm="HandleCreate"
+                                      Style="min-width: 100px;"
+                                      disabled="isLoading">
+                    </PopConfirmButton>
 
                     <Button ButtonType="ButtonType.Reset"
                             Size="Size.Small"
                             Color="Color.Danger"
                             Icon="fa-solid fa-arrows-rotate me-2"
+                            Text="Reset"
                             Style="min-width: 100px;" @onclick="HandleReset">
-                        Reset
                     </Button>
 
                 </Stack>
             </div>
         </div>
+
+        @* coloumn 2 *@
         <div class="col-6">
             <Console Items="@Messages" Height="200" ShowAutoScroll="true" OnClear="@OnClear" />
         </div>
@@ -103,17 +116,18 @@
 
 @code {
     public int totalRequest { get; set; } = 0;
+    private int availableAwb = 0;
+    private bool isLoading = false;
 
     private List<ConsoleMessageItem> Messages { get; set; } = new();
     private List<SelectedItem> provinceItems = new();
     private List<SelectedItem> branchItems = new();
-    private string selectedProvince;
-    private int selectedBranch;
-
-    private readonly Random _random = new Random();
+    private string selectedProvince = "0";
+    private string selectedBranch = "0";
 
     protected override async Task OnInitializedAsync()
     {
+        HandleReset();
         await LoadProvinceAsync();
         await LoadBranchAsync();
     }
@@ -143,9 +157,53 @@
         branchItems.Insert(0, new SelectedItem { Text = "Please Select ...", Value = "0" });
     }
 
+    private async Task OnProvinceChanged(SelectedItem selectedItem)
+    {
+        selectedProvince = selectedItem.Value;
+
+        if (!string.IsNullOrEmpty(selectedProvince) && selectedProvince != "0")
+        {
+            var branches = await _oclservice.GetBranchByProv(selectedProvince);
+
+            branchItems = branches.Select(b => new SelectedItem
+                {
+                    Text = $"{b.villid} | {b.branchname}",
+                    Value = b.branchid.ToString()
+                }).ToList();
+
+            branchItems.Insert(0, new SelectedItem { Text = "Please Select ...", Value = "0" });
+        }
+        else
+        {
+            branchItems.Clear();
+            branchItems.Insert(0, new SelectedItem { Text = "Please Select ...", Value = "0" });
+        }
+
+        selectedBranch = "0";
+    }
+
+    private async Task OnBranchChanged(SelectedItem selectedItem)
+    {
+        selectedBranch = selectedItem.Value;
+        if (int.TryParse(selectedBranch, out int branchId))
+        {
+            await LoadAvailableAwbAsync(branchId);
+        }
+        else
+        {
+            availableAwb = 0;
+        }
+        StateHasChanged();
+    }
+
+    private async Task LoadAvailableAwbAsync(int branchId)
+    {
+        availableAwb = await _oclservice.GetAvailableAwbCountAsync(branchId);
+    }
+
     private async Task<bool> ValidateInputAsync()
     {
-        // Validasi Provinsi
+        // Validate Provinsi
         if (string.IsNullOrEmpty(selectedProvince) || selectedProvince == "0")
         {
             await toastService.Show(new ToastOption
@@ -158,8 +216,8 @@
             return false;
         }
 
-        // Validasi Branch
-        if (selectedBranch == 0)
+        // Validate Branch
+        if (selectedBranch == "0")
         {
             await toastService.Show(new ToastOption
                 {
@@ -171,13 +229,13 @@
             return false;
         }
 
-        // Validasi Total Request
+        // Validate Total Request
         if (totalRequest <= 0 || totalRequest > 10000)
         {
             await toastService.Show(new ToastOption
                 {
                     Category = ToastCategory.Warning,
-                    Content = "⚠️ Jumlah harus antara 1 sampai 10.000.",
+                    Content = "⚠️ Jumlah request harus antara 1 sampai 10.000.",
                     ShowHeader = false,
                 });
 
@@ -187,44 +245,86 @@
         return true;
     }
 
-    private async Task HandleCreate()
+    private void AddMessage(string text, Color color = Color.Info, string icon = "")
     {
-        if (!await ValidateInputAsync()) return;
-
-        var sb = new StringBuilder();
-
-        for (int i = 0; i < totalRequest; i++)
-        {
-            sb.AppendLine(GenerateRandomAWB());
-        }
-
         Messages.Add(new ConsoleMessageItem
             {
-                Message = $"[{DateTime.Now:HH:mm:ss}] Generate {totalRequest} AWB sukses.",
-                Color = Color.Success
-            });
-
-
-        await toastService.Show(new ToastOption
-            {
-                Category = ToastCategory.Success,
-                Title = "Sukses",
-                Content = $"✅ Berhasil generate {totalRequest} AWB."
+                Message = $"{icon} [{DateTime.Now:HH:mm:ss}] {text}",
+                Color = color
             });
     }
 
-
-    private string GenerateRandomAWB()
+    private async Task HandleCreate()
     {
-        return DateTime.Now.ToString("yyMMdd") + _random.Next(100000, 999999).ToString();
+        if (isLoading) return;
+        if (!await ValidateInputAsync()) return;
+
+        if (!int.TryParse(selectedBranch, out int branchId))
+        {
+            await toastService.Show(new ToastOption
+                {
+                    Category = ToastCategory.Warning,
+                    Content = "⚠️ Branch tidak valid.",
+                    ShowHeader = false
+                });
+            return;
+        }
+
+        isLoading = true;
+
+        AddMessage($"Sedang memproses generate {totalRequest} AWB...", Color.Info, "⏳");
+        StateHasChanged();
+        await Task.Delay(300);
+
+        AddMessage($"Mohon tunggu, sedang mengalokasikan AWB...", Color.Secondary, "🔄");
+        StateHasChanged();
+        await Task.Delay(500);
+
+        try
+        {
+            string currentUser = "admin";
+
+            await _oclservice.GenerateAwbAsync(branchId, totalRequest, currentUser);
+
+            AddMessage($"Generate {totalRequest} AWB sukses.", Color.Success, "✅");
+
+            await LoadAvailableAwbAsync(branchId);
+
+            await toastService.Show(new ToastOption
+                {
+                    Category = ToastCategory.Success,
+                    Title = "Sukses",
+                    Content = $"Berhasil generate {totalRequest} AWB."
+                });
+        }
+        catch (Exception ex)
+        {
+            AddMessage($"Terjadi kesalahan: {ex.Message}", Color.Danger, "❌");
+
+            await toastService.Show(new ToastOption
+                {
+                    Category = ToastCategory.Error,
+                    Title = "Error",
+                    Content = $"Gagal generate AWB: {ex.Message}"
+                });
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+
     }
 
     private void HandleReset()
     {
         totalRequest = 0;
         selectedProvince = "0";
-        selectedBranch = 0;
+        selectedBranch = "0";
+        availableAwb = 0;
+        StateHasChanged();
     }
+
     private void OnClear()
     {
         Messages.Clear();
