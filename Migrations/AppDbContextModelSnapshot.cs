@@ -124,7 +124,7 @@ namespace iDss.X.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("creditlimit")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,0)");
 
                     b.Property<string>("creditperiod")
                         .HasMaxLength(30)
@@ -134,7 +134,7 @@ namespace iDss.X.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("feecod")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("flag")
                         .HasColumnType("int");
@@ -1560,7 +1560,7 @@ namespace iDss.X.Migrations
                             flag = 1,
                             icon = "fa-solid fa-money-bill-wave",
                             modulectgid = 5,
-                            modulename = "Cash on Delivery",
+                            modulename = "COD Collection",
                             modulesort = 13
                         },
                         new
@@ -1758,6 +1758,67 @@ namespace iDss.X.Migrations
                             modulectgname = "Warehouse Management",
                             modulectgsort = 7
                         });
+                });
+
+            modelBuilder.Entity("iDss.X.Models.Attachment", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
+
+                    b.Property<string>("awb")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("cpcode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<int>("isadjust")
+                        .HasColumnType("int");
+
+                    b.Property<string>("url1")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("url2")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("url3")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("url4")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("url5")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("urlsignature")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("trx_attachment");
                 });
 
             modelBuilder.Entity("iDss.X.Models.Branch", b =>
@@ -2059,6 +2120,104 @@ namespace iDss.X.Migrations
                     b.ToTable("mdt_checkpoint");
                 });
 
+            modelBuilder.Entity("iDss.X.Models.CheckpointPool", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
+
+                    b.Property<int>("attempt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("awb")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<int>("branchid")
+                        .HasColumnType("int");
+
+                    b.Property<string>("branchname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("couriercode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("cpcode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<DateTime>("cpdatetime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("cpname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<int>("islastpoint")
+                        .HasColumnType("int");
+
+                    b.Property<int>("isoversla")
+                        .HasColumnType("int");
+
+                    b.Property<string>("latitude")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("longitude")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("reasonid")
+                        .HasColumnType("int");
+
+                    b.Property<string>("recipient")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("relationid")
+                        .HasColumnType("int");
+
+                    b.Property<string>("remarks")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("branchid");
+
+                    b.HasIndex("couriercode");
+
+                    b.HasIndex("reasonid");
+
+                    b.HasIndex("relationid");
+
+                    b.ToTable("trx_checkpointpool");
+                });
+
             modelBuilder.Entity("iDss.X.Models.City", b =>
                 {
                     b.Property<string>("cityid")
@@ -2078,15 +2237,33 @@ namespace iDss.X.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
                     b.Property<string>("hubcode")
                         .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)");
 
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("provid")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
 
                     b.HasKey("cityid");
 
@@ -2101,6 +2278,9 @@ namespace iDss.X.Migrations
                             citycode = "TTN",
                             citymerger = "ACEH SELATAN",
                             cityname = "KAB ACEH SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2110,6 +2290,9 @@ namespace iDss.X.Migrations
                             citycode = "KTN",
                             citymerger = "ACEH TENGGARA",
                             cityname = "KAB ACEH TENGGARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2119,6 +2302,9 @@ namespace iDss.X.Migrations
                             citycode = "LGS",
                             citymerger = "ACEH TIMUR",
                             cityname = "KAB ACEH TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "11"
                         },
@@ -2128,6 +2314,9 @@ namespace iDss.X.Migrations
                             citycode = "TKN",
                             citymerger = "ACEH TENGAH",
                             cityname = "KAB ACEH TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2137,6 +2326,9 @@ namespace iDss.X.Migrations
                             citycode = "MBO",
                             citymerger = "ACEH BARAT",
                             cityname = "KAB ACEH BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2146,6 +2338,9 @@ namespace iDss.X.Migrations
                             citycode = "JTH",
                             citymerger = "ACEH BESAR",
                             cityname = "KAB ACEH BESAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2155,6 +2350,9 @@ namespace iDss.X.Migrations
                             citycode = "SGI",
                             citymerger = "PIDIE",
                             cityname = "KAB PIDIE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2164,6 +2362,9 @@ namespace iDss.X.Migrations
                             citycode = "LSK",
                             citymerger = "ACEH UTARA",
                             cityname = "KAB ACEH UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "11"
                         },
@@ -2173,6 +2374,9 @@ namespace iDss.X.Migrations
                             citycode = "SNB",
                             citymerger = "SIMEULUE",
                             cityname = "KAB SIMEULUE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2182,6 +2386,9 @@ namespace iDss.X.Migrations
                             citycode = "SKL",
                             citymerger = "ACEH SINGKIL",
                             cityname = "KAB ACEH SINGKIL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2191,6 +2398,9 @@ namespace iDss.X.Migrations
                             citycode = "BIR",
                             citymerger = "BIREUEN",
                             cityname = "KAB BIREUEN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "11"
                         },
@@ -2200,6 +2410,9 @@ namespace iDss.X.Migrations
                             citycode = "BPD",
                             citymerger = "ACEH BARAT DAYA",
                             cityname = "KAB ACEH BARAT DAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2209,6 +2422,9 @@ namespace iDss.X.Migrations
                             citycode = "BKJ",
                             citymerger = "GAYO LUES",
                             cityname = "KAB GAYO LUES",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2218,6 +2434,9 @@ namespace iDss.X.Migrations
                             citycode = "CAG",
                             citymerger = "ACEH JAYA",
                             cityname = "KAB ACEH JAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2227,6 +2446,9 @@ namespace iDss.X.Migrations
                             citycode = "SKM",
                             citymerger = "NAGAN RAYA",
                             cityname = "KAB NAGAN RAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2236,6 +2458,9 @@ namespace iDss.X.Migrations
                             citycode = "KRB",
                             citymerger = "ACEH TAMIANG",
                             cityname = "KAB ACEH TAMIANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "11"
                         },
@@ -2245,6 +2470,9 @@ namespace iDss.X.Migrations
                             citycode = "STR",
                             citymerger = "BENER MERIAH",
                             cityname = "KAB BENER MERIAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2254,6 +2482,9 @@ namespace iDss.X.Migrations
                             citycode = "MRN",
                             citymerger = "PIDIE JAYA",
                             cityname = "KAB PIDIE JAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2263,6 +2494,9 @@ namespace iDss.X.Migrations
                             citycode = "BTJ",
                             citymerger = "BANDA ACEH",
                             cityname = "KOTA BANDA ACEH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2272,6 +2506,9 @@ namespace iDss.X.Migrations
                             citycode = "SBG",
                             citymerger = "SABANG",
                             cityname = "KOTA SABANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2281,6 +2518,9 @@ namespace iDss.X.Migrations
                             citycode = "LSW",
                             citymerger = "LHOKSEUMAWE",
                             cityname = "KOTA LHOKSEUMAWE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "11"
                         },
@@ -2290,6 +2530,9 @@ namespace iDss.X.Migrations
                             citycode = "LGS",
                             citymerger = "LANGSA",
                             cityname = "KOTA LANGSA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "11"
                         },
@@ -2299,6 +2542,9 @@ namespace iDss.X.Migrations
                             citycode = "SUS",
                             citymerger = "SUBULUSSALAM",
                             cityname = "KOTA SUBULUSSALAM",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTJ",
                             provid = "11"
                         },
@@ -2308,6 +2554,9 @@ namespace iDss.X.Migrations
                             citycode = "SBG",
                             citymerger = "TAPANULI",
                             cityname = "KAB TAPANULI TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2317,6 +2566,9 @@ namespace iDss.X.Migrations
                             citycode = "TRT",
                             citymerger = "TAPANULI",
                             cityname = "KAB TAPANULI UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2326,6 +2578,9 @@ namespace iDss.X.Migrations
                             citycode = "PSP",
                             citymerger = "TAPANULI",
                             cityname = "KAB TAPANULI SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2335,6 +2590,9 @@ namespace iDss.X.Migrations
                             citycode = "GST",
                             citymerger = "NIAS",
                             cityname = "KAB NIAS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2344,6 +2602,9 @@ namespace iDss.X.Migrations
                             citycode = "STB",
                             citymerger = "LANGKAT",
                             cityname = "KAB LANGKAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2353,6 +2614,9 @@ namespace iDss.X.Migrations
                             citycode = "KBJ",
                             citymerger = "KARO",
                             cityname = "KAB KARO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2362,6 +2626,9 @@ namespace iDss.X.Migrations
                             citycode = "LBP",
                             citymerger = "DELI SERDANG",
                             cityname = "KAB DELI SERDANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2371,6 +2638,9 @@ namespace iDss.X.Migrations
                             citycode = "SIM",
                             citymerger = "SIMALUNGUN",
                             cityname = "KAB SIMALUNGUN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2380,6 +2650,9 @@ namespace iDss.X.Migrations
                             citycode = "KIS",
                             citymerger = "ASAHAN",
                             cityname = "KAB ASAHAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2389,6 +2662,9 @@ namespace iDss.X.Migrations
                             citycode = "RTP",
                             citymerger = "LABUHANBATU",
                             cityname = "KAB LABUHANBATU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2398,6 +2674,9 @@ namespace iDss.X.Migrations
                             citycode = "SKD",
                             citymerger = "DAIRI",
                             cityname = "KAB DAIRI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2407,6 +2686,9 @@ namespace iDss.X.Migrations
                             citycode = "BLG",
                             citymerger = "TOBA SAMOSIR",
                             cityname = "KAB TOBA SAMOSIR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2416,6 +2698,9 @@ namespace iDss.X.Migrations
                             citycode = "PYB",
                             citymerger = "MANDAILING NATAL",
                             cityname = "KAB MANDAILING NATAL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2425,6 +2710,9 @@ namespace iDss.X.Migrations
                             citycode = "TLD",
                             citymerger = "NIAS",
                             cityname = "KAB NIAS SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2434,6 +2722,9 @@ namespace iDss.X.Migrations
                             citycode = "SAL",
                             citymerger = "PAKPAK BHARAT",
                             cityname = "KAB PAKPAK BHARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2443,6 +2734,9 @@ namespace iDss.X.Migrations
                             citycode = "DLS",
                             citymerger = "HUMBANG HASUNDUTAN",
                             cityname = "KAB HUMBANG HASUNDUTAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2452,6 +2746,9 @@ namespace iDss.X.Migrations
                             citycode = "PRR",
                             citymerger = "SAMOSIR",
                             cityname = "KAB SAMOSIR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2461,6 +2758,9 @@ namespace iDss.X.Migrations
                             citycode = "SRH",
                             citymerger = "SERDANG BEDAGAI",
                             cityname = "KAB SERDANG BEDAGAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2470,6 +2770,9 @@ namespace iDss.X.Migrations
                             citycode = "LPM",
                             citymerger = "BATU BARA",
                             cityname = "KAB BATU BARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2479,6 +2782,9 @@ namespace iDss.X.Migrations
                             citycode = "GNT",
                             citymerger = "PADANG LAWAS",
                             cityname = "KAB PADANG LAWAS UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2488,6 +2794,9 @@ namespace iDss.X.Migrations
                             citycode = "SBH",
                             citymerger = "PADANG LAWAS",
                             cityname = "KAB PADANG LAWAS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2497,6 +2806,9 @@ namespace iDss.X.Migrations
                             citycode = "KPI",
                             citymerger = "LABUHANBATU",
                             cityname = "KAB LABUHANBATU SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2506,6 +2818,9 @@ namespace iDss.X.Migrations
                             citycode = "AKK",
                             citymerger = "LABUHANBATU",
                             cityname = "KAB LABUHANBATU UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2515,6 +2830,9 @@ namespace iDss.X.Migrations
                             citycode = "LTU",
                             citymerger = "NIAS",
                             cityname = "KAB NIAS UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2524,6 +2842,9 @@ namespace iDss.X.Migrations
                             citycode = "LHM",
                             citymerger = "NIAS",
                             cityname = "KAB NIAS BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2533,6 +2854,9 @@ namespace iDss.X.Migrations
                             citycode = "MES",
                             citymerger = "MEDAN",
                             cityname = "KOTA MEDAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2542,6 +2866,9 @@ namespace iDss.X.Migrations
                             citycode = "PMS",
                             citymerger = "PEMATANG SIANTAR",
                             cityname = "KOTA PEMATANG SIANTAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2551,6 +2878,9 @@ namespace iDss.X.Migrations
                             citycode = "SBG",
                             citymerger = "SIBOLGA",
                             cityname = "KOTA SIBOLGA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2560,6 +2890,9 @@ namespace iDss.X.Migrations
                             citycode = "TJB",
                             citymerger = "TANJUNG BALAI",
                             cityname = "KOTA TANJUNG BALAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2569,6 +2902,9 @@ namespace iDss.X.Migrations
                             citycode = "BNJ",
                             citymerger = "BINJAI",
                             cityname = "KOTA BINJAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2578,6 +2914,9 @@ namespace iDss.X.Migrations
                             citycode = "TBT",
                             citymerger = "TEBING TINGGI",
                             cityname = "KOTA TEBING TINGGI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2587,6 +2926,9 @@ namespace iDss.X.Migrations
                             citycode = "PSP",
                             citymerger = "PADANGSIDIMPUAN",
                             cityname = "KOTA PADANGSIDIMPUAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2596,6 +2938,9 @@ namespace iDss.X.Migrations
                             citycode = "GNS",
                             citymerger = "GUNUNGSITOLI",
                             cityname = "KOTA GUNUNGSITOLI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MES",
                             provid = "12"
                         },
@@ -2605,6 +2950,9 @@ namespace iDss.X.Migrations
                             citycode = "PSR",
                             citymerger = "PESISIR SELATAN",
                             cityname = "KAB PESISIR SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2614,6 +2962,9 @@ namespace iDss.X.Migrations
                             citycode = "SOL",
                             citymerger = "SOLOK",
                             cityname = "KAB SOLOK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2623,6 +2974,9 @@ namespace iDss.X.Migrations
                             citycode = "SJJ",
                             citymerger = "SIJUNJUNG",
                             cityname = "KAB SIJUNJUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2632,6 +2986,9 @@ namespace iDss.X.Migrations
                             citycode = "TDR",
                             citymerger = "TANAH DATAR",
                             cityname = "KAB TANAH DATAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2641,6 +2998,9 @@ namespace iDss.X.Migrations
                             citycode = "PPR",
                             citymerger = "PADANG PARIAMAN",
                             cityname = "KAB PADANG PARIAMAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2650,6 +3010,9 @@ namespace iDss.X.Migrations
                             citycode = "AGM",
                             citymerger = "AGAM",
                             cityname = "KAB AGAM",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2659,6 +3022,9 @@ namespace iDss.X.Migrations
                             citycode = "LPH",
                             citymerger = "LIMA PULUH KOTA",
                             cityname = "KAB LIMA PULUH KOTA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2668,6 +3034,9 @@ namespace iDss.X.Migrations
                             citycode = "PSM",
                             citymerger = "PASAMAN",
                             cityname = "KAB PASAMAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2677,6 +3046,9 @@ namespace iDss.X.Migrations
                             citycode = "MTW",
                             citymerger = "KEPULAUAN MENTAWAI",
                             cityname = "KAB KEPULAUAN MENTAWAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2686,6 +3058,9 @@ namespace iDss.X.Migrations
                             citycode = "DMR",
                             citymerger = "DHARMASRAYA",
                             cityname = "KAB DHARMASRAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2695,6 +3070,9 @@ namespace iDss.X.Migrations
                             citycode = "SSL",
                             citymerger = "SOLOK",
                             cityname = "KAB SOLOK SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2704,6 +3082,9 @@ namespace iDss.X.Migrations
                             citycode = "PSB",
                             citymerger = "PASAMAN",
                             cityname = "KAB PASAMAN BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2713,6 +3094,9 @@ namespace iDss.X.Migrations
                             citycode = "PDG",
                             citymerger = "PADANG",
                             cityname = "KOTA PADANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2722,6 +3106,9 @@ namespace iDss.X.Migrations
                             citycode = "SLK",
                             citymerger = "SOLOK",
                             cityname = "KOTA SOLOK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2731,6 +3118,9 @@ namespace iDss.X.Migrations
                             citycode = "SWL",
                             citymerger = "SAWAHLUNTO",
                             cityname = "KOTA SAWAHLUNTO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2740,6 +3130,9 @@ namespace iDss.X.Migrations
                             citycode = "PPJ",
                             citymerger = "PADANG PANJANG",
                             cityname = "KOTA PADANG PANJANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2749,6 +3142,9 @@ namespace iDss.X.Migrations
                             citycode = "BKT",
                             citymerger = "BUKITTINGGI",
                             cityname = "KOTA BUKITTINGGI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2758,6 +3154,9 @@ namespace iDss.X.Migrations
                             citycode = "PKY",
                             citymerger = "PAYAKUMBUH",
                             cityname = "KOTA PAYAKUMBUH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2767,6 +3166,9 @@ namespace iDss.X.Migrations
                             citycode = "PRM",
                             citymerger = "PARIAMAN",
                             cityname = "KOTA PARIAMAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PDG",
                             provid = "13"
                         },
@@ -2776,6 +3178,9 @@ namespace iDss.X.Migrations
                             citycode = "BKN",
                             citymerger = "KAMPAR",
                             cityname = "KAB KAMPAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2785,6 +3190,9 @@ namespace iDss.X.Migrations
                             citycode = "RGT",
                             citymerger = "INDRAGIRI HULU",
                             cityname = "KAB INDRAGIRI HULU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2794,6 +3202,9 @@ namespace iDss.X.Migrations
                             citycode = "BLS",
                             citymerger = "BENGKALIS",
                             cityname = "KAB BENGKALIS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2803,6 +3214,9 @@ namespace iDss.X.Migrations
                             citycode = "TBH",
                             citymerger = "INDRAGIRI HILIR",
                             cityname = "KAB INDRAGIRI HILIR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2812,6 +3226,9 @@ namespace iDss.X.Migrations
                             citycode = "PKK",
                             citymerger = "PELALAWAN",
                             cityname = "KAB PELALAWAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2821,6 +3238,9 @@ namespace iDss.X.Migrations
                             citycode = "PRP",
                             citymerger = "ROKAN HULU",
                             cityname = "KAB ROKAN HULU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2830,6 +3250,9 @@ namespace iDss.X.Migrations
                             citycode = "UJT",
                             citymerger = "ROKAN HILIR",
                             cityname = "KAB ROKAN HILIR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2839,6 +3262,9 @@ namespace iDss.X.Migrations
                             citycode = "SAK",
                             citymerger = "SIAK",
                             cityname = "KAB SIAK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2848,6 +3274,9 @@ namespace iDss.X.Migrations
                             citycode = "TLK",
                             citymerger = "KUANTAN SINGINGI",
                             cityname = "KAB KUANTAN SINGINGI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2857,6 +3286,9 @@ namespace iDss.X.Migrations
                             citycode = "TTG",
                             citymerger = "KEPULAUAN MERANTI",
                             cityname = "KAB KEPULAUAN MERANTI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2866,6 +3298,9 @@ namespace iDss.X.Migrations
                             citycode = "PKU",
                             citymerger = "PEKANBARU",
                             cityname = "KOTA PEKANBARU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2875,6 +3310,9 @@ namespace iDss.X.Migrations
                             citycode = "DUM",
                             citymerger = "DUMAI",
                             cityname = "KOTA DUMAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKU",
                             provid = "14"
                         },
@@ -2884,6 +3322,9 @@ namespace iDss.X.Migrations
                             citycode = "KRC",
                             citymerger = "KERINCI",
                             cityname = "KAB KERINCI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2893,6 +3334,9 @@ namespace iDss.X.Migrations
                             citycode = "MRG",
                             citymerger = "MERANGIN",
                             cityname = "KAB MERANGIN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2902,6 +3346,9 @@ namespace iDss.X.Migrations
                             citycode = "SAR",
                             citymerger = "SAROLANGUN",
                             cityname = "KAB SAROLANGUN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2911,6 +3358,9 @@ namespace iDss.X.Migrations
                             citycode = "MBO",
                             citymerger = "BATANGHARI",
                             cityname = "KAB BATANGHARI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2920,6 +3370,9 @@ namespace iDss.X.Migrations
                             citycode = "MJA",
                             citymerger = "MUARO JAMBI",
                             cityname = "KAB MUARO JAMBI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2929,6 +3382,9 @@ namespace iDss.X.Migrations
                             citycode = "KTU",
                             citymerger = "TANJUNG JABUNG",
                             cityname = "KAB TANJUNG JABUNG BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2938,6 +3394,9 @@ namespace iDss.X.Migrations
                             citycode = "MSA",
                             citymerger = "TANJUNG JABUNG",
                             cityname = "KAB TANJUNG JABUNG TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2947,6 +3406,9 @@ namespace iDss.X.Migrations
                             citycode = "MRB",
                             citymerger = "BUNGO",
                             cityname = "KAB BUNGO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MRB",
                             provid = "15"
                         },
@@ -2956,6 +3418,9 @@ namespace iDss.X.Migrations
                             citycode = "MTE",
                             citymerger = "TEBO",
                             cityname = "KAB TEBO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2965,6 +3430,9 @@ namespace iDss.X.Migrations
                             citycode = "DJB",
                             citymerger = "JAMBI",
                             cityname = "KOTA JAMBI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2974,6 +3442,9 @@ namespace iDss.X.Migrations
                             citycode = "SPE",
                             citymerger = "SUNGAI PENUH",
                             cityname = "KOTA SUNGAI PENUH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJB",
                             provid = "15"
                         },
@@ -2983,6 +3454,9 @@ namespace iDss.X.Migrations
                             citycode = "BTA",
                             citymerger = "OGAN KOMERING ULU",
                             cityname = "KAB OGAN KOMERING ULU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -2992,6 +3466,9 @@ namespace iDss.X.Migrations
                             citycode = "OKI",
                             citymerger = "OGAN KOMERING ILIR",
                             cityname = "KAB OGAN KOMERING ILIR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3001,6 +3478,9 @@ namespace iDss.X.Migrations
                             citycode = "MRE",
                             citymerger = "MUARA ENIM",
                             cityname = "KAB MUARA ENIM",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3010,6 +3490,9 @@ namespace iDss.X.Migrations
                             citycode = "LHT",
                             citymerger = "LAHAT",
                             cityname = "KAB LAHAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3019,6 +3502,9 @@ namespace iDss.X.Migrations
                             citycode = "MRA",
                             citymerger = "MUSI RAWAS",
                             cityname = "KAB MUSI RAWAS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3028,6 +3514,9 @@ namespace iDss.X.Migrations
                             citycode = "MBA",
                             citymerger = "MUSI BANYUASIN",
                             cityname = "KAB MUSI BANYUASIN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3037,6 +3526,9 @@ namespace iDss.X.Migrations
                             citycode = "BYA",
                             citymerger = "BANYUASIN",
                             cityname = "KAB BANYUASIN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3046,6 +3538,9 @@ namespace iDss.X.Migrations
                             citycode = "OKU",
                             citymerger = "OGAN KOMERING ULU TIMUR",
                             cityname = "KAB OGAN KOMERING ULU TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3055,6 +3550,9 @@ namespace iDss.X.Migrations
                             citycode = "OKU",
                             citymerger = "OGAN KOMERING ULU SELATAN",
                             cityname = "KAB OGAN KOMERING ULU SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3064,6 +3562,9 @@ namespace iDss.X.Migrations
                             citycode = "OGI",
                             citymerger = "OGAN ILIR",
                             cityname = "KAB OGAN ILIR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3073,6 +3574,9 @@ namespace iDss.X.Migrations
                             citycode = "PDO",
                             citymerger = "EMPAT LAWANG",
                             cityname = "KAB EMPAT LAWANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3082,6 +3586,9 @@ namespace iDss.X.Migrations
                             citycode = "PNA",
                             citymerger = "PENUKAL ABAB",
                             cityname = "KAB PENUKAL ABAB",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3091,6 +3598,9 @@ namespace iDss.X.Migrations
                             citycode = "MRU",
                             citymerger = "MUSI RAWAS UTARA",
                             cityname = "KAB MUSI RAWAS UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3100,6 +3610,9 @@ namespace iDss.X.Migrations
                             citycode = "PLM",
                             citymerger = "PALEMBANG",
                             cityname = "KOTA PALEMBANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3109,6 +3622,9 @@ namespace iDss.X.Migrations
                             citycode = "PGA",
                             citymerger = "PAGAR ALAM",
                             cityname = "KOTA PAGAR ALAM",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3118,6 +3634,9 @@ namespace iDss.X.Migrations
                             citycode = "LLG",
                             citymerger = "LUBUK LINGGAU",
                             cityname = "KOTA LUBUK LINGGAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3127,6 +3646,9 @@ namespace iDss.X.Migrations
                             citycode = "PRB",
                             citymerger = "PRABUMULIH",
                             cityname = "KOTA PRABUMULIH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLM",
                             provid = "16"
                         },
@@ -3136,6 +3658,9 @@ namespace iDss.X.Migrations
                             citycode = "MNN",
                             citymerger = "BENGKULU SELATAN",
                             cityname = "KAB BENGKULU SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3145,6 +3670,9 @@ namespace iDss.X.Migrations
                             citycode = "CRP",
                             citymerger = "REJANG LEBONG",
                             cityname = "KAB REJANG LEBONG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3154,6 +3682,9 @@ namespace iDss.X.Migrations
                             citycode = "ARM",
                             citymerger = "BENGKULU UTARA",
                             cityname = "KAB BENGKULU UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3163,6 +3694,9 @@ namespace iDss.X.Migrations
                             citycode = "BTN",
                             citymerger = "KAUR",
                             cityname = "KAB KAUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3172,6 +3706,9 @@ namespace iDss.X.Migrations
                             citycode = "SLM",
                             citymerger = "SELUMA",
                             cityname = "KAB SELUMA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3181,6 +3718,9 @@ namespace iDss.X.Migrations
                             citycode = "MPC",
                             citymerger = "MUKO MUKO",
                             cityname = "KAB MUKO MUKO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3190,6 +3730,9 @@ namespace iDss.X.Migrations
                             citycode = "LBG",
                             citymerger = "LEBONG",
                             cityname = "KAB LEBONG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3199,6 +3742,9 @@ namespace iDss.X.Migrations
                             citycode = "KPH",
                             citymerger = "KEPAHIANG",
                             cityname = "KAB KEPAHIANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3208,6 +3754,9 @@ namespace iDss.X.Migrations
                             citycode = "KRT",
                             citymerger = "BENGKULU TENGAH",
                             cityname = "KAB BENGKULU TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3217,6 +3766,9 @@ namespace iDss.X.Migrations
                             citycode = "BKS",
                             citymerger = "BENGKULU",
                             cityname = "KOTA BENGKULU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKS",
                             provid = "17"
                         },
@@ -3226,6 +3778,9 @@ namespace iDss.X.Migrations
                             citycode = "LPS",
                             citymerger = "LAMPUNG SELATAN",
                             cityname = "KAB LAMPUNG SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3235,6 +3790,9 @@ namespace iDss.X.Migrations
                             citycode = "LPT",
                             citymerger = "LAMPUNG TENGAH",
                             cityname = "KAB LAMPUNG TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3244,6 +3802,9 @@ namespace iDss.X.Migrations
                             citycode = "LPU",
                             citymerger = "LAMPUNG UTARA",
                             cityname = "KAB LAMPUNG UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3253,6 +3814,9 @@ namespace iDss.X.Migrations
                             citycode = "LPB",
                             citymerger = "LAMPUNG BARAT",
                             cityname = "KAB LAMPUNG BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3262,6 +3826,9 @@ namespace iDss.X.Migrations
                             citycode = "TBA",
                             citymerger = "TULANG BAWANG",
                             cityname = "KAB TULANG BAWANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3271,6 +3838,9 @@ namespace iDss.X.Migrations
                             citycode = "TGS",
                             citymerger = "TANGGAMUS",
                             cityname = "KAB TANGGAMUS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3280,6 +3850,9 @@ namespace iDss.X.Migrations
                             citycode = "LTM",
                             citymerger = "LAMPUNG TIMUR",
                             cityname = "KAB LAMPUNG TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3289,6 +3862,9 @@ namespace iDss.X.Migrations
                             citycode = "WKN",
                             citymerger = "WAY KANAN",
                             cityname = "KAB WAY KANAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3298,6 +3874,9 @@ namespace iDss.X.Migrations
                             citycode = "PSR",
                             citymerger = "PESAWARAN",
                             cityname = "KAB PESAWARAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3307,6 +3886,9 @@ namespace iDss.X.Migrations
                             citycode = "PSW",
                             citymerger = "PRINGSEWU",
                             cityname = "KAB PRINGSEWU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3316,6 +3898,9 @@ namespace iDss.X.Migrations
                             citycode = "TBM",
                             citymerger = "MESUJI",
                             cityname = "KAB MESUJI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3325,6 +3910,9 @@ namespace iDss.X.Migrations
                             citycode = "TBB",
                             citymerger = "TULANG BAWANG",
                             cityname = "KAB TULANG BAWANG BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3334,6 +3922,9 @@ namespace iDss.X.Migrations
                             citycode = "LPB",
                             citymerger = "PESISIR BARAT",
                             cityname = "KAB PESISIR BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3343,6 +3934,9 @@ namespace iDss.X.Migrations
                             citycode = "TKG",
                             citymerger = "BANDAR LAMPUNG",
                             cityname = "KOTA BANDAR LAMPUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3352,6 +3946,9 @@ namespace iDss.X.Migrations
                             citycode = "TKG",
                             citymerger = "METRO",
                             cityname = "KOTA METRO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TKG",
                             provid = "18"
                         },
@@ -3361,6 +3958,9 @@ namespace iDss.X.Migrations
                             citycode = "SGL",
                             citymerger = "BANGKA",
                             cityname = "KAB BANGKA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PGK",
                             provid = "19"
                         },
@@ -3370,6 +3970,9 @@ namespace iDss.X.Migrations
                             citycode = "TJQ",
                             citymerger = "BELITUNG",
                             cityname = "KAB BELITUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TJQ",
                             provid = "19"
                         },
@@ -3379,6 +3982,9 @@ namespace iDss.X.Migrations
                             citycode = "TBL",
                             citymerger = "BANGKA SELATAN",
                             cityname = "KAB BANGKA SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PGK",
                             provid = "19"
                         },
@@ -3388,6 +3994,9 @@ namespace iDss.X.Migrations
                             citycode = "KBA",
                             citymerger = "BANGKA TENGAH",
                             cityname = "KAB BANGKA TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PGK",
                             provid = "19"
                         },
@@ -3397,6 +4006,9 @@ namespace iDss.X.Migrations
                             citycode = "MTK",
                             citymerger = "BANGKA BARAT",
                             cityname = "KAB BANGKA BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PGK",
                             provid = "19"
                         },
@@ -3406,6 +4018,9 @@ namespace iDss.X.Migrations
                             citycode = "MGR",
                             citymerger = "BELITUNG TIMUR",
                             cityname = "KAB BELITUNG TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TJQ",
                             provid = "19"
                         },
@@ -3415,6 +4030,9 @@ namespace iDss.X.Migrations
                             citycode = "PGK",
                             citymerger = "PANGKAL PINANG",
                             cityname = "KOTA PANGKAL PINANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PGK",
                             provid = "19"
                         },
@@ -3424,6 +4042,9 @@ namespace iDss.X.Migrations
                             citycode = "TNJ",
                             citymerger = "BINTAN",
                             cityname = "KAB BINTAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TNJ",
                             provid = "21"
                         },
@@ -3433,6 +4054,9 @@ namespace iDss.X.Migrations
                             citycode = "TBK",
                             citymerger = "KARIMUN",
                             cityname = "KAB KARIMUN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTH",
                             provid = "21"
                         },
@@ -3442,6 +4066,9 @@ namespace iDss.X.Migrations
                             citycode = "NTX",
                             citymerger = "NATUNA",
                             cityname = "KAB NATUNA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "NTX",
                             provid = "21"
                         },
@@ -3451,6 +4078,9 @@ namespace iDss.X.Migrations
                             citycode = "DKL",
                             citymerger = "LINGGA",
                             cityname = "KAB LINGGA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TNJ",
                             provid = "21"
                         },
@@ -3460,6 +4090,9 @@ namespace iDss.X.Migrations
                             citycode = "NWK",
                             citymerger = "KEPULAUAN ANAMBAS",
                             cityname = "KAB KEPULAUAN ANAMBAS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTH",
                             provid = "21"
                         },
@@ -3469,6 +4102,9 @@ namespace iDss.X.Migrations
                             citycode = "BTH",
                             citymerger = "BATAM",
                             cityname = "KOTA BATAM",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BTH",
                             provid = "21"
                         },
@@ -3478,6 +4114,9 @@ namespace iDss.X.Migrations
                             citycode = "TNJ",
                             citymerger = "TANJUNG PINANG",
                             cityname = "KOTA TANJUNG PINANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TNJ",
                             provid = "21"
                         },
@@ -3487,6 +4126,9 @@ namespace iDss.X.Migrations
                             citycode = "PPJ",
                             citymerger = "KEPULAUAN SERIBU",
                             cityname = "KAB ADM KEP SERIBU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CGK",
                             provid = "31"
                         },
@@ -3496,6 +4138,9 @@ namespace iDss.X.Migrations
                             citycode = "CGK",
                             citymerger = "JAKARTA PUSAT",
                             cityname = "KOTA ADM JAKARTA PUSAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CGK",
                             provid = "31"
                         },
@@ -3505,6 +4150,9 @@ namespace iDss.X.Migrations
                             citycode = "CGK",
                             citymerger = "JAKARTA UTARA",
                             cityname = "KOTA ADM JAKARTA UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CGK",
                             provid = "31"
                         },
@@ -3514,6 +4162,9 @@ namespace iDss.X.Migrations
                             citycode = "CGK",
                             citymerger = "JAKARTA BARAT",
                             cityname = "KOTA ADM JAKARTA BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CGK",
                             provid = "31"
                         },
@@ -3523,6 +4174,9 @@ namespace iDss.X.Migrations
                             citycode = "CGK",
                             citymerger = "JAKARTA SELATAN",
                             cityname = "KOTA ADM JAKARTA SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CGK",
                             provid = "31"
                         },
@@ -3532,6 +4186,9 @@ namespace iDss.X.Migrations
                             citycode = "CGK",
                             citymerger = "JAKARTA TIMUR",
                             cityname = "KOTA ADM JAKARTA TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CGK",
                             provid = "31"
                         },
@@ -3541,6 +4198,9 @@ namespace iDss.X.Migrations
                             citycode = "BOO",
                             citymerger = "BOGOR",
                             cityname = "KAB BOGOR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BOO",
                             provid = "32"
                         },
@@ -3550,6 +4210,9 @@ namespace iDss.X.Migrations
                             citycode = "SMI",
                             citymerger = "SUKABUMI",
                             cityname = "KAB SUKABUMI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SMI",
                             provid = "32"
                         },
@@ -3559,6 +4222,9 @@ namespace iDss.X.Migrations
                             citycode = "CIJ",
                             citymerger = "CIANJUR",
                             cityname = "KAB CIANJUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CIJ",
                             provid = "32"
                         },
@@ -3568,6 +4234,9 @@ namespace iDss.X.Migrations
                             citycode = "BDO",
                             citymerger = "BANDUNG",
                             cityname = "KAB BANDUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDO",
                             provid = "32"
                         },
@@ -3577,6 +4246,9 @@ namespace iDss.X.Migrations
                             citycode = "GRT",
                             citymerger = "GARUT",
                             cityname = "KAB GARUT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "GRT",
                             provid = "32"
                         },
@@ -3586,6 +4258,9 @@ namespace iDss.X.Migrations
                             citycode = "TSY",
                             citymerger = "TASIKMALAYA",
                             cityname = "KAB TASIKMALAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TSY",
                             provid = "32"
                         },
@@ -3595,6 +4270,9 @@ namespace iDss.X.Migrations
                             citycode = "CMI",
                             citymerger = "CIAMIS",
                             cityname = "KAB CIAMIS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TSY",
                             provid = "32"
                         },
@@ -3604,6 +4282,9 @@ namespace iDss.X.Migrations
                             citycode = "KGN",
                             citymerger = "KUNINGAN",
                             cityname = "KAB KUNINGAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KGN",
                             provid = "32"
                         },
@@ -3613,6 +4294,9 @@ namespace iDss.X.Migrations
                             citycode = "CBN",
                             citymerger = "CIREBON",
                             cityname = "KAB CIREBON",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CBN",
                             provid = "32"
                         },
@@ -3622,6 +4306,9 @@ namespace iDss.X.Migrations
                             citycode = "KJT",
                             citymerger = "MAJALENGKA",
                             cityname = "KAB MAJALENGKA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KJT",
                             provid = "32"
                         },
@@ -3631,6 +4318,9 @@ namespace iDss.X.Migrations
                             citycode = "BDO",
                             citymerger = "SUMEDANG",
                             cityname = "KAB SUMEDANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDO",
                             provid = "32"
                         },
@@ -3640,6 +4330,9 @@ namespace iDss.X.Migrations
                             citycode = "CBN",
                             citymerger = "INDRAMAYU",
                             cityname = "KAB INDRAMAYU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CBN",
                             provid = "32"
                         },
@@ -3649,6 +4342,9 @@ namespace iDss.X.Migrations
                             citycode = "CKP",
                             citymerger = "SUBANG",
                             cityname = "KAB SUBANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CKP",
                             provid = "32"
                         },
@@ -3658,6 +4354,9 @@ namespace iDss.X.Migrations
                             citycode = "CKP",
                             citymerger = "PURWAKARTA",
                             cityname = "KAB PURWAKARTA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CKP",
                             provid = "32"
                         },
@@ -3667,6 +4366,9 @@ namespace iDss.X.Migrations
                             citycode = "CKP",
                             citymerger = "KARAWANG",
                             cityname = "KAB KARAWANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CKP",
                             provid = "32"
                         },
@@ -3676,6 +4378,9 @@ namespace iDss.X.Migrations
                             citycode = "BKI",
                             citymerger = "BEKASI",
                             cityname = "KAB BEKASI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKI",
                             provid = "32"
                         },
@@ -3685,6 +4390,9 @@ namespace iDss.X.Migrations
                             citycode = "BDO",
                             citymerger = "BANDUNG",
                             cityname = "KAB BANDUNG BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDO",
                             provid = "32"
                         },
@@ -3694,6 +4402,9 @@ namespace iDss.X.Migrations
                             citycode = "BJR",
                             citymerger = "PANGANDARAN",
                             cityname = "KAB PANGANDARAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TSY",
                             provid = "32"
                         },
@@ -3703,6 +4414,9 @@ namespace iDss.X.Migrations
                             citycode = "BOO",
                             citymerger = "BOGOR",
                             cityname = "KOTA BOGOR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BOO",
                             provid = "32"
                         },
@@ -3712,6 +4426,9 @@ namespace iDss.X.Migrations
                             citycode = "SMI",
                             citymerger = "SUKABUMI",
                             cityname = "KOTA SUKABUMI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SMI",
                             provid = "32"
                         },
@@ -3721,6 +4438,9 @@ namespace iDss.X.Migrations
                             citycode = "BDO",
                             citymerger = "BANDUNG",
                             cityname = "KOTA BANDUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDO",
                             provid = "32"
                         },
@@ -3730,6 +4450,9 @@ namespace iDss.X.Migrations
                             citycode = "CBN",
                             citymerger = "CIREBON",
                             cityname = "KOTA CIREBON",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CBN",
                             provid = "32"
                         },
@@ -3739,6 +4462,9 @@ namespace iDss.X.Migrations
                             citycode = "BKI",
                             citymerger = "BEKASI",
                             cityname = "KOTA BEKASI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BKI",
                             provid = "32"
                         },
@@ -3748,6 +4474,9 @@ namespace iDss.X.Migrations
                             citycode = "DPK",
                             citymerger = "DEPOK",
                             cityname = "KOTA DEPOK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPK",
                             provid = "32"
                         },
@@ -3757,6 +4486,9 @@ namespace iDss.X.Migrations
                             citycode = "BDO",
                             citymerger = "CIMAHI",
                             cityname = "KOTA CIMAHI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDO",
                             provid = "32"
                         },
@@ -3766,6 +4498,9 @@ namespace iDss.X.Migrations
                             citycode = "TSY",
                             citymerger = "TASIKMALAYA",
                             cityname = "KOTA TASIKMALAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TSY",
                             provid = "32"
                         },
@@ -3775,6 +4510,9 @@ namespace iDss.X.Migrations
                             citycode = "BJR",
                             citymerger = "BANJAR",
                             cityname = "KOTA BANJAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TSY",
                             provid = "32"
                         },
@@ -3784,6 +4522,9 @@ namespace iDss.X.Migrations
                             citycode = "CXP",
                             citymerger = "CILACAP",
                             cityname = "KAB CILACAP",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CXP",
                             provid = "33"
                         },
@@ -3793,6 +4534,9 @@ namespace iDss.X.Migrations
                             citycode = "PWO",
                             citymerger = "BANYUMAS",
                             cityname = "KAB BANYUMAS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PWO",
                             provid = "33"
                         },
@@ -3802,6 +4546,9 @@ namespace iDss.X.Migrations
                             citycode = "PWL",
                             citymerger = "PURBALINGGA",
                             cityname = "KAB PURBALINGGA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PWO",
                             provid = "33"
                         },
@@ -3811,6 +4558,9 @@ namespace iDss.X.Migrations
                             citycode = "BJG",
                             citymerger = "BANJARNEGARA",
                             cityname = "KAB BANJARNEGARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BJG",
                             provid = "33"
                         },
@@ -3820,6 +4570,9 @@ namespace iDss.X.Migrations
                             citycode = "KBM",
                             citymerger = "KEBUMEN",
                             cityname = "KAB KEBUMEN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KBM",
                             provid = "33"
                         },
@@ -3829,6 +4582,9 @@ namespace iDss.X.Migrations
                             citycode = "MGL",
                             citymerger = "PURWOREJO",
                             cityname = "KAB PURWOREJO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MGL",
                             provid = "33"
                         },
@@ -3838,6 +4594,9 @@ namespace iDss.X.Migrations
                             citycode = "BJG",
                             citymerger = "WONOSOBO",
                             cityname = "KAB WONOSOBO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BJG",
                             provid = "33"
                         },
@@ -3847,6 +4606,9 @@ namespace iDss.X.Migrations
                             citycode = "MGL",
                             citymerger = "MAGELANG",
                             cityname = "KAB MAGELANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MGL",
                             provid = "33"
                         },
@@ -3856,6 +4618,9 @@ namespace iDss.X.Migrations
                             citycode = "BYL",
                             citymerger = "BOYOLALI",
                             cityname = "KAB BOYOLALI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOC",
                             provid = "33"
                         },
@@ -3865,6 +4630,9 @@ namespace iDss.X.Migrations
                             citycode = "KLN",
                             citymerger = "KLATEN",
                             cityname = "KAB KLATEN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KLN",
                             provid = "33"
                         },
@@ -3874,6 +4642,9 @@ namespace iDss.X.Migrations
                             citycode = "SKH",
                             citymerger = "SUKOHARJO",
                             cityname = "KAB SUKOHARJO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOC",
                             provid = "33"
                         },
@@ -3883,6 +4654,9 @@ namespace iDss.X.Migrations
                             citycode = "SKH",
                             citymerger = "WONOGIRI",
                             cityname = "KAB WONOGIRI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SKH",
                             provid = "33"
                         },
@@ -3892,6 +4666,9 @@ namespace iDss.X.Migrations
                             citycode = "SOC",
                             citymerger = "KARANGANYAR",
                             cityname = "KAB KARANGANYAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOC",
                             provid = "33"
                         },
@@ -3901,6 +4678,9 @@ namespace iDss.X.Migrations
                             citycode = "SRN",
                             citymerger = "SRAGEN",
                             cityname = "KAB SRAGEN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOC",
                             provid = "33"
                         },
@@ -3910,6 +4690,9 @@ namespace iDss.X.Migrations
                             citycode = "PWD",
                             citymerger = "GROBOGAN",
                             cityname = "KAB GROBOGAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PWD",
                             provid = "33"
                         },
@@ -3919,6 +4702,9 @@ namespace iDss.X.Migrations
                             citycode = "BLA",
                             citymerger = "BLORA",
                             cityname = "KAB BLORA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PWD",
                             provid = "33"
                         },
@@ -3928,6 +4714,9 @@ namespace iDss.X.Migrations
                             citycode = "RBG",
                             citymerger = "REMBANG",
                             cityname = "KAB REMBANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PTI",
                             provid = "33"
                         },
@@ -3937,6 +4726,9 @@ namespace iDss.X.Migrations
                             citycode = "PTI",
                             citymerger = "PATI",
                             cityname = "KAB PATI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PTI",
                             provid = "33"
                         },
@@ -3946,6 +4738,9 @@ namespace iDss.X.Migrations
                             citycode = "KDS",
                             citymerger = "KUDUS",
                             cityname = "KAB KUDUS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDS",
                             provid = "33"
                         },
@@ -3955,6 +4750,9 @@ namespace iDss.X.Migrations
                             citycode = "KDS",
                             citymerger = "JEPARA",
                             cityname = "KAB JEPARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDS",
                             provid = "33"
                         },
@@ -3964,6 +4762,9 @@ namespace iDss.X.Migrations
                             citycode = "DMK",
                             citymerger = "DEMAK",
                             cityname = "KAB DEMAK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DMK",
                             provid = "33"
                         },
@@ -3973,6 +4774,9 @@ namespace iDss.X.Migrations
                             citycode = "SRG",
                             citymerger = "SEMARANG",
                             cityname = "KAB SEMARANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRG",
                             provid = "33"
                         },
@@ -3982,6 +4786,9 @@ namespace iDss.X.Migrations
                             citycode = "MGL",
                             citymerger = "TEMANGGUNG",
                             cityname = "KAB TEMANGGUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MGL",
                             provid = "33"
                         },
@@ -3991,6 +4798,9 @@ namespace iDss.X.Migrations
                             citycode = "SRG",
                             citymerger = "KENDAL",
                             cityname = "KAB KENDAL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRG",
                             provid = "33"
                         },
@@ -4000,6 +4810,9 @@ namespace iDss.X.Migrations
                             citycode = "PKL",
                             citymerger = "BATANG",
                             cityname = "KAB BATANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKL",
                             provid = "33"
                         },
@@ -4009,6 +4822,9 @@ namespace iDss.X.Migrations
                             citycode = "PKL",
                             citymerger = "PEKALONGAN",
                             cityname = "KAB PEKALONGAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKL",
                             provid = "33"
                         },
@@ -4018,6 +4834,9 @@ namespace iDss.X.Migrations
                             citycode = "TGL",
                             citymerger = "PEMALANG",
                             cityname = "KAB PEMALANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TGL",
                             provid = "33"
                         },
@@ -4027,6 +4846,9 @@ namespace iDss.X.Migrations
                             citycode = "TGL",
                             citymerger = "TEGAL",
                             cityname = "KAB TEGAL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TGL",
                             provid = "33"
                         },
@@ -4036,6 +4858,9 @@ namespace iDss.X.Migrations
                             citycode = "TGL",
                             citymerger = "BREBES",
                             cityname = "KAB BREBES",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TGL",
                             provid = "33"
                         },
@@ -4045,6 +4870,9 @@ namespace iDss.X.Migrations
                             citycode = "MGL",
                             citymerger = "MAGELANG",
                             cityname = "KOTA MAGELANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MGL",
                             provid = "33"
                         },
@@ -4054,6 +4882,9 @@ namespace iDss.X.Migrations
                             citycode = "SOC",
                             citymerger = "SURAKARTA",
                             cityname = "KOTA SURAKARTA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOC",
                             provid = "33"
                         },
@@ -4063,6 +4894,9 @@ namespace iDss.X.Migrations
                             citycode = "SLT",
                             citymerger = "SALATIGA",
                             cityname = "KOTA SALATIGA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SLT",
                             provid = "33"
                         },
@@ -4072,6 +4906,9 @@ namespace iDss.X.Migrations
                             citycode = "SRG",
                             citymerger = "SEMARANG",
                             cityname = "KOTA SEMARANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRG",
                             provid = "33"
                         },
@@ -4081,6 +4918,9 @@ namespace iDss.X.Migrations
                             citycode = "PKL",
                             citymerger = "PEKALONGAN",
                             cityname = "KOTA PEKALONGAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKL",
                             provid = "33"
                         },
@@ -4090,6 +4930,9 @@ namespace iDss.X.Migrations
                             citycode = "TGL",
                             citymerger = "TEGAL",
                             cityname = "KOTA TEGAL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TGL",
                             provid = "33"
                         },
@@ -4099,6 +4942,9 @@ namespace iDss.X.Migrations
                             citycode = "YOG",
                             citymerger = "KULON PROGO",
                             cityname = "KAB KULON PROGO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "YOG",
                             provid = "34"
                         },
@@ -4108,6 +4954,9 @@ namespace iDss.X.Migrations
                             citycode = "YOG",
                             citymerger = "BANTUL",
                             cityname = "KAB BANTUL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "YOG",
                             provid = "34"
                         },
@@ -4117,6 +4966,9 @@ namespace iDss.X.Migrations
                             citycode = "YOG",
                             citymerger = "GUNUNGKIDUL",
                             cityname = "KAB GUNUNGKIDUL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "YOG",
                             provid = "34"
                         },
@@ -4126,6 +4978,9 @@ namespace iDss.X.Migrations
                             citycode = "YOG",
                             citymerger = "SLEMAN",
                             cityname = "KAB SLEMAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "YOG",
                             provid = "34"
                         },
@@ -4135,6 +4990,9 @@ namespace iDss.X.Migrations
                             citycode = "YOG",
                             citymerger = "YOGYAKARTA",
                             cityname = "KOTA YOGYAKARTA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "YOG",
                             provid = "34"
                         },
@@ -4144,6 +5002,9 @@ namespace iDss.X.Migrations
                             citycode = "PCT",
                             citymerger = "PACITAN",
                             cityname = "KAB PACITAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDN",
                             provid = "35"
                         },
@@ -4153,6 +5014,9 @@ namespace iDss.X.Migrations
                             citycode = "MDN",
                             citymerger = "PONOROGO",
                             cityname = "KAB PONOROGO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDN",
                             provid = "35"
                         },
@@ -4162,6 +5026,9 @@ namespace iDss.X.Migrations
                             citycode = "KDR",
                             citymerger = "TRENGGALEK",
                             cityname = "KAB TRENGGALEK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDR",
                             provid = "35"
                         },
@@ -4171,6 +5038,9 @@ namespace iDss.X.Migrations
                             citycode = "KDR",
                             citymerger = "TULUNGAGUNG",
                             cityname = "KAB TULUNGAGUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDR",
                             provid = "35"
                         },
@@ -4180,6 +5050,9 @@ namespace iDss.X.Migrations
                             citycode = "KDR",
                             citymerger = "BLITAR",
                             cityname = "KAB BLITAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDR",
                             provid = "35"
                         },
@@ -4189,6 +5062,9 @@ namespace iDss.X.Migrations
                             citycode = "KDR",
                             citymerger = "KEDIRI",
                             cityname = "KAB KEDIRI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDR",
                             provid = "35"
                         },
@@ -4198,6 +5074,9 @@ namespace iDss.X.Migrations
                             citycode = "MLG",
                             citymerger = "MALANG",
                             cityname = "KAB MALANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MLG",
                             provid = "35"
                         },
@@ -4207,6 +5086,9 @@ namespace iDss.X.Migrations
                             citycode = "JBB",
                             citymerger = "LUMAJANG",
                             cityname = "KAB LUMAJANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "JBB",
                             provid = "35"
                         },
@@ -4216,6 +5098,9 @@ namespace iDss.X.Migrations
                             citycode = "JBB",
                             citymerger = "JEMBER",
                             cityname = "KAB JEMBER",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "JBB",
                             provid = "35"
                         },
@@ -4225,6 +5110,9 @@ namespace iDss.X.Migrations
                             citycode = "BYW",
                             citymerger = "BANYUWANGI",
                             cityname = "KAB BANYUWANGI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BYW",
                             provid = "35"
                         },
@@ -4234,6 +5122,9 @@ namespace iDss.X.Migrations
                             citycode = "SBD",
                             citymerger = "BONDOWOSO",
                             cityname = "KAB BONDOWOSO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SBD",
                             provid = "35"
                         },
@@ -4243,6 +5134,9 @@ namespace iDss.X.Migrations
                             citycode = "SBD",
                             citymerger = "SITUBONDO",
                             cityname = "KAB SITUBONDO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SBD",
                             provid = "35"
                         },
@@ -4252,6 +5146,9 @@ namespace iDss.X.Migrations
                             citycode = "PBL",
                             citymerger = "PROBOLINGGO",
                             cityname = "KAB PROBOLINGGO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PBL",
                             provid = "35"
                         },
@@ -4261,6 +5158,9 @@ namespace iDss.X.Migrations
                             citycode = "PSN",
                             citymerger = "PASURUAN",
                             cityname = "KAB PASURUAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PSN",
                             provid = "35"
                         },
@@ -4270,6 +5170,9 @@ namespace iDss.X.Migrations
                             citycode = "SDA",
                             citymerger = "SIDOARJO",
                             cityname = "KAB SIDOARJO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SDA",
                             provid = "35"
                         },
@@ -4279,6 +5182,9 @@ namespace iDss.X.Migrations
                             citycode = "SDA",
                             citymerger = "MOJOKERTO",
                             cityname = "KAB MOJOKERTO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SDA",
                             provid = "35"
                         },
@@ -4288,6 +5194,9 @@ namespace iDss.X.Migrations
                             citycode = "KDR",
                             citymerger = "JOMBANG",
                             cityname = "KAB JOMBANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDR",
                             provid = "35"
                         },
@@ -4297,6 +5206,9 @@ namespace iDss.X.Migrations
                             citycode = "KDR",
                             citymerger = "NGANJUK",
                             cityname = "KAB NGANJUK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDR",
                             provid = "35"
                         },
@@ -4306,6 +5218,9 @@ namespace iDss.X.Migrations
                             citycode = "MDN",
                             citymerger = "MADIUN",
                             cityname = "KAB MADIUN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDN",
                             provid = "35"
                         },
@@ -4315,6 +5230,9 @@ namespace iDss.X.Migrations
                             citycode = "MGT",
                             citymerger = "MAGETAN",
                             cityname = "KAB MAGETAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDN",
                             provid = "35"
                         },
@@ -4324,6 +5242,9 @@ namespace iDss.X.Migrations
                             citycode = "NGW",
                             citymerger = "NGAWI",
                             cityname = "KAB NGAWI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDN",
                             provid = "35"
                         },
@@ -4333,6 +5254,9 @@ namespace iDss.X.Migrations
                             citycode = "BJN",
                             citymerger = "BOJONEGORO",
                             cityname = "KAB BOJONEGORO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BJN",
                             provid = "35"
                         },
@@ -4342,6 +5266,9 @@ namespace iDss.X.Migrations
                             citycode = "SUB",
                             citymerger = "TUBAN",
                             cityname = "KAB TUBAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SUB",
                             provid = "35"
                         },
@@ -4351,6 +5278,9 @@ namespace iDss.X.Migrations
                             citycode = "LMG",
                             citymerger = "LAMONGAN",
                             cityname = "KAB LAMONGAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "LMG",
                             provid = "35"
                         },
@@ -4360,6 +5290,9 @@ namespace iDss.X.Migrations
                             citycode = "SUB",
                             citymerger = "GRESIK",
                             cityname = "KAB GRESIK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SUB",
                             provid = "35"
                         },
@@ -4369,6 +5302,9 @@ namespace iDss.X.Migrations
                             citycode = "SUP",
                             citymerger = "BANGKALAN",
                             cityname = "KAB BANGKALAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SUB",
                             provid = "35"
                         },
@@ -4378,6 +5314,9 @@ namespace iDss.X.Migrations
                             citycode = "SPG",
                             citymerger = "SAMPANG",
                             cityname = "KAB SAMPANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SPG",
                             provid = "35"
                         },
@@ -4387,6 +5326,9 @@ namespace iDss.X.Migrations
                             citycode = "SUP",
                             citymerger = "PAMEKASAN",
                             cityname = "KAB PAMEKASAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SUB",
                             provid = "35"
                         },
@@ -4396,6 +5338,9 @@ namespace iDss.X.Migrations
                             citycode = "SUP",
                             citymerger = "SUMENEP",
                             cityname = "KAB SUMENEP",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SUB",
                             provid = "35"
                         },
@@ -4405,6 +5350,9 @@ namespace iDss.X.Migrations
                             citycode = "KDR",
                             citymerger = "KEDIRI",
                             cityname = "KOTA KEDIRI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDR",
                             provid = "35"
                         },
@@ -4414,6 +5362,9 @@ namespace iDss.X.Migrations
                             citycode = "KDR",
                             citymerger = "BLITAR",
                             cityname = "KOTA BLITAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDR",
                             provid = "35"
                         },
@@ -4423,6 +5374,9 @@ namespace iDss.X.Migrations
                             citycode = "MLG",
                             citymerger = "MALANG",
                             cityname = "KOTA MALANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MLG",
                             provid = "35"
                         },
@@ -4432,6 +5386,9 @@ namespace iDss.X.Migrations
                             citycode = "PBL",
                             citymerger = "PROBOLINGGO",
                             cityname = "KOTA PROBOLINGGO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SUB",
                             provid = "35"
                         },
@@ -4441,6 +5398,9 @@ namespace iDss.X.Migrations
                             citycode = "PSN",
                             citymerger = "PASURUAN",
                             cityname = "KOTA PASURUAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PSN",
                             provid = "35"
                         },
@@ -4450,6 +5410,9 @@ namespace iDss.X.Migrations
                             citycode = "SDA",
                             citymerger = "MOJOKERTO",
                             cityname = "KOTA MOJOKERTO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SDA",
                             provid = "35"
                         },
@@ -4459,6 +5422,9 @@ namespace iDss.X.Migrations
                             citycode = "MDN",
                             citymerger = "MADIUN",
                             cityname = "KOTA MADIUN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDN",
                             provid = "35"
                         },
@@ -4468,6 +5434,9 @@ namespace iDss.X.Migrations
                             citycode = "SUB",
                             citymerger = "SURABAYA",
                             cityname = "KOTA SURABAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SUB",
                             provid = "35"
                         },
@@ -4477,6 +5446,9 @@ namespace iDss.X.Migrations
                             citycode = "MLG",
                             citymerger = "BATU",
                             cityname = "KOTA BATU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MLG",
                             provid = "35"
                         },
@@ -4486,6 +5458,9 @@ namespace iDss.X.Migrations
                             citycode = "BXW",
                             citymerger = "BAWEAN",
                             cityname = "PULAU BAWEAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BXW",
                             provid = "35"
                         },
@@ -4495,6 +5470,9 @@ namespace iDss.X.Migrations
                             citycode = "CLG",
                             citymerger = "PANDEGLANG",
                             cityname = "KAB PANDEGLANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CLG",
                             provid = "36"
                         },
@@ -4504,6 +5482,9 @@ namespace iDss.X.Migrations
                             citycode = "CLG",
                             citymerger = "LEBAK",
                             cityname = "KAB LEBAK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CLG",
                             provid = "36"
                         },
@@ -4513,6 +5494,9 @@ namespace iDss.X.Migrations
                             citycode = "TNG",
                             citymerger = "TANGERANG",
                             cityname = "KAB TANGERANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TNG",
                             provid = "36"
                         },
@@ -4522,6 +5506,9 @@ namespace iDss.X.Migrations
                             citycode = "CLG",
                             citymerger = "SERANG",
                             cityname = "KAB SERANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CLG",
                             provid = "36"
                         },
@@ -4531,6 +5518,9 @@ namespace iDss.X.Migrations
                             citycode = "TNG",
                             citymerger = "TANGERANG",
                             cityname = "KOTA TANGERANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TNG",
                             provid = "36"
                         },
@@ -4540,6 +5530,9 @@ namespace iDss.X.Migrations
                             citycode = "CLG",
                             citymerger = "CILEGON",
                             cityname = "KOTA CILEGON",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CLG",
                             provid = "36"
                         },
@@ -4549,6 +5542,9 @@ namespace iDss.X.Migrations
                             citycode = "CLG",
                             citymerger = "SERANG",
                             cityname = "KOTA SERANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "CLG",
                             provid = "36"
                         },
@@ -4558,6 +5554,9 @@ namespace iDss.X.Migrations
                             citycode = "TNG",
                             citymerger = "TANGERANG",
                             cityname = "KOTA TANGERANG SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TNG",
                             provid = "36"
                         },
@@ -4567,6 +5566,9 @@ namespace iDss.X.Migrations
                             citycode = "DPS",
                             citymerger = "JEMBRANA",
                             cityname = "KAB JEMBRANA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPS",
                             provid = "51"
                         },
@@ -4576,6 +5578,9 @@ namespace iDss.X.Migrations
                             citycode = "DPS",
                             citymerger = "TABANAN",
                             cityname = "KAB TABANAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPS",
                             provid = "51"
                         },
@@ -4585,6 +5590,9 @@ namespace iDss.X.Migrations
                             citycode = "DPS",
                             citymerger = "BADUNG",
                             cityname = "KAB BADUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPS",
                             provid = "51"
                         },
@@ -4594,6 +5602,9 @@ namespace iDss.X.Migrations
                             citycode = "GIR",
                             citymerger = "GIANYAR",
                             cityname = "KAB GIANYAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "GIR",
                             provid = "51"
                         },
@@ -4603,6 +5614,9 @@ namespace iDss.X.Migrations
                             citycode = "DPS",
                             citymerger = "KLUNGKUNG",
                             cityname = "KAB KLUNGKUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPS",
                             provid = "51"
                         },
@@ -4612,6 +5626,9 @@ namespace iDss.X.Migrations
                             citycode = "DPS",
                             citymerger = "BANGLI",
                             cityname = "KAB BANGLI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPS",
                             provid = "51"
                         },
@@ -4621,6 +5638,9 @@ namespace iDss.X.Migrations
                             citycode = "DPS",
                             citymerger = "KARANGASEM",
                             cityname = "KAB KARANGASEM",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPS",
                             provid = "51"
                         },
@@ -4630,6 +5650,9 @@ namespace iDss.X.Migrations
                             citycode = "DPS",
                             citymerger = "BULELENG",
                             cityname = "KAB BULELENG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPS",
                             provid = "51"
                         },
@@ -4639,6 +5662,9 @@ namespace iDss.X.Migrations
                             citycode = "DPS",
                             citymerger = "DENPASAR",
                             cityname = "KOTA DENPASAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DPS",
                             provid = "51"
                         },
@@ -4648,6 +5674,9 @@ namespace iDss.X.Migrations
                             citycode = "AMI",
                             citymerger = "LOMBOK BARAT",
                             cityname = "KAB LOMBOK BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4657,6 +5686,9 @@ namespace iDss.X.Migrations
                             citycode = "PYA",
                             citymerger = "LOMBOK TENGAH",
                             cityname = "KAB LOMBOK TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4666,6 +5698,9 @@ namespace iDss.X.Migrations
                             citycode = "PYA",
                             citymerger = "LOMBOK TIMUR",
                             cityname = "KAB LOMBOK TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4675,6 +5710,9 @@ namespace iDss.X.Migrations
                             citycode = "LYK",
                             citymerger = "SUMBAWA",
                             cityname = "KAB SUMBAWA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4684,6 +5722,9 @@ namespace iDss.X.Migrations
                             citycode = "DPU",
                             citymerger = "DOMPU",
                             cityname = "KAB DOMPU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4693,6 +5734,9 @@ namespace iDss.X.Migrations
                             citycode = "BMU",
                             citymerger = "BIMA",
                             cityname = "KAB BIMA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4702,6 +5746,9 @@ namespace iDss.X.Migrations
                             citycode = "SWQ",
                             citymerger = "SUMBAWA BARAT",
                             cityname = "KAB SUMBAWA BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4711,6 +5758,9 @@ namespace iDss.X.Migrations
                             citycode = "PYA",
                             citymerger = "LOMBOK UTARA",
                             cityname = "KAB LOMBOK UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4720,6 +5770,9 @@ namespace iDss.X.Migrations
                             citycode = "AMI",
                             citymerger = "MATARAM",
                             cityname = "KOTA MATARAM",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4729,6 +5782,9 @@ namespace iDss.X.Migrations
                             citycode = "BMU",
                             citymerger = "BIMA",
                             cityname = "KOTA BIMA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMI",
                             provid = "52"
                         },
@@ -4738,6 +5794,9 @@ namespace iDss.X.Migrations
                             citycode = "KOE",
                             citymerger = "KUPANG",
                             cityname = "KAB KUPANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4747,6 +5806,9 @@ namespace iDss.X.Migrations
                             citycode = "SOE",
                             citymerger = "TIMOR TENGAH SELATAN",
                             cityname = "KAB TIMOR TENGAH SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4756,6 +5818,9 @@ namespace iDss.X.Migrations
                             citycode = "KEF",
                             citymerger = "TIMOR TENGAH UTARA",
                             cityname = "KAB TIMOR TENGAH UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4765,6 +5830,9 @@ namespace iDss.X.Migrations
                             citycode = "ATB",
                             citymerger = "BELU",
                             cityname = "KAB BELU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4774,6 +5842,9 @@ namespace iDss.X.Migrations
                             citycode = "ARD",
                             citymerger = "ALOR",
                             cityname = "KAB ALOR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4783,6 +5854,9 @@ namespace iDss.X.Migrations
                             citycode = "LWE",
                             citymerger = "FLORES TIMUR",
                             cityname = "KAB FLORES TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4792,6 +5866,9 @@ namespace iDss.X.Migrations
                             citycode = "MME",
                             citymerger = "SIKKA",
                             cityname = "KAB SIKKA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4801,6 +5878,9 @@ namespace iDss.X.Migrations
                             citycode = "ENE",
                             citymerger = "ENDE",
                             cityname = "KAB ENDE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4810,6 +5890,9 @@ namespace iDss.X.Migrations
                             citycode = "BXD",
                             citymerger = "NGADA",
                             cityname = "KAB NGADA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4819,6 +5902,9 @@ namespace iDss.X.Migrations
                             citycode = "BJW",
                             citymerger = "MANGGARAI",
                             cityname = "KAB MANGGARAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4828,6 +5914,9 @@ namespace iDss.X.Migrations
                             citycode = "WGP",
                             citymerger = "SUMBA TIMUR",
                             cityname = "KAB SUMBA TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4837,6 +5926,9 @@ namespace iDss.X.Migrations
                             citycode = "TMC",
                             citymerger = "SUMBA BARAT",
                             cityname = "KAB SUMBA BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4846,6 +5938,9 @@ namespace iDss.X.Migrations
                             citycode = "LWA",
                             citymerger = "LEMBATA",
                             cityname = "KAB LEMBATA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4855,6 +5950,9 @@ namespace iDss.X.Migrations
                             citycode = "RTI",
                             citymerger = "ROTE NDAO",
                             cityname = "KAB ROTE NDAO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4864,6 +5962,9 @@ namespace iDss.X.Migrations
                             citycode = "LBJ",
                             citymerger = "MANGGARAI BARAT",
                             cityname = "KAB MANGGARAI BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4873,6 +5974,9 @@ namespace iDss.X.Migrations
                             citycode = "BXD",
                             citymerger = "NAGEKEO",
                             cityname = "KAB NAGEKEO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4882,6 +5986,9 @@ namespace iDss.X.Migrations
                             citycode = "TMC",
                             citymerger = "SUMBA TENGAH",
                             cityname = "KAB SUMBA TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4891,6 +5998,9 @@ namespace iDss.X.Migrations
                             citycode = "TMC",
                             citymerger = "SUMBA BARAT DAYA",
                             cityname = "KAB SUMBA BARAT DAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4900,6 +6010,9 @@ namespace iDss.X.Migrations
                             citycode = "BJW",
                             citymerger = "MANGGARAI TIMUR",
                             cityname = "KAB MANGGARAI TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4909,6 +6022,9 @@ namespace iDss.X.Migrations
                             citycode = "SEB",
                             citymerger = "SABU RAIJUA",
                             cityname = "KAB SABU RAIJUA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4918,6 +6034,9 @@ namespace iDss.X.Migrations
                             citycode = "KEF",
                             citymerger = "MALAKA",
                             cityname = "KAB MALAKA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4927,6 +6046,9 @@ namespace iDss.X.Migrations
                             citycode = "KOE",
                             citymerger = "KUPANG",
                             cityname = "KOTA KUPANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KOE",
                             provid = "53"
                         },
@@ -4936,6 +6058,9 @@ namespace iDss.X.Migrations
                             citycode = "SBS",
                             citymerger = "SAMBAS",
                             cityname = "KAB SAMBAS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -4945,6 +6070,9 @@ namespace iDss.X.Migrations
                             citycode = "MPW",
                             citymerger = "MEMPAWAH",
                             cityname = "KAB MEMPAWAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -4954,6 +6082,9 @@ namespace iDss.X.Migrations
                             citycode = "SGO",
                             citymerger = "SANGGAU",
                             cityname = "KAB SANGGAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -4963,6 +6094,9 @@ namespace iDss.X.Migrations
                             citycode = "KTG",
                             citymerger = "KETAPANG",
                             cityname = "KAB KETAPANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -4972,6 +6106,9 @@ namespace iDss.X.Migrations
                             citycode = "SQG",
                             citymerger = "SINTANG",
                             cityname = "KAB SINTANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -4981,6 +6118,9 @@ namespace iDss.X.Migrations
                             citycode = "PTS",
                             citymerger = "KAPUAS HULU",
                             cityname = "KAB KAPUAS HULU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -4990,6 +6130,9 @@ namespace iDss.X.Migrations
                             citycode = "BKY",
                             citymerger = "BENGKAYANG",
                             cityname = "KAB BENGKAYANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -4999,6 +6142,9 @@ namespace iDss.X.Migrations
                             citycode = "LDK",
                             citymerger = "LANDAK",
                             cityname = "KAB LANDAK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -5008,6 +6154,9 @@ namespace iDss.X.Migrations
                             citycode = "SKD",
                             citymerger = "SEKADAU",
                             cityname = "KAB SEKADAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -5017,6 +6166,9 @@ namespace iDss.X.Migrations
                             citycode = "MLW",
                             citymerger = "MELAWI",
                             cityname = "KAB MELAWI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -5026,6 +6178,9 @@ namespace iDss.X.Migrations
                             citycode = "KKU",
                             citymerger = "KAYONG UTARA",
                             cityname = "KAB KAYONG UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -5035,6 +6190,9 @@ namespace iDss.X.Migrations
                             citycode = "KKR",
                             citymerger = "KUBU RAYA",
                             cityname = "KAB KUBU RAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -5044,6 +6202,9 @@ namespace iDss.X.Migrations
                             citycode = "PNK",
                             citymerger = "PONTIANAK",
                             cityname = "KOTA PONTIANAK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -5053,6 +6214,9 @@ namespace iDss.X.Migrations
                             citycode = "SKW",
                             citymerger = "SINGKAWANG",
                             cityname = "KOTA SINGKAWANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PNK",
                             provid = "61"
                         },
@@ -5062,6 +6226,9 @@ namespace iDss.X.Migrations
                             citycode = "PBU",
                             citymerger = "KOTAWARINGIN BARAT",
                             cityname = "KAB KOTAWARINGIN BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PBU",
                             provid = "62"
                         },
@@ -5071,6 +6238,9 @@ namespace iDss.X.Migrations
                             citycode = "SMQ",
                             citymerger = "KOTAWARINGIN TIMUR",
                             cityname = "KAB KOTAWARINGIN TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PBU",
                             provid = "62"
                         },
@@ -5080,6 +6250,9 @@ namespace iDss.X.Migrations
                             citycode = "KPS",
                             citymerger = "KAPUAS",
                             cityname = "KAB KAPUAS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "62"
                         },
@@ -5089,6 +6262,9 @@ namespace iDss.X.Migrations
                             citycode = "BTS",
                             citymerger = "BARITO SELATAN",
                             cityname = "KAB BARITO SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5098,6 +6274,9 @@ namespace iDss.X.Migrations
                             citycode = "MTW",
                             citymerger = "BARITO UTARA",
                             cityname = "KAB BARITO UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5107,6 +6286,9 @@ namespace iDss.X.Migrations
                             citycode = "KTN",
                             citymerger = "KATINGAN",
                             cityname = "KAB KATINGAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5116,6 +6298,9 @@ namespace iDss.X.Migrations
                             citycode = "SRY",
                             citymerger = "SERUYAN",
                             cityname = "KAB SERUYAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5125,6 +6310,9 @@ namespace iDss.X.Migrations
                             citycode = "SRA",
                             citymerger = "SUKAMARA",
                             cityname = "KAB SUKAMARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PBU",
                             provid = "62"
                         },
@@ -5134,6 +6322,9 @@ namespace iDss.X.Migrations
                             citycode = "LMD",
                             citymerger = "LAMANDAU",
                             cityname = "KAB LAMANDAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PBU",
                             provid = "62"
                         },
@@ -5143,6 +6334,9 @@ namespace iDss.X.Migrations
                             citycode = "KRN",
                             citymerger = "GUNUNG MAS",
                             cityname = "KAB GUNUNG MAS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5152,6 +6346,9 @@ namespace iDss.X.Migrations
                             citycode = "PPS",
                             citymerger = "PULANG PISAU",
                             cityname = "KAB PULANG PISAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5161,6 +6358,9 @@ namespace iDss.X.Migrations
                             citycode = "PCH",
                             citymerger = "MURUNG RAYA",
                             cityname = "KAB MURUNG RAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5170,6 +6370,9 @@ namespace iDss.X.Migrations
                             citycode = "TMY",
                             citymerger = "BARITO TIMUR",
                             cityname = "KAB BARITO TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5179,6 +6382,9 @@ namespace iDss.X.Migrations
                             citycode = "PKY",
                             citymerger = "PALANGKARAYA",
                             cityname = "KOTA PALANGKARAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PKY",
                             provid = "62"
                         },
@@ -5188,6 +6394,9 @@ namespace iDss.X.Migrations
                             citycode = "PLE",
                             citymerger = "TANAH LAUT",
                             cityname = "KAB TANAH LAUT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5197,6 +6406,9 @@ namespace iDss.X.Migrations
                             citycode = "KTB",
                             citymerger = "KOTABARU",
                             cityname = "KAB KOTABARU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5206,6 +6418,9 @@ namespace iDss.X.Migrations
                             citycode = "BJB",
                             citymerger = "BANJAR",
                             cityname = "KAB BANJAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5215,6 +6430,9 @@ namespace iDss.X.Migrations
                             citycode = "MRB",
                             citymerger = "BARITO KUALA",
                             cityname = "KAB BARITO KUALA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5224,6 +6442,9 @@ namespace iDss.X.Migrations
                             citycode = "KDG",
                             citymerger = "TAPIN",
                             cityname = "KAB TAPIN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5233,6 +6454,9 @@ namespace iDss.X.Migrations
                             citycode = "KDG",
                             citymerger = "HULU SUNGAI SELATAN",
                             cityname = "KAB HULU SUNGAI SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5242,6 +6466,9 @@ namespace iDss.X.Migrations
                             citycode = "KDG",
                             citymerger = "HULU SUNGAI TENGAH",
                             cityname = "KAB HULU SUNGAI TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5251,6 +6478,9 @@ namespace iDss.X.Migrations
                             citycode = "AMT",
                             citymerger = "HULU SUNGAI UTARA",
                             cityname = "KAB HULU SUNGAI UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5260,6 +6490,9 @@ namespace iDss.X.Migrations
                             citycode = "TNJ",
                             citymerger = "TABALONG",
                             cityname = "KAB TABALONG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5269,6 +6502,9 @@ namespace iDss.X.Migrations
                             citycode = "BTL",
                             citymerger = "TANAH BUMBU",
                             cityname = "KAB TANAH BUMBU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5278,6 +6514,9 @@ namespace iDss.X.Migrations
                             citycode = "TNJ",
                             citymerger = "BALANGAN",
                             cityname = "KAB BALANGAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5287,6 +6526,9 @@ namespace iDss.X.Migrations
                             citycode = "BDJ",
                             citymerger = "BANJARMASIN",
                             cityname = "KOTA BANJARMASIN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5296,6 +6538,9 @@ namespace iDss.X.Migrations
                             citycode = "BJB",
                             citymerger = "BANJARBARU",
                             cityname = "KOTA BANJARBARU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BDJ",
                             provid = "63"
                         },
@@ -5305,6 +6550,9 @@ namespace iDss.X.Migrations
                             citycode = "TMB",
                             citymerger = "PASER",
                             cityname = "KAB PASER",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BPN",
                             provid = "64"
                         },
@@ -5314,6 +6562,9 @@ namespace iDss.X.Migrations
                             citycode = "KOD",
                             citymerger = "KUTAI KARTANEGARA",
                             cityname = "KAB KUTAI KARTANEGARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRI",
                             provid = "64"
                         },
@@ -5323,6 +6574,9 @@ namespace iDss.X.Migrations
                             citycode = "BEJ",
                             citymerger = "BERAU",
                             cityname = "KAB BERAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BPN",
                             provid = "64"
                         },
@@ -5332,6 +6586,9 @@ namespace iDss.X.Migrations
                             citycode = "DTD",
                             citymerger = "KUTAI BARAT",
                             cityname = "KAB KUTAI BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRI",
                             provid = "64"
                         },
@@ -5341,6 +6598,9 @@ namespace iDss.X.Migrations
                             citycode = "SGT",
                             citymerger = "KUTAI TIMUR",
                             cityname = "KAB KUTAI TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRI",
                             provid = "64"
                         },
@@ -5350,6 +6610,9 @@ namespace iDss.X.Migrations
                             citycode = "PPU",
                             citymerger = "PENAJAM PASER UTARA",
                             cityname = "KAB PENAJAM PASER UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BPN",
                             provid = "64"
                         },
@@ -5359,6 +6622,9 @@ namespace iDss.X.Migrations
                             citycode = "SRI",
                             citymerger = "MAHAKAM ULU",
                             cityname = "KAB MAHAKAM ULU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRI",
                             provid = "64"
                         },
@@ -5368,6 +6634,9 @@ namespace iDss.X.Migrations
                             citycode = "BPN",
                             citymerger = "BALIKPAPAN",
                             cityname = "KOTA BALIKPAPAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BPN",
                             provid = "64"
                         },
@@ -5377,6 +6646,9 @@ namespace iDss.X.Migrations
                             citycode = "SRI",
                             citymerger = "SAMARINDA",
                             cityname = "KOTA SAMARINDA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRI",
                             provid = "64"
                         },
@@ -5386,6 +6658,9 @@ namespace iDss.X.Migrations
                             citycode = "BXT",
                             citymerger = "BONTANG",
                             cityname = "KOTA BONTANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SRI",
                             provid = "64"
                         },
@@ -5395,6 +6670,9 @@ namespace iDss.X.Migrations
                             citycode = "TRK",
                             citymerger = "BULUNGAN",
                             cityname = "KAB BULUNGAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TRK",
                             provid = "65"
                         },
@@ -5404,6 +6682,9 @@ namespace iDss.X.Migrations
                             citycode = "TRK",
                             citymerger = "MALINAU",
                             cityname = "KAB MALINAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TRK",
                             provid = "65"
                         },
@@ -5413,6 +6694,9 @@ namespace iDss.X.Migrations
                             citycode = "TRK",
                             citymerger = "NUNUKAN",
                             cityname = "KAB NUNUKAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TRK",
                             provid = "65"
                         },
@@ -5422,6 +6706,9 @@ namespace iDss.X.Migrations
                             citycode = "TRK",
                             citymerger = "TANA TIDUNG",
                             cityname = "KAB TANA TIDUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TRK",
                             provid = "65"
                         },
@@ -5431,6 +6718,9 @@ namespace iDss.X.Migrations
                             citycode = "TRK",
                             citymerger = "TARAKAN",
                             cityname = "KOTA TARAKAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TRK",
                             provid = "65"
                         },
@@ -5440,6 +6730,9 @@ namespace iDss.X.Migrations
                             citycode = "KTO",
                             citymerger = "BOLAANG MONGONDOW",
                             cityname = "KAB BOLAANG MONGONDOW",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5449,6 +6742,9 @@ namespace iDss.X.Migrations
                             citycode = "TDO",
                             citymerger = "MINAHASA",
                             cityname = "KAB MINAHASA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5458,6 +6754,9 @@ namespace iDss.X.Migrations
                             citycode = "THU",
                             citymerger = "KEPULAUAN SANGIHE",
                             cityname = "KAB KEPULAUAN SANGIHE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5467,6 +6766,9 @@ namespace iDss.X.Migrations
                             citycode = "TLD",
                             citymerger = "KEPULAUAN TALAUD",
                             cityname = "KAB KEPULAUAN TALAUD",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5476,6 +6778,9 @@ namespace iDss.X.Migrations
                             citycode = "AMR",
                             citymerger = "MINAHASA SELATAN",
                             cityname = "KAB MINAHASA SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5485,6 +6790,9 @@ namespace iDss.X.Migrations
                             citycode = "ARM",
                             citymerger = "MINAHASA UTARA",
                             cityname = "KAB MINAHASA UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5494,6 +6802,9 @@ namespace iDss.X.Migrations
                             citycode = "RTH",
                             citymerger = "MINAHASA TENGGARA",
                             cityname = "KAB MINAHASA TENGGARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5503,6 +6814,9 @@ namespace iDss.X.Migrations
                             citycode = "BMU",
                             citymerger = "BOLAANG MONGONDOW UTARA",
                             cityname = "KAB BOLAANG MONGONDOW UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5512,6 +6826,9 @@ namespace iDss.X.Migrations
                             citycode = "STR",
                             citymerger = "KEP SIAU",
                             cityname = "KAB KEP SIAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5521,6 +6838,9 @@ namespace iDss.X.Migrations
                             citycode = "BMT",
                             citymerger = "BOLAANG MONGONDOW TIMUR",
                             cityname = "KAB BOLAANG MONGONDOW TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5530,6 +6850,9 @@ namespace iDss.X.Migrations
                             citycode = "BMS",
                             citymerger = "BOLAANG MONGONDOW SELATAN",
                             cityname = "KAB BOLAANG MONGONDOW SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5539,6 +6862,9 @@ namespace iDss.X.Migrations
                             citycode = "MDC",
                             citymerger = "MANADO",
                             cityname = "KOTA MANADO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5548,6 +6874,9 @@ namespace iDss.X.Migrations
                             citycode = "BTU",
                             citymerger = "BITUNG",
                             cityname = "KOTA BITUNG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5557,6 +6886,9 @@ namespace iDss.X.Migrations
                             citycode = "TMH",
                             citymerger = "TOMOHON",
                             cityname = "KOTA TOMOHON",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5566,6 +6898,9 @@ namespace iDss.X.Migrations
                             citycode = "KTO",
                             citymerger = "KOTAMOBAGU",
                             cityname = "KOTA KOTAMOBAGU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "71"
                         },
@@ -5575,6 +6910,9 @@ namespace iDss.X.Migrations
                             citycode = "BGI",
                             citymerger = "BANGGAI",
                             cityname = "KAB BANGGAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5584,6 +6922,9 @@ namespace iDss.X.Migrations
                             citycode = "PSJ",
                             citymerger = "POSO",
                             cityname = "KAB POSO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5593,6 +6934,9 @@ namespace iDss.X.Migrations
                             citycode = "DGL",
                             citymerger = "DONGGALA",
                             cityname = "KAB DONGGALA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5602,6 +6946,9 @@ namespace iDss.X.Migrations
                             citycode = "TOL",
                             citymerger = "TOLI TOLI",
                             cityname = "KAB TOLI TOLI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5611,6 +6958,9 @@ namespace iDss.X.Migrations
                             citycode = "BUO",
                             citymerger = "BUOL",
                             cityname = "KAB BUOL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5620,6 +6970,9 @@ namespace iDss.X.Migrations
                             citycode = "MOR",
                             citymerger = "MOROWALI",
                             cityname = "KAB MOROWALI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5629,6 +6982,9 @@ namespace iDss.X.Migrations
                             citycode = "BGK",
                             citymerger = "BANGGAI KEPULAUAN",
                             cityname = "KAB BANGGAI KEPULAUAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5638,6 +6994,9 @@ namespace iDss.X.Migrations
                             citycode = "PGM",
                             citymerger = "PARIGI MOUTONG",
                             cityname = "KAB PARIGI MOUTONG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5647,6 +7006,9 @@ namespace iDss.X.Migrations
                             citycode = "TJU",
                             citymerger = "TOJO UNA UNA",
                             cityname = "KAB TOJO UNA UNA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5656,6 +7018,9 @@ namespace iDss.X.Migrations
                             citycode = "SIM",
                             citymerger = "SIGI",
                             cityname = "KAB SIGI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5665,6 +7030,9 @@ namespace iDss.X.Migrations
                             citycode = "BGL",
                             citymerger = "BANGGAI LAUT",
                             cityname = "KAB BANGGAI LAUT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5674,6 +7042,9 @@ namespace iDss.X.Migrations
                             citycode = "MRU",
                             citymerger = "MOROWALI UTARA",
                             cityname = "KAB MOROWALI UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5683,6 +7054,9 @@ namespace iDss.X.Migrations
                             citycode = "PLW",
                             citymerger = "PALU",
                             cityname = "KOTA PALU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "72"
                         },
@@ -5692,6 +7066,9 @@ namespace iDss.X.Migrations
                             citycode = "SLY",
                             citymerger = "KEPULAUAN SELAYAR",
                             cityname = "KAB KEPULAUAN SELAYAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5701,6 +7078,9 @@ namespace iDss.X.Migrations
                             citycode = "BUL",
                             citymerger = "BULUKUMBA",
                             cityname = "KAB BULUKUMBA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5710,6 +7090,9 @@ namespace iDss.X.Migrations
                             citycode = "UPG",
                             citymerger = "BANTAENG",
                             cityname = "KAB BANTAENG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5719,6 +7102,9 @@ namespace iDss.X.Migrations
                             citycode = "UPG",
                             citymerger = "JENEPONTO",
                             cityname = "KAB JENEPONTO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5728,6 +7114,9 @@ namespace iDss.X.Migrations
                             citycode = "UPG",
                             citymerger = "TAKALAR",
                             cityname = "KAB TAKALAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5737,6 +7126,9 @@ namespace iDss.X.Migrations
                             citycode = "UPG",
                             citymerger = "GOWA",
                             cityname = "KAB GOWA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5746,6 +7138,9 @@ namespace iDss.X.Migrations
                             citycode = "BUL",
                             citymerger = "SINJAI",
                             cityname = "KAB SINJAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5755,6 +7150,9 @@ namespace iDss.X.Migrations
                             citycode = "BNE",
                             citymerger = "BONE",
                             cityname = "KAB BONE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5764,6 +7162,9 @@ namespace iDss.X.Migrations
                             citycode = "MRS",
                             citymerger = "MAROS",
                             cityname = "KAB MAROS",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5773,6 +7174,9 @@ namespace iDss.X.Migrations
                             citycode = "PKP",
                             citymerger = "PANGKAJENE",
                             cityname = "KAB PANGKAJENE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5782,6 +7186,9 @@ namespace iDss.X.Migrations
                             citycode = "BRU",
                             citymerger = "BARRU",
                             cityname = "KAB BARRU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5791,6 +7198,9 @@ namespace iDss.X.Migrations
                             citycode = "SOP",
                             citymerger = "SOPPENG",
                             cityname = "KAB SOPPENG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5800,6 +7210,9 @@ namespace iDss.X.Migrations
                             citycode = "SKG",
                             citymerger = "WAJO",
                             cityname = "KAB WAJO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5809,6 +7222,9 @@ namespace iDss.X.Migrations
                             citycode = "SDR",
                             citymerger = "SIDENRENG RAPPANG",
                             cityname = "KAB SIDENRENG RAPPANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5818,6 +7234,9 @@ namespace iDss.X.Migrations
                             citycode = "PIN",
                             citymerger = "PINRANG",
                             cityname = "KAB PINRANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5827,6 +7246,9 @@ namespace iDss.X.Migrations
                             citycode = "EKG",
                             citymerger = "ENREKANG",
                             cityname = "KAB ENREKANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5836,6 +7258,9 @@ namespace iDss.X.Migrations
                             citycode = "LUW",
                             citymerger = "LUWU",
                             cityname = "KAB LUWU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5845,6 +7270,9 @@ namespace iDss.X.Migrations
                             citycode = "MKL",
                             citymerger = "TANA TORAJA",
                             cityname = "KAB TANA TORAJA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5854,6 +7282,9 @@ namespace iDss.X.Migrations
                             citycode = "LUT",
                             citymerger = "LUWU UTARA",
                             cityname = "KAB LUWU UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5863,6 +7294,9 @@ namespace iDss.X.Migrations
                             citycode = "LUM",
                             citymerger = "LUWU TIMUR",
                             cityname = "KAB LUWU TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5872,6 +7306,9 @@ namespace iDss.X.Migrations
                             citycode = "RTP",
                             citymerger = "TORAJA UTARA",
                             cityname = "KAB TORAJA UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5881,6 +7318,9 @@ namespace iDss.X.Migrations
                             citycode = "UPG",
                             citymerger = "MAKASSAR",
                             cityname = "KOTA MAKASSAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5890,6 +7330,9 @@ namespace iDss.X.Migrations
                             citycode = "PRE",
                             citymerger = "PARE PARE",
                             cityname = "KOTA PARE PARE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5899,6 +7342,9 @@ namespace iDss.X.Migrations
                             citycode = "PLP",
                             citymerger = "PALOPO",
                             cityname = "KOTA PALOPO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "73"
                         },
@@ -5908,6 +7354,9 @@ namespace iDss.X.Migrations
                             citycode = "KKA",
                             citymerger = "KOLAKA",
                             cityname = "KAB KOLAKA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5917,6 +7366,9 @@ namespace iDss.X.Migrations
                             citycode = "UNH",
                             citymerger = "KONAWE",
                             cityname = "KAB KONAWE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5926,6 +7378,9 @@ namespace iDss.X.Migrations
                             citycode = "RAH",
                             citymerger = "MUNA",
                             cityname = "KAB MUNA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5935,6 +7390,9 @@ namespace iDss.X.Migrations
                             citycode = "BUW",
                             citymerger = "BUTON",
                             cityname = "KAB BUTON",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5944,6 +7402,9 @@ namespace iDss.X.Migrations
                             citycode = "UNH",
                             citymerger = "KONAWE SELATAN",
                             cityname = "KAB KONAWE SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5953,6 +7414,9 @@ namespace iDss.X.Migrations
                             citycode = "RMB",
                             citymerger = "BOMBANA",
                             cityname = "KAB BOMBANA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5962,6 +7426,9 @@ namespace iDss.X.Migrations
                             citycode = "WKB",
                             citymerger = "WAKATOBI",
                             cityname = "KAB WAKATOBI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5971,6 +7438,9 @@ namespace iDss.X.Migrations
                             citycode = "KKA",
                             citymerger = "KOLAKA UTARA",
                             cityname = "KAB KOLAKA UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5980,6 +7450,9 @@ namespace iDss.X.Migrations
                             citycode = "UNH",
                             citymerger = "KONAWE UTARA",
                             cityname = "KAB KONAWE UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5989,6 +7462,9 @@ namespace iDss.X.Migrations
                             citycode = "BUW",
                             citymerger = "BUTON UTARA",
                             cityname = "KAB BUTON UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -5998,6 +7474,9 @@ namespace iDss.X.Migrations
                             citycode = "KKA",
                             citymerger = "KOLAKA TIMUR",
                             cityname = "KAB KOLAKA TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -6007,6 +7486,9 @@ namespace iDss.X.Migrations
                             citycode = "UNH",
                             citymerger = "KONAWE KEPULAUAN",
                             cityname = "KAB KONAWE KEPULAUAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -6016,6 +7498,9 @@ namespace iDss.X.Migrations
                             citycode = "RAH",
                             citymerger = "MUNA BARAT",
                             cityname = "KAB MUNA BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -6025,6 +7510,9 @@ namespace iDss.X.Migrations
                             citycode = "BUW",
                             citymerger = "BUTON TENGAH",
                             cityname = "KAB BUTON TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -6034,6 +7522,9 @@ namespace iDss.X.Migrations
                             citycode = "BUW",
                             citymerger = "BUTON SELATAN",
                             cityname = "KAB BUTON SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -6043,6 +7534,9 @@ namespace iDss.X.Migrations
                             citycode = "KDI",
                             citymerger = "KENDARI",
                             cityname = "KOTA KENDARI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -6052,6 +7546,9 @@ namespace iDss.X.Migrations
                             citycode = "BUW",
                             citymerger = "BAU BAU",
                             cityname = "KOTA BAU BAU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "KDI",
                             provid = "74"
                         },
@@ -6061,6 +7558,9 @@ namespace iDss.X.Migrations
                             citycode = "GTL",
                             citymerger = "GORONTALO",
                             cityname = "KAB GORONTALO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "GTO",
                             provid = "75"
                         },
@@ -6070,6 +7570,9 @@ namespace iDss.X.Migrations
                             citycode = "BLM",
                             citymerger = "BOALEMO",
                             cityname = "KAB BOALEMO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "GTO",
                             provid = "75"
                         },
@@ -6079,6 +7582,9 @@ namespace iDss.X.Migrations
                             citycode = "BLO",
                             citymerger = "BONE BOLANGO",
                             cityname = "KAB BONE BOLANGO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "GTO",
                             provid = "75"
                         },
@@ -6088,6 +7594,9 @@ namespace iDss.X.Migrations
                             citycode = "PWH",
                             citymerger = "PAHUWATO",
                             cityname = "KAB PAHUWATO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "GTO",
                             provid = "75"
                         },
@@ -6097,6 +7606,9 @@ namespace iDss.X.Migrations
                             citycode = "LBT",
                             citymerger = "GORONTALO UTARA",
                             cityname = "KAB GORONTALO UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "GTO",
                             provid = "75"
                         },
@@ -6106,6 +7618,9 @@ namespace iDss.X.Migrations
                             citycode = "GTO",
                             citymerger = "GORONTALO",
                             cityname = "KOTA GORONTALO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "GTO",
                             provid = "75"
                         },
@@ -6115,6 +7630,9 @@ namespace iDss.X.Migrations
                             citycode = "MJU",
                             citymerger = "MAMUJU UTARA",
                             cityname = "KAB MAMUJU UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "PLW",
                             provid = "76"
                         },
@@ -6124,6 +7642,9 @@ namespace iDss.X.Migrations
                             citycode = "MMJ",
                             citymerger = "MAMUJU",
                             cityname = "KAB MAMUJU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "76"
                         },
@@ -6133,6 +7654,9 @@ namespace iDss.X.Migrations
                             citycode = "MMS",
                             citymerger = "MAMASA",
                             cityname = "KAB MAMASA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "76"
                         },
@@ -6142,6 +7666,9 @@ namespace iDss.X.Migrations
                             citycode = "POL",
                             citymerger = "POLEWALI MANDAR",
                             cityname = "KAB POLEWALI MANDAR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "76"
                         },
@@ -6151,6 +7678,9 @@ namespace iDss.X.Migrations
                             citycode = "MJN",
                             citymerger = "MAJENE",
                             cityname = "KAB MAJENE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "76"
                         },
@@ -6160,6 +7690,9 @@ namespace iDss.X.Migrations
                             citycode = "MJT",
                             citymerger = "MAMUJU TENGAH",
                             cityname = "KAB MAMUJU TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "UPG",
                             provid = "76"
                         },
@@ -6169,6 +7702,9 @@ namespace iDss.X.Migrations
                             citycode = "AHI",
                             citymerger = "MALUKU TENGAH",
                             cityname = "KAB MALUKU TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6178,6 +7714,9 @@ namespace iDss.X.Migrations
                             citycode = "LUV",
                             citymerger = "MALUKU TENGGARA",
                             cityname = "KAB MALUKU TENGGARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6187,6 +7726,9 @@ namespace iDss.X.Migrations
                             citycode = "SXK",
                             citymerger = "MALUKU TENGGARA BARAT",
                             cityname = "KAB MALUKU TENGGARA BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6196,6 +7738,9 @@ namespace iDss.X.Migrations
                             citycode = "NAM",
                             citymerger = "BURU",
                             cityname = "KAB BURU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6205,6 +7750,9 @@ namespace iDss.X.Migrations
                             citycode = "BUL",
                             citymerger = "SERAM BAGIAN TIMUR",
                             cityname = "KAB SERAM BAGIAN TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6214,6 +7762,9 @@ namespace iDss.X.Migrations
                             citycode = "WHI",
                             citymerger = "SERAM BAGIAN BARAT",
                             cityname = "KAB SERAM BAGIAN BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6223,6 +7774,9 @@ namespace iDss.X.Migrations
                             citycode = "DOB",
                             citymerger = "KEPULAUAN ARU",
                             cityname = "KAB KEPULAUAN ARU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6232,6 +7786,9 @@ namespace iDss.X.Migrations
                             citycode = "AMQ",
                             citymerger = "MALUKU BARAT DAYA",
                             cityname = "KAB MALUKU BARAT DAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6241,6 +7798,9 @@ namespace iDss.X.Migrations
                             citycode = "NRE",
                             citymerger = "BURU SELATAN",
                             cityname = "KAB BURU SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6250,6 +7810,9 @@ namespace iDss.X.Migrations
                             citycode = "AMQ",
                             citymerger = "AMBON",
                             cityname = "KOTA AMBON",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6259,6 +7822,9 @@ namespace iDss.X.Migrations
                             citycode = "LUV",
                             citymerger = "TUAL",
                             cityname = "KOTA TUAL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "AMQ",
                             provid = "81"
                         },
@@ -6268,6 +7834,9 @@ namespace iDss.X.Migrations
                             citycode = "BCN",
                             citymerger = "HALMAHERA BARAT",
                             cityname = "KAB HALMAHERA BARAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6277,6 +7846,9 @@ namespace iDss.X.Migrations
                             citycode = "SSP",
                             citymerger = "HALMAHERA TENGAH",
                             cityname = "KAB HALMAHERA TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6286,6 +7858,9 @@ namespace iDss.X.Migrations
                             citycode = "TBL",
                             citymerger = "HALMAHERA UTARA",
                             cityname = "KAB HALMAHERA UTARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6295,6 +7870,9 @@ namespace iDss.X.Migrations
                             citycode = "WDA",
                             citymerger = "HALMAHERA SELATAN",
                             cityname = "KAB HALMAHERA SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6304,6 +7882,9 @@ namespace iDss.X.Migrations
                             citycode = "SLA",
                             citymerger = "KEPULAUAN SULA",
                             cityname = "KAB KEPULAUAN SULA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6313,6 +7894,9 @@ namespace iDss.X.Migrations
                             citycode = "BLI",
                             citymerger = "HALMAHERA TIMUR",
                             cityname = "KAB HALMAHERA TIMUR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6322,6 +7906,9 @@ namespace iDss.X.Migrations
                             citycode = "MRT",
                             citymerger = "PULAU MOROTAI",
                             cityname = "KAB PULAU MOROTAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6331,6 +7918,9 @@ namespace iDss.X.Migrations
                             citycode = "TLB",
                             citymerger = "PULAU TALIABU",
                             cityname = "KAB PULAU TALIABU",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6340,6 +7930,9 @@ namespace iDss.X.Migrations
                             citycode = "TTE",
                             citymerger = "TERNATE",
                             cityname = "KOTA TERNATE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TTE",
                             provid = "82"
                         },
@@ -6349,6 +7942,9 @@ namespace iDss.X.Migrations
                             citycode = "TDR",
                             citymerger = "TIDORE KEPULAUAN",
                             cityname = "KOTA TIDORE KEPULAUAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MDC",
                             provid = "82"
                         },
@@ -6358,6 +7954,9 @@ namespace iDss.X.Migrations
                             citycode = "MKQ",
                             citymerger = "MERAUKE",
                             cityname = "KAB MERAUKE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MKQ",
                             provid = "91"
                         },
@@ -6367,6 +7966,9 @@ namespace iDss.X.Migrations
                             citycode = "WMX",
                             citymerger = "JAYAWIJAYA",
                             cityname = "KAB JAYAWIJAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6376,6 +7978,9 @@ namespace iDss.X.Migrations
                             citycode = "DJJ",
                             citymerger = "JAYAPURA",
                             cityname = "KAB JAYAPURA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6385,6 +7990,9 @@ namespace iDss.X.Migrations
                             citycode = "NBX",
                             citymerger = "NABIRE",
                             cityname = "KAB NABIRE",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BIK",
                             provid = "91"
                         },
@@ -6394,6 +8002,9 @@ namespace iDss.X.Migrations
                             citycode = "ZRI",
                             citymerger = "KEPULAUAN YAPEN",
                             cityname = "KAB KEPULAUAN YAPEN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BIK",
                             provid = "91"
                         },
@@ -6403,6 +8014,9 @@ namespace iDss.X.Migrations
                             citycode = "BIK",
                             citymerger = "BIAK NUMFOR",
                             cityname = "KAB BIAK NUMFOR",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BIK",
                             provid = "91"
                         },
@@ -6412,6 +8026,9 @@ namespace iDss.X.Migrations
                             citycode = "ELR",
                             citymerger = "PUNCAK JAYA",
                             cityname = "KAB PUNCAK JAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6421,6 +8038,9 @@ namespace iDss.X.Migrations
                             citycode = "ILA",
                             citymerger = "PANIAI",
                             cityname = "KAB PANIAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BIK",
                             provid = "91"
                         },
@@ -6430,6 +8050,9 @@ namespace iDss.X.Migrations
                             citycode = "TIM",
                             citymerger = "MIMIKA",
                             cityname = "KAB MIMIKA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "TIM",
                             provid = "91"
                         },
@@ -6439,6 +8062,9 @@ namespace iDss.X.Migrations
                             citycode = "ZRM",
                             citymerger = "SARMI",
                             cityname = "KAB SARMI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6448,6 +8074,9 @@ namespace iDss.X.Migrations
                             citycode = "WAR",
                             citymerger = "KEEROM",
                             cityname = "KAB KEEROM",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6457,6 +8086,9 @@ namespace iDss.X.Migrations
                             citycode = "OKL",
                             citymerger = "PEGUNUNGAN BINTANG",
                             cityname = "KAB PEGUNUNGAN BINTANG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6466,6 +8098,9 @@ namespace iDss.X.Migrations
                             citycode = "DEK",
                             citymerger = "YAHUKIMO",
                             cityname = "KAB YAHUKIMO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6475,6 +8110,9 @@ namespace iDss.X.Migrations
                             citycode = "KBF",
                             citymerger = "TOLIKARA",
                             cityname = "KAB TOLIKARA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6484,6 +8122,9 @@ namespace iDss.X.Migrations
                             citycode = "BTW",
                             citymerger = "WAROPEN",
                             cityname = "KAB WAROPEN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BIK",
                             provid = "91"
                         },
@@ -6493,6 +8134,9 @@ namespace iDss.X.Migrations
                             citycode = "MDP",
                             citymerger = "BOVEN DIGOEL",
                             cityname = "KAB BOVEN DIGOEL",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MKQ",
                             provid = "91"
                         },
@@ -6502,6 +8146,9 @@ namespace iDss.X.Migrations
                             citycode = "KEI",
                             citymerger = "MAPPI",
                             cityname = "KAB MAPPI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MKQ",
                             provid = "91"
                         },
@@ -6511,6 +8158,9 @@ namespace iDss.X.Migrations
                             citycode = "AGT",
                             citymerger = "ASMAT",
                             cityname = "KAB ASMAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MKQ",
                             provid = "91"
                         },
@@ -6520,6 +8170,9 @@ namespace iDss.X.Migrations
                             citycode = "SRW",
                             citymerger = "SUPIORI",
                             cityname = "KAB SUPIORI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BIK",
                             provid = "91"
                         },
@@ -6529,6 +8182,9 @@ namespace iDss.X.Migrations
                             citycode = "OKL",
                             citymerger = "MAMBERAMO RAYA",
                             cityname = "KAB MAMBERAMO RAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6538,6 +8194,9 @@ namespace iDss.X.Migrations
                             citycode = "OKL",
                             citymerger = "MAMBERAMO TENGAH",
                             cityname = "KAB MAMBERAMO TENGAH",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6547,6 +8206,9 @@ namespace iDss.X.Migrations
                             citycode = "ELM",
                             citymerger = "YALIMO",
                             cityname = "KAB YALIMO",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6556,6 +8218,9 @@ namespace iDss.X.Migrations
                             citycode = "TOM",
                             citymerger = "LANNY JAYA",
                             cityname = "KAB LANNY JAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6565,6 +8230,9 @@ namespace iDss.X.Migrations
                             citycode = "KYM",
                             citymerger = "NDUGA",
                             cityname = "KAB NDUGA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6574,6 +8242,9 @@ namespace iDss.X.Migrations
                             citycode = "ILA",
                             citymerger = "PUNCAK",
                             cityname = "KAB PUNCAK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6583,6 +8254,9 @@ namespace iDss.X.Migrations
                             citycode = "NBX",
                             citymerger = "DOGIYAI",
                             cityname = "KAB DOGIYAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6592,6 +8266,9 @@ namespace iDss.X.Migrations
                             citycode = "ZGP",
                             citymerger = "INTAN JAYA",
                             cityname = "KAB INTAN JAYA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6601,6 +8278,9 @@ namespace iDss.X.Migrations
                             citycode = "TIG",
                             citymerger = "DEIYAI",
                             cityname = "KAB DEIYAI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "BIK",
                             provid = "91"
                         },
@@ -6610,6 +8290,9 @@ namespace iDss.X.Migrations
                             citycode = "DJJ",
                             citymerger = "JAYAPURA",
                             cityname = "KOTA JAYAPURA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "91"
                         },
@@ -6619,6 +8302,9 @@ namespace iDss.X.Migrations
                             citycode = "SOQ",
                             citymerger = "SORONG",
                             cityname = "KAB SORONG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         },
@@ -6628,6 +8314,9 @@ namespace iDss.X.Migrations
                             citycode = "MKW",
                             citymerger = "MANOKWARI",
                             cityname = "KAB MANOKWARI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MKW",
                             provid = "92"
                         },
@@ -6637,6 +8326,9 @@ namespace iDss.X.Migrations
                             citycode = "FFK",
                             citymerger = "FAK FAK",
                             cityname = "KAB FAK FAK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         },
@@ -6646,6 +8338,9 @@ namespace iDss.X.Migrations
                             citycode = "SOQ",
                             citymerger = "SORONG SELATAN",
                             cityname = "KAB SORONG SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         },
@@ -6655,6 +8350,9 @@ namespace iDss.X.Migrations
                             citycode = "GAV",
                             citymerger = "RAJA AMPAT",
                             cityname = "KAB RAJA AMPAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         },
@@ -6664,6 +8362,9 @@ namespace iDss.X.Migrations
                             citycode = "NTI",
                             citymerger = "TELUK BINTUNI",
                             cityname = "KAB TELUK BINTUNI",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         },
@@ -6673,6 +8374,9 @@ namespace iDss.X.Migrations
                             citycode = "RAS",
                             citymerger = "TELUK WONDAMA",
                             cityname = "KAB TELUK WONDAMA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MKW",
                             provid = "92"
                         },
@@ -6682,6 +8386,9 @@ namespace iDss.X.Migrations
                             citycode = "KNG",
                             citymerger = "KAIMANA",
                             cityname = "KAB KAIMANA",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         },
@@ -6691,6 +8398,9 @@ namespace iDss.X.Migrations
                             citycode = "FEF",
                             citymerger = "TAMBRAUW",
                             cityname = "KAB TAMBRAUW",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         },
@@ -6700,6 +8410,9 @@ namespace iDss.X.Migrations
                             citycode = "AFT",
                             citymerger = "MAYBRAT",
                             cityname = "KAB MAYBRAT",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         },
@@ -6709,6 +8422,9 @@ namespace iDss.X.Migrations
                             citycode = "MKW",
                             citymerger = "MANOKWARI SELATAN",
                             cityname = "KAB MANOKWARI SELATAN",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "MKW",
                             provid = "92"
                         },
@@ -6718,6 +8434,9 @@ namespace iDss.X.Migrations
                             citycode = "MKW",
                             citymerger = "PEGUNUNGAN ARFAK",
                             cityname = "KAB PEGUNUNGAN ARFAK",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "DJJ",
                             provid = "92"
                         },
@@ -6727,9 +8446,318 @@ namespace iDss.X.Migrations
                             citycode = "SOQ",
                             citymerger = "SORONG",
                             cityname = "KOTA SORONG",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             hubcode = "SOQ",
                             provid = "92"
                         });
+                });
+
+            modelBuilder.Entity("iDss.X.Models.CneeDirectory", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("addr1")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("addr2")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("addr3")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("attname")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("cityname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("cnelat")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("cnelong")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("cnename")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("costcenter")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("descode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("distid")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<string>("email")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<string>("phone")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("postcode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("provname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("statecode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("distid");
+
+                    b.ToTable("trx_cneedirectory");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.ConsigneeDetail", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
+
+                    b.Property<string>("acctno")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("addr1")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("addr2")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("addr3")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("attname")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("awb")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<int?>("branchcne")
+                        .HasColumnType("int");
+
+                    b.Property<int>("branchid")
+                        .HasColumnType("int");
+
+                    b.Property<string>("cityname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("cnelat")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("cnelong")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("cnename")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("costcenter")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("descode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("distid")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<string>("email")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("phone")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("postcode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("provname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("statecode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("acctno");
+
+                    b.HasIndex("awb")
+                        .IsUnique();
+
+                    b.HasIndex("branchid");
+
+                    b.HasIndex("distid");
+
+                    b.ToTable("trx_consignee");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.CostComponent", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("componentname")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<string>("type")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("mdt_costcomponent");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.CostItem", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
+
+                    b.Property<string>("awb")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("componetname")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("credit")
+                        .HasColumnType("decimal(18,0)");
+
+                    b.Property<decimal>("debit")
+                        .HasColumnType("decimal(18,0)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("trx_costitem");
                 });
 
             modelBuilder.Entity("iDss.X.Models.Counter", b =>
@@ -6931,8 +8959,26 @@ namespace iDss.X.Migrations
                         .HasMaxLength(4)
                         .HasColumnType("nvarchar(4)");
 
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("distname")
                         .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -6947,7 +8993,10 @@ namespace iDss.X.Migrations
                         {
                             distid = "317307",
                             cityid = "3173",
-                            distname = "Pal Merah"
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            distname = "Pal Merah",
+                            flag = 1
                         });
                 });
 
@@ -6981,6 +9030,170 @@ namespace iDss.X.Migrations
                     b.HasKey("id");
 
                     b.ToTable("mdt_industry");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.PaymentDetail", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
+
+                    b.Property<string>("awb")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("paymentgateway")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("paymentstatus")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("paymenttype")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("awb")
+                        .IsUnique();
+
+                    b.ToTable("trx_payment");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.PickupRegular", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("acctname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("acctno")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("addr")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int?>("branchid")
+                        .HasColumnType("int");
+
+                    b.Property<string>("couriercode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("couriername")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("distid")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<string>("latitude")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("longitude")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("notes")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("picemail")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("pickuppoint")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("pickuptype")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("picname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("picphone")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("postcode")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("transporttype")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("acctno");
+
+                    b.HasIndex("branchid");
+
+                    b.HasIndex("couriercode");
+
+                    b.HasIndex("distid");
+
+                    b.ToTable("pum_pickupregular");
                 });
 
             modelBuilder.Entity("iDss.X.Models.PickupRequest", b =>
@@ -7120,6 +9333,38 @@ namespace iDss.X.Migrations
                     b.ToTable("pum_pickuprequest");
                 });
 
+            modelBuilder.Entity("iDss.X.Models.PickupSchedule", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("pickupday")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("puregid")
+                        .HasColumnType("int");
+
+                    b.Property<int>("shift")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("timefrom")
+                        .HasColumnType("time");
+
+                    b.Property<TimeOnly>("timeto")
+                        .HasColumnType("time");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("puregid");
+
+                    b.ToTable("pum_pickupschedule");
+                });
+
             modelBuilder.Entity("iDss.X.Models.PickupStatusPool", b =>
                 {
                     b.Property<int>("id")
@@ -7166,6 +9411,24 @@ namespace iDss.X.Migrations
                         .HasMaxLength(2)
                         .HasColumnType("nvarchar(2)");
 
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("provname")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -7179,182 +9442,360 @@ namespace iDss.X.Migrations
                         new
                         {
                             provid = "11",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "ACEH"
                         },
                         new
                         {
                             provid = "12",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "SUMATERA UTARA"
                         },
                         new
                         {
                             provid = "13",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "SUMATERA BARAT"
                         },
                         new
                         {
                             provid = "14",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "RIAU"
                         },
                         new
                         {
                             provid = "15",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "JAMBI"
                         },
                         new
                         {
                             provid = "16",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "SUMATERA SELATAN"
                         },
                         new
                         {
                             provid = "17",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "BENGKULU"
                         },
                         new
                         {
                             provid = "18",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "LAMPUNG"
                         },
                         new
                         {
                             provid = "19",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "BANGKA BELITUNG"
                         },
                         new
                         {
                             provid = "21",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "KEPULAUAN RIAU"
                         },
                         new
                         {
                             provid = "31",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "DKI JAKARTA"
                         },
                         new
                         {
                             provid = "32",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "JAWA BARAT"
                         },
                         new
                         {
                             provid = "33",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "JAWA TENGAH"
                         },
                         new
                         {
                             provid = "34",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "YOGYAKARTA"
                         },
                         new
                         {
                             provid = "35",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "JAWA TIMUR"
                         },
                         new
                         {
                             provid = "36",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "BANTEN"
                         },
                         new
                         {
                             provid = "51",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "BALI"
                         },
                         new
                         {
                             provid = "52",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "NUSA TENGGARA BARAT"
                         },
                         new
                         {
                             provid = "53",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "NUSA TENGGARA TIMUR"
                         },
                         new
                         {
                             provid = "61",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "KALIMANTAN BARAT"
                         },
                         new
                         {
                             provid = "62",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "KALIMANTAN TENGAH"
                         },
                         new
                         {
                             provid = "63",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "KALIMANTAN SELATAN"
                         },
                         new
                         {
                             provid = "64",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "KALIMANTAN TIMUR"
                         },
                         new
                         {
                             provid = "65",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "KALIMANTAN UTARA"
                         },
                         new
                         {
                             provid = "71",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "SULAWESI UTARA"
                         },
                         new
                         {
                             provid = "72",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "SULAWESI TENGAH"
                         },
                         new
                         {
                             provid = "73",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "SULAWESI SELATAN"
                         },
                         new
                         {
                             provid = "74",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "SULAWESI TENGGARA"
                         },
                         new
                         {
                             provid = "75",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "GORONTALO"
                         },
                         new
                         {
                             provid = "76",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "SULAWESI BARAT"
                         },
                         new
                         {
                             provid = "81",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "MALUKU"
                         },
                         new
                         {
                             provid = "82",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "MALUKU UTARA"
                         },
                         new
                         {
                             provid = "91",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "PAPUA"
                         },
                         new
                         {
                             provid = "92",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            flag = 1,
                             provname = "PAPUA BARAT"
                         });
                 });
 
-            modelBuilder.Entity("iDss.X.Models.ShipmentDetail", b =>
+            modelBuilder.Entity("iDss.X.Models.ReasonUN", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<string>("reasoncode")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("reasonname")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("remarks")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("mdt_reasonun");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.Relation", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<string>("relationcode")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("relationname")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("remarks")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("mdt_relation");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.ShipmentDetail", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
 
                     b.Property<decimal>("actweight")
                         .HasColumnType("decimal(10,2)");
@@ -7509,16 +9950,218 @@ namespace iDss.X.Migrations
                     b.ToTable("trx_shipmentdetail");
                 });
 
+            modelBuilder.Entity("iDss.X.Models.ShipperDetail", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
+
+                    b.Property<string>("acctno")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("addr1")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("addr2")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("addr3")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("attname")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("awb")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<int>("branchid")
+                        .HasColumnType("int");
+
+                    b.Property<int>("branchori")
+                        .HasColumnType("int");
+
+                    b.Property<string>("cityname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("costcenter")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("distid")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<string>("email")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("oricode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("phone")
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("postcode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("provname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("shippername")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("shplat")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("shplong")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("statecode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("acctno");
+
+                    b.HasIndex("awb")
+                        .IsUnique();
+
+                    b.HasIndex("branchid");
+
+                    b.HasIndex("distid");
+
+                    b.ToTable("trx_shipper");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.UnitItem", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
+
+                    b.Property<decimal>("actweight")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("awb")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("height")
+                        .HasColumnType("decimal(10,0)");
+
+                    b.Property<string>("itemcode")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("itemname")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("length")
+                        .HasColumnType("decimal(10,0)");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("volweight")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("width")
+                        .HasColumnType("decimal(10,0)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("trx_unititem");
+                });
+
             modelBuilder.Entity("iDss.X.Models.Village", b =>
                 {
                     b.Property<string>("villid")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("distid")
                         .IsRequired()
                         .HasMaxLength(6)
                         .HasColumnType("nvarchar(6)");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("villname")
                         .HasMaxLength(50)
@@ -7534,9 +10177,80 @@ namespace iDss.X.Migrations
                         new
                         {
                             villid = "3173071006",
+                            createdby = "System",
+                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             distid = "317307",
+                            flag = 1,
                             villname = "Kota Bambu Selatan"
                         });
+                });
+
+            modelBuilder.Entity("iDss.X.Models.VoidTransaction", b =>
+                {
+                    b.Property<long>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id"));
+
+                    b.Property<int>("approval")
+                        .HasColumnType("int");
+
+                    b.Property<string>("approver")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("awb")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<int>("branchid")
+                        .HasColumnType("int");
+
+                    b.Property<int>("branchori")
+                        .HasColumnType("int");
+
+                    b.Property<string>("createdby")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("createddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("flag")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("modifieddate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("modifier")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("reasonvoid")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("remarks")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("reqisuestpoint")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("awb")
+                        .IsUnique();
+
+                    b.HasIndex("branchid");
+
+                    b.ToTable("trx_void");
                 });
 
             modelBuilder.Entity("iDss.X.Models.AWBInventory", b =>
@@ -7708,6 +10422,39 @@ namespace iDss.X.Migrations
                     b.Navigation("Branch");
                 });
 
+            modelBuilder.Entity("iDss.X.Models.CheckpointPool", b =>
+                {
+                    b.HasOne("iDss.X.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("branchid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("iDss.X.Models.Courier", "Courier")
+                        .WithMany("CheckpointPools")
+                        .HasForeignKey("couriercode")
+                        .HasPrincipalKey("couriercode")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("iDss.X.Models.ReasonUN", "ReasonUN")
+                        .WithMany()
+                        .HasForeignKey("reasonid")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("iDss.X.Models.Relation", "Relation")
+                        .WithMany()
+                        .HasForeignKey("relationid")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Courier");
+
+                    b.Navigation("ReasonUN");
+
+                    b.Navigation("Relation");
+                });
+
             modelBuilder.Entity("iDss.X.Models.City", b =>
                 {
                     b.HasOne("iDss.X.Models.Province", "Province")
@@ -7717,6 +10464,52 @@ namespace iDss.X.Migrations
                         .IsRequired();
 
                     b.Navigation("Province");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.CneeDirectory", b =>
+                {
+                    b.HasOne("iDss.X.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("distid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("District");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.ConsigneeDetail", b =>
+                {
+                    b.HasOne("iDss.X.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("acctno")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("iDss.X.Models.ShipmentDetail", "ShipmentDetail")
+                        .WithOne("ConsigneeDetail")
+                        .HasForeignKey("iDss.X.Models.ConsigneeDetail", "awb")
+                        .HasPrincipalKey("iDss.X.Models.ShipmentDetail", "awb")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("iDss.X.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("branchid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("iDss.X.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("distid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("District");
+
+                    b.Navigation("ShipmentDetail");
                 });
 
             modelBuilder.Entity("iDss.X.Models.Counter", b =>
@@ -7768,6 +10561,52 @@ namespace iDss.X.Migrations
                     b.Navigation("City");
                 });
 
+            modelBuilder.Entity("iDss.X.Models.PaymentDetail", b =>
+                {
+                    b.HasOne("iDss.X.Models.ShipmentDetail", "ShipmentDetail")
+                        .WithOne("PaymentDetail")
+                        .HasForeignKey("iDss.X.Models.PaymentDetail", "awb")
+                        .HasPrincipalKey("iDss.X.Models.ShipmentDetail", "awb")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ShipmentDetail");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.PickupRegular", b =>
+                {
+                    b.HasOne("iDss.X.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("acctno")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("iDss.X.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("branchid")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("iDss.X.Models.Courier", "Courier")
+                        .WithMany("PickupRegulars")
+                        .HasForeignKey("couriercode")
+                        .HasPrincipalKey("couriercode")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("iDss.X.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("distid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Courier");
+
+                    b.Navigation("District");
+                });
+
             modelBuilder.Entity("iDss.X.Models.PickupRequest", b =>
                 {
                     b.HasOne("iDss.X.Models.Account", "Account")
@@ -7802,6 +10641,17 @@ namespace iDss.X.Migrations
                     b.Navigation("District");
                 });
 
+            modelBuilder.Entity("iDss.X.Models.PickupSchedule", b =>
+                {
+                    b.HasOne("iDss.X.Models.PickupRegular", "PickupRegular")
+                        .WithMany()
+                        .HasForeignKey("puregid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PickupRegular");
+                });
+
             modelBuilder.Entity("iDss.X.Models.PickupStatusPool", b =>
                 {
                     b.HasOne("iDss.X.Models.PickupRequest", "PickupRequest")
@@ -7825,6 +10675,41 @@ namespace iDss.X.Migrations
                     b.Navigation("PickupRequest");
                 });
 
+            modelBuilder.Entity("iDss.X.Models.ShipperDetail", b =>
+                {
+                    b.HasOne("iDss.X.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("acctno")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("iDss.X.Models.ShipmentDetail", "ShipmentDetail")
+                        .WithOne("ShipperDetail")
+                        .HasForeignKey("iDss.X.Models.ShipperDetail", "awb")
+                        .HasPrincipalKey("iDss.X.Models.ShipmentDetail", "awb")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("iDss.X.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("branchid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("iDss.X.Models.District", "District")
+                        .WithMany()
+                        .HasForeignKey("distid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("District");
+
+                    b.Navigation("ShipmentDetail");
+                });
+
             modelBuilder.Entity("iDss.X.Models.Village", b =>
                 {
                     b.HasOne("iDss.X.Models.District", "District")
@@ -7834,6 +10719,26 @@ namespace iDss.X.Migrations
                         .IsRequired();
 
                     b.Navigation("District");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.VoidTransaction", b =>
+                {
+                    b.HasOne("iDss.X.Models.ShipmentDetail", "ShipmentDetail")
+                        .WithOne("VoidTransaction")
+                        .HasForeignKey("iDss.X.Models.VoidTransaction", "awb")
+                        .HasPrincipalKey("iDss.X.Models.ShipmentDetail", "awb")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("iDss.X.Models.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("branchid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("ShipmentDetail");
                 });
 
             modelBuilder.Entity("iDss.X.Models.Account", b =>
@@ -7865,6 +10770,10 @@ namespace iDss.X.Migrations
 
             modelBuilder.Entity("iDss.X.Models.Courier", b =>
                 {
+                    b.Navigation("CheckpointPools");
+
+                    b.Navigation("PickupRegulars");
+
                     b.Navigation("PickupRequests");
                 });
 
@@ -7878,6 +10787,21 @@ namespace iDss.X.Migrations
                     b.Navigation("PickupStatusPools");
 
                     b.Navigation("ShipmentDetails");
+                });
+
+            modelBuilder.Entity("iDss.X.Models.ShipmentDetail", b =>
+                {
+                    b.Navigation("ConsigneeDetail")
+                        .IsRequired();
+
+                    b.Navigation("PaymentDetail")
+                        .IsRequired();
+
+                    b.Navigation("ShipperDetail")
+                        .IsRequired();
+
+                    b.Navigation("VoidTransaction")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

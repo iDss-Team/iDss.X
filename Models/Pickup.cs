@@ -159,7 +159,6 @@ namespace iDss.X.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [AutoGenerateColumn(Ignore = true)]
         public int id { get; set; }
 
         [StringLength(15)]
@@ -202,9 +201,11 @@ namespace iDss.X.Models
         public String? postcode { get; set; }
 
         [StringLength(100)]
+        [Display(Name = "Latitude")]
         public String? latitude { get; set; }
 
         [StringLength(100)]
+        [Display(Name = "Longitude")]
         public String? longitude { get; set; }
 
         [StringLength(50)]
@@ -212,9 +213,11 @@ namespace iDss.X.Models
         public String? picname { get; set; }
 
         [StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
+        [Display(Name = "Phone")]
         public String? picphone { get; set; }
 
         [StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
+        [Display(Name = "Email")]
         [EmailAddress]
         public String? picemail { get; set; }
 
@@ -255,22 +258,27 @@ namespace iDss.X.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
-        [ForeignKey("id")]
+
+        [Required]
+        public int puregid { get; set; }
+        [ForeignKey("puregid")]
         [ValidateNever]
         public PickupRegular PickupRegular { get; set; }
 
         [StringLength(10)]
-        public String day { get; set; }
+        public string pickupday { get; set; }
 
         [Required]
         [Display(Name = "Shift")]
         public int shift { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:HH:mm}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Time From")]
         [Required]
         public TimeOnly timefrom { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:HH:mm}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Time To")]
         [Required]
         public TimeOnly timeto { get; set; }
 

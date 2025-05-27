@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace iDss.X.Migrations.AuthDb
 {
     /// <inheritdoc />
-    public partial class AddInitialIdentityToDb : Migration
+    public partial class AuthInitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

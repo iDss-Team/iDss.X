@@ -9,7 +9,7 @@ namespace iDss.X.Data.Seed
         {
             modelBuilder.Entity<Village>().HasData(new Village[]
             {
-                new() { villid = "3173071006", villname = "Kota Bambu Selatan", distid = "317307"}
+                new() { villid = "3173071006", villname = "Kota Bambu Selatan", distid = "317307", createddate = new DateTime(2025, 1, 1)}
             });
         }
     }
