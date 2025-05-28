@@ -8,66 +8,71 @@
 @inject ToastService toastService
 @attribute [TabItemOption(Text = "Entry Data Primary")]
 
-<Tab IsCard="true" Placement="Placement.Top" TabStyle="Chrome" IsOnlyRenderActiveTab="true" IsLazyLoadTabItem="true" ShowNavigatorButtons="true" ShowActiveBar="true">
-    <TabItem Text="Shipper" Icon="fa-solid fa-user">
-        <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
-            <Select TValue="int" DisplayText="Account no" ShowLabel="true" ShowSearch></Select>
-            <BootstrapInput TValue="string" DisplayText="Nama" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Street/Jalan" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Kecamatan" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Kelurahan/Desa" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Kota/Kabupaten" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Provinsi" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Post Code" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="RefNo" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Email" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Shipper Attn" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Origin Price" ShowLabel="true"></BootstrapInput>
-        </Row>
 
-    </TabItem>
-    <TabItem Text="Shipment Detail" Icon="fa-solid fa-gauge-high">
-        <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
-            <DateTimePicker TValue="DateTime" DisplayText="Pick Up Date" ShowLabel="true"></DateTimePicker>
-            <BootstrapInput TValue="string" DisplayText="No Resi" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Data Entry" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Time" ShowLabel="true"></BootstrapInput>
-            <Select TValue="string" DisplayText="Delivery Item" ShowLabel="true" ShowSearch></Select>
-            <Select TValue="string" DisplayText="Classification" ShowLabel="true" ShowSearch></Select>
-            <BootstrapInput TValue="string" DisplayText="Content" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Shipment Value" ShowLabel="true"></BootstrapInput>
-            <Select TValue="string" DisplayText="Service Type" ShowLabel="true" ShowSearch></Select>
-            <Select TValue="string" DisplayText="Line Haul" ShowLabel="true" ShowSearch></Select>
-            <BootstrapInput TValue="string" DisplayText="Pieces " ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Actual Weight" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Special Instruction" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Other Instruction" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Shipment Insurance" ShowLabel="true"></BootstrapInput>
-        </Row>
 
-    </TabItem>
-    <TabItem Text="Consignee" Icon="fa-solid fa-sitemap">
-        <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
-            <BootstrapInput TValue="string" DisplayText="Nama" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Street/Jalan" ShowLabel="true"></BootstrapInput>
-            <Select TValue="string" DisplayText="Kota/Kabupaten" ShowLabel="true" ShowSearch></Select>
-            <BootstrapInput TValue="string" DisplayText="Provinsi" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Post Code" ShowLabel="true"></BootstrapInput>
-            <Select TValue="string" DisplayText="Cari Member " ShowLabel="true" ShowSearch></Select>
-            <BootstrapInput TValue="string" DisplayText="Phone " ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Email" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Consignee Attn" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Hub Code" ShowLabel="true"></BootstrapInput>
-            <BootstrapInput TValue="string" DisplayText="Destination Code" ShowLabel="true"></BootstrapInput>
-        </Row>
+<ValidateForm Model="@shipperDetail">
+    <Tab IsCard="true" Placement="Placement.Top" TabStyle="Chrome" IsOnlyRenderActiveTab="true" IsLazyLoadTabItem="true" ShowNavigatorButtons="true" ShowActiveBar="true">
+        <TabItem Text="Shipper" Icon="fa-solid fa-user">
+            <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                <Select TValue="int" DisplayText="Account no" ShowLabel="true" ShowSearch></Select>
+                <BootstrapInput TValue="string" DisplayText="Kecamatan" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Nama" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Street/Jalan" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Kelurahan/Desa" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Kelurahan/Desa" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Kota/Kabupaten" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Provinsi" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Post Code" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="RefNo" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Email" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Shipper Attn" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Origin Price" ShowLabel="true"></BootstrapInput>
+            </Row>
+        </TabItem>
+        <TabItem Text="Shipment Detail" Icon="fa-solid fa-gauge-high">
+            <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                <DateTimePicker TValue="DateTime" DisplayText="Pick Up Date" ShowLabel="true"></DateTimePicker>
+                <BootstrapInput TValue="string" DisplayText="No Resi" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Data Entry" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Time" ShowLabel="true"></BootstrapInput>
+                <Select TValue="string" DisplayText="Delivery Item" ShowLabel="true" ShowSearch></Select>
+                <Select TValue="string" DisplayText="Classification" ShowLabel="true" ShowSearch></Select>
+                <BootstrapInput TValue="string" DisplayText="Content" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Shipment Value" ShowLabel="true"></BootstrapInput>
+                <Select TValue="string" DisplayText="Service Type" ShowLabel="true" ShowSearch></Select>
+                <Select TValue="string" DisplayText="Line Haul" ShowLabel="true" ShowSearch></Select>
+                <BootstrapInput TValue="string" DisplayText="Pieces " ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Actual Weight" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Special Instruction" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Other Instruction" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Shipment Insurance" ShowLabel="true"></BootstrapInput>
+            </Row>
 
-    </TabItem>
-    <TabItem Text="Packing & Save " Icon="fa-solid fa-building-columns">
-        <div>I am department management</div>
-    </TabItem>
-</Tab>
+        </TabItem>
+        <TabItem Text="Consignee" Icon="fa-solid fa-sitemap">
+            <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                <BootstrapInput TValue="string" DisplayText="Nama" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Street/Jalan" ShowLabel="true"></BootstrapInput>
+                <Select TValue="string" DisplayText="Kota/Kabupaten" ShowLabel="true" ShowSearch></Select>
+                <BootstrapInput TValue="string" DisplayText="Provinsi" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Post Code" ShowLabel="true"></BootstrapInput>
+                <Select TValue="string" DisplayText="Cari Member " ShowLabel="true" ShowSearch></Select>
+                <BootstrapInput TValue="string" DisplayText="Phone " ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Email" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Consignee Attn" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Hub Code" ShowLabel="true"></BootstrapInput>
+                <BootstrapInput TValue="string" DisplayText="Destination Code" ShowLabel="true"></BootstrapInput>
+            </Row>
+
+        </TabItem>
+        <TabItem Text="Packing & Save " Icon="fa-solid fa-building-columns">
+            <div>I am department management</div>
+        </TabItem>
+    </Tab>
+</ValidateForm>
+
 
 @code {
-
+    private ShipperDetail shipperDetail = new();
 }
