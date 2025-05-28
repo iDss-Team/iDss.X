@@ -92,11 +92,15 @@
                                         <BootstrapInput TValue="TimeOnly" @bind-Value="data.timeto" DisplayText="Time To" @onclick="ShowTimeToPicker"> </BootstrapInput>
                                         @if (showClockFrom)
                                         {
-                                            <TimePicker @bind-Value="TimeFromConvert" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                            <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                                <TimePicker @bind-Value="TimeFromConvert" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                            </div>
                                         }
                                         @if (showClockTo)
                                         {
-                                            <TimePicker @bind-Value="TimeToConvert" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                            <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                                <TimePicker @bind-Value="TimeToConvert" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                            </div>
                                         }
                                     </Row>
                                 </Row>
@@ -122,7 +126,6 @@
                                 </Row>
                             </BodyTemplate>
                         </Card>
-
                     </div>
                 </div>
             </BodyTemplate>

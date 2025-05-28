@@ -397,10 +397,20 @@ namespace iDss.X.Services
             data.citycode = updatedCity.citycode;
             data.hubcode = updatedCity.hubcode;
             data.provid = updatedCity.provid;
-            await _context.SaveChangesAsync();
-            return true;
 
+            _context.Entry(data).State = EntityState.Modified;
 
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in Update District Async: {ex.Message}");
+                return false;
+            }
         }
 
 
@@ -575,16 +585,24 @@ namespace iDss.X.Services
         public async Task<bool> UpdateDistrictAsync(string distid, District updatedDistrict)
         {
             using var _context = _contextFactory.CreateDbContext();
+
             var _district = await _context.mdt_district.FirstOrDefaultAsync(a => a.distid == distid);
             if (_district == null)
             {
                 return false;
             }
 
+            _district.distname = updatedDistrict.distname;
+            _district.cityid = updatedDistrict.cityid;
+
+            // Optional: explicitly mark as modified (usually unnecessary)
+            _context.Entry(_district).State = EntityState.Modified;
+
             try
             {
-                await _context.SaveChangesAsync();
-                return true;
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
             }
             catch (Exception ex)
             {
@@ -592,6 +610,7 @@ namespace iDss.X.Services
                 return false;
             }
         }
+
 
 
 
@@ -761,10 +780,17 @@ namespace iDss.X.Services
                 return false;
             }
 
+            _village.villname = updatedVillage.villname;
+            _village.villid = updatedVillage.villid;
+            _village.distid = updatedVillage.distid;
+
+
+            _context.Entry(_village).State = EntityState.Modified;
+
             try
             {
-                await _context.SaveChangesAsync();
-                return true;
+                var affectedRows = await _context.SaveChangesAsync();
+                return affectedRows > 0;
             }
             catch (Exception ex)
             {
@@ -1071,9 +1097,19 @@ namespace iDss.X.Services
             account.modifieddate = System.DateTime.Now;
             account.modifier = updatedAccount.modifier;
 
-            await _context.SaveChangesAsync();
-            return true;
+            _context.Entry(account).State = EntityState.Modified;
 
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("Error saving changes: " + ex.Message);
+                return false;
+            }
 
         }
      public async Task<bool> DeleteAccountAsync(string acctno)

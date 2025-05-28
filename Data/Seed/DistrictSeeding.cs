@@ -9,7 +9,7 @@ namespace iDss.X.Data.Seed
         {
             modelBuilder.Entity<District>().HasData(new District[]
             {
-                new() { distid = "317307", distname = "Pal Merah", cityid = "3173"}
+                new() { distid = "317307", distname = "Pal Merah", cityid = "3173", createddate = new DateTime(2025, 1, 1)}
             });
         }
     }
