@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using System.Linq;
 using Microsoft.AspNetCore.SignalR;
+using System.Net.NetworkInformation;
 
 namespace iDss.X.Services
 {
@@ -196,13 +197,13 @@ namespace iDss.X.Services
         public async Task<List<City>> GetCityAsync()
         {
             using var _context = _contextFactory.CreateDbContext();
-            var result = await  _context.mdt_city
+            var result = await _context.mdt_city
                 .Include(c => c.Province)
                 .AsNoTracking()
                 .OrderByDescending(c => c.cityid)
                 .ToListAsync();
-            
-            foreach(var item in result)
+
+            foreach (var item in result)
             {
                 System.Console.WriteLine($"City : {item.cityname}, Province : {(item.Province != null ? item.Province.provname : "NULL")}");
             }
@@ -245,17 +246,18 @@ namespace iDss.X.Services
 
 
 
-        public Task<QueryData<City>>OnQueryCityAsync(QueryPageOptions options){
+        public Task<QueryData<City>> OnQueryCityAsync(QueryPageOptions options)
+        {
             using var _context = _contextFactory.CreateDbContext();
-              var items = _context.mdt_city
-        .Include(c => c.Province)
-        .AsNoTracking()
-        .ToList();
+            var items = _context.mdt_city
+      .Include(c => c.Province)
+      .AsNoTracking()
+      .ToList();
 
 
             var isSearched = false;
 
-            if(options.SearchModel is City city)
+            if (options.SearchModel is City city)
             {
                 if (!string.IsNullOrEmpty(city.cityname))
                 {
@@ -277,7 +279,7 @@ namespace iDss.X.Services
 
 
             var isFiltered = false;
-            if(options.Filters.Any())
+            if (options.Filters.Any())
             {
                 items = items.Where(options.Filters.GetFilterFunc<City>()).ToList();
                 isFiltered = true;
@@ -373,12 +375,12 @@ namespace iDss.X.Services
                     _context.Entry(data).State = EntityState.Modified;
 
                 }
-                   await _context.SaveChangesAsync();
-                   return true;
+                await _context.SaveChangesAsync();
+                return true;
             }
             catch (Exception ex)
             {
-             
+
                 return false;
             }
 
@@ -467,7 +469,7 @@ namespace iDss.X.Services
 
             return dist?.distid ?? string.Empty;
         }
-         
+
         public async Task<string> GetDistrictById(PickupRequest distId)
         {
             using var _context = _contextFactory.CreateDbContext();
@@ -484,7 +486,7 @@ namespace iDss.X.Services
         }
 
 
-        public  Task<QueryData<District>> OnQueryDistrictAsync(QueryPageOptions options)
+        public Task<QueryData<District>> OnQueryDistrictAsync(QueryPageOptions options)
         {
             using var _context = _contextFactory.CreateDbContext();
             var items = _context.mdt_district.
@@ -595,7 +597,7 @@ namespace iDss.X.Services
             _district.distname = updatedDistrict.distname;
             _district.cityid = updatedDistrict.cityid;
 
-            // Optional: explicitly mark as modified (usually unnecessary)
+
             _context.Entry(_district).State = EntityState.Modified;
 
             try
@@ -993,6 +995,57 @@ namespace iDss.X.Services
             return (accounts, totalCount);
         }
 
+        public Task<QueryData<Account>> OnQueryAccountAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_account
+                .Include(c => c.Branch)
+                .Include(c => c.CIF)
+                .AsNoTracking()
+                .ToList();
+
+            var isSearched = false;
+
+            if (options.SearchModel is Account account)
+            {
+                if (!string.IsNullOrEmpty(account.acctno))
+                {
+                    items = items.Where(item => item.acctno?.Contains(account.acctno, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(account.acctname))
+                {
+                    items = items.Where(item => item.acctname?.Contains(account.acctname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(account.acctno) || !string.IsNullOrEmpty(account.acctname);
+            }
+
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<Account>(FilterLogic.Or)).ToList();
+            }
+
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Account>()).ToList();
+                isFiltered = true;
+            }
+
+            var total = items.Count;
+
+            return Task.FromResult(new QueryData<Account>
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                IsSearch = isSearched
+            });
+        }
+
+
+
 
         public async Task<Account?> GetAccountByAcctNoAsync(string acctno)
         {
@@ -1112,21 +1165,21 @@ namespace iDss.X.Services
             }
 
         }
-     public async Task<bool> DeleteAccountAsync(string acctno)
-     {
-         using var _context = _contextFactory.CreateDbContext();
-         var account = await _context.mdt_account.FirstOrDefaultAsync(a => a.acctno == acctno);
+        public async Task<bool> DeleteAccountAsync(string acctno)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var account = await _context.mdt_account.FirstOrDefaultAsync(a => a.acctno == acctno);
 
-         if (account == null)
-         {
-             return false;
-         }
+            if (account == null)
+            {
+                return false;
+            }
 
-         _context.mdt_account.Remove(account);
-         await _context.SaveChangesAsync();
-         return true;
+            _context.mdt_account.Remove(account);
+            await _context.SaveChangesAsync();
+            return true;
 
-     }
+        }
 
 
         #endregion
@@ -1219,31 +1272,31 @@ namespace iDss.X.Services
 
 
 
-   public async Task<bool> UpdateIndustryAsync(int _id, Industry updatedIndustry)
-   {
-       using var _context = _contextFactory.CreateDbContext();
-       var industry = await _context.mdt_industry.FirstOrDefaultAsync(a => a.id == _id);
-       if (industry == null)
-       {
-           return false;
-       }
-       industry.industryname = updatedIndustry.industryname;
-       industry.description = updatedIndustry.description;
-       industry.flag = updatedIndustry.flag;
-       await _context.SaveChangesAsync();
-       return true;
+        public async Task<bool> UpdateIndustryAsync(int _id, Industry updatedIndustry)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var industry = await _context.mdt_industry.FirstOrDefaultAsync(a => a.id == _id);
+            if (industry == null)
+            {
+                return false;
+            }
+            industry.industryname = updatedIndustry.industryname;
+            industry.description = updatedIndustry.description;
+            industry.flag = updatedIndustry.flag;
+            await _context.SaveChangesAsync();
+            return true;
 
 
-   }
+        }
 
-   
-     public async Task<Industry> CreateIndustryAsync(Industry industry)
-   {
-       using var _context = _contextFactory.CreateDbContext();
-       _context.mdt_industry.Add(industry);
-       await _context.SaveChangesAsync();
-       return industry;
-   }
+
+        public async Task<Industry> CreateIndustryAsync(Industry industry)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.mdt_industry.Add(industry);
+            await _context.SaveChangesAsync();
+            return industry;
+        }
 
 
 
@@ -1274,8 +1327,735 @@ namespace iDss.X.Services
         #endregion
 
 
+
+
+
+        #region "Relation Code"
+
+        public async Task<List<Relation>> GetRelationAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_relation
+                .OrderByDescending(c => c.id)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+        public Task<QueryData<Relation>> OnQueryRelationAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_relation.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is Relation model)
+            {
+                if (!string.IsNullOrEmpty(model.relationname))
+                {
+                    items = items.Where(item => item.relationname?.Contains(model.relationname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.relationcode))
+                {
+                    items = items.Where(item => item.relationcode?.Contains(model.relationcode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.relationname) || !string.IsNullOrEmpty(model.relationcode);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<Relation>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Relation>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    //items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    items = invoker(items, options.SortName, options.SortOrder).ToList();
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<Relation>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<Relation>> GetRelationComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_relation
+                                .Select(p => new Relation()
+                                {
+                                    id = p.id,
+                                    relationname = p.relationname,
+                                    relationcode = p.relationcode,
+                                    remarks = p.remarks,
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> SaveRelationAsync(Relation data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_relation.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_relation.FindAsync(data.id);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> DeleteRelationByIDAsync(IEnumerable<Relation> relations)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                foreach (var relation in relations)
+                {
+                    var existing = await _context.mdt_relation.FindAsync(relation.id);
+                    if (existing != null)
+                    {
+                        _context.mdt_relation.Remove(existing);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        #endregion
+
+
+        #region "Reason UN"
+
+        public async Task<List<ReasonUN>> GetReasonAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_reasonun
+                .OrderByDescending(c => c.id)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+        public Task<QueryData<ReasonUN>> OnQueryReasonAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_reasonun.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is ReasonUN model)
+            {
+                if (!string.IsNullOrEmpty(model.reasonname))
+                {
+                    items = items.Where(item => item.reasonname?.Contains(model.reasonname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.reasoncode))
+                {
+                    items = items.Where(item => item.reasoncode?.Contains(model.reasoncode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.reasonname) || !string.IsNullOrEmpty(model.reasoncode);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<ReasonUN>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<ReasonUN>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    //items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    items = invoker(items, options.SortName, options.SortOrder).ToList();
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<ReasonUN>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<ReasonUN>> GetReasonComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_reasonun
+                                .Select(p => new ReasonUN()
+                                {
+                                    id = p.id,
+                                    reasonname = p.reasonname,
+                                    reasoncode = p.reasoncode,
+                                    remarks = p.remarks,
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> SaveReasonAsync(ReasonUN data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_reasonun.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_reasonun.FindAsync(data.id);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> DeleteReasonByIDAsync(IEnumerable<ReasonUN> reasons)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                foreach (var reason in reasons)
+                {
+                    var existing = await _context.mdt_reasonun.FindAsync(reason.id);
+                    if (existing != null)
+                    {
+                        _context.mdt_reasonun.Remove(existing);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        #endregion
+
+
+        #region "Cost Component"
+        public async Task<List<CostComponent>> GetCostComponentAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_costcomponent
+                .OrderByDescending(c => c.id)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+        public Task<QueryData<CostComponent>> OnQueryCostComponentAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_costcomponent.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is CostComponent model)
+            {
+                if (!string.IsNullOrEmpty(model.componentname))
+                {
+                    items = items.Where(item => item.componentname?.Contains(model.componentname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.type))
+                {
+                    items = items.Where(item => item.type?.Contains(model.type, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.componentname) || !string.IsNullOrEmpty(model.type);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<CostComponent>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<CostComponent>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    //items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    items = invoker(items, options.SortName, options.SortOrder).ToList();
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<CostComponent>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<CostComponent>> GetCostComponentComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_costcomponent
+                                .Select(p => new CostComponent()
+                                {
+                                    id = p.id,
+                                    componentname = p.componentname,
+                                    type = p.type,
+                                    description = p.description,
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> SaveCostComponentAsync(CostComponent data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_costcomponent.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_costcomponent.FindAsync(data.id);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> DeleteCostComponentByIDAsync(IEnumerable<CostComponent> components)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                foreach (var reason in components)
+                {
+                    var existing = await _context.mdt_costcomponent.FindAsync(reason.id);
+                    if (existing != null)
+                    {
+                        _context.mdt_costcomponent.Remove(existing);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        #endregion
+
+
+    
+
+
+
+    #region "Service Code"
+          public async Task<List<Service>> GetServiceAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_service
+                .OrderByDescending(c => c.servicename)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+        public Task<QueryData<Service>> OnQueryServiceAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_service.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is Service model)
+            {
+                if (!string.IsNullOrEmpty(model.servicename))
+                {
+                    items = items.Where(item => item.servicename?.Contains(model.servicename, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.servicecode))
+                {
+                    items = items.Where(item => item.servicecode?.Contains(model.servicecode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.servicename) || !string.IsNullOrEmpty(model.servicecode);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<Service>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Service>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    //items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    items = invoker(items, options.SortName, options.SortOrder).ToList();
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<Service>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<Service>> GetServiceComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_service
+                                .Select(p => new Service()
+                                {
+                                    servicename = p.servicename,
+                                    servicecode = p.servicecode,
+                                    remarks = p.remarks,
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> SaveServiceAsync(Service data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_service.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_service.FindAsync(data.servicename);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> DeleteServiceByServiceNameAsync(IEnumerable<Service> services)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                foreach (var service in services)
+                {
+                    var existing = await _context.mdt_service.FindAsync(service.servicename);
+                    if (existing != null)
+                    {
+                        _context.mdt_service.Remove(existing);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region "Packing Type"
+        public async Task<List<PackingType>> GetPackingTypeAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_packingtype
+                .OrderByDescending(c => c.packingcode)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+        public Task<QueryData<PackingType>> OnQueryPackingTypeAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_packingtype.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is PackingType model)
+            {
+                if (!string.IsNullOrEmpty(model.packingcode))
+                {
+                    items = items.Where(item => item.packingcode?.Contains(model.packingcode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.packingname))
+                {
+                    items = items.Where(item => item.packingname?.Contains(model.packingname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.packingcode) || !string.IsNullOrEmpty(model.packingname);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<PackingType>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<PackingType>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    //items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    items = invoker(items, options.SortName, options.SortOrder).ToList();
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<PackingType>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<PackingType>> GetPackingTypeComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_packingtype
+                                .Select(p => new PackingType()
+                                {
+                                    packingcode = p.packingcode,
+                                    packingname = p.packingname,
+                                    remarks = p.remarks,
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> SavePackingTypeAsync(PackingType data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_packingtype.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_packingtype.FindAsync(data.packingcode);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> DeletePackingTypeByPackingCodeAsync(IEnumerable<PackingType> packingTypes)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                foreach (var packingType in packingTypes)
+                {
+                    var existing = await _context.mdt_packingtype.FindAsync(packingType.packingcode);
+                    if (existing != null)
+                    {
+                        _context.mdt_packingtype.Remove(existing);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+
+        #endregion
+
+
     }
-
-
-
 }

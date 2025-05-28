@@ -19,7 +19,7 @@
                 </Stack>
             </Row>
 
-            <Table Items="accounts" IsPagination="true"   PageItemsSource="@_services.PageItemsSource"
+            <Table IsPagination="true" @ref="accountTable" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryAccountAsync"
             IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
             ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
             ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
@@ -125,7 +125,7 @@
 
                 <Row ItemsPerRow="ItemsPerRow.Two">
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" PlaceHolder="Input Account Name" />
-                    <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Select CIF">
+                    <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Select CIF" >
 
                     </AutoComplete>
                     <Select TValue="string" @bind-Value="branchidStr"
@@ -140,19 +140,21 @@
                 <Divider />
 
                 <Row ItemsPerRow="ItemsPerRow.Two">
-                <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" PlaceHolder="Input FRP" />
-                <DateTimePicker @bind-Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" />
-                <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" />
-                <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
-                <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Period" ShowLabel="true" />
-                <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" Placeholder="Input Credit Period" ShowLabel="true" />
-                <Checkbox @bind-Value="IsCODChecked" DisplayText="CoD" />
-                <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" />
-                <Checkbox @bind-Value="IsINTLChecked" DisplayText="International" />
-                <Checkbox @bind-Value="IsNLChecked" DisplayText="National" />
-                <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" />
-                <Checkbox @bind-Value="IsRev" DisplayText="Rev" />
-                <Checkbox @bind-Value="IsTrace" DisplayText="Trace" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" PlaceHolder="Input FRP" />
+                    <DateTimePicker @bind-Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" />
+                    <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Period" ShowLabel="true" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" Placeholder="Input Credit Period" ShowLabel="true" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" />
+                    <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Two" >
+                    <Checkbox @bind-Value="IsCODChecked" DisplayText="CoD" Size="Size.Medium" />
+                    <Checkbox @bind-Value="IsINTLChecked" DisplayText="International" Size="Size.Medium"/>
+                    <Checkbox @bind-Value="IsNLChecked" DisplayText="National" Size="Size.Medium" />
+                    <Checkbox @bind-Value="IsRev" DisplayText="Rev" Size="Size.Medium"/>
+                    <Checkbox @bind-Value="IsTrace" DisplayText="Trace" Size="Size.Medium" />
+                    </Row>
                 </Row>
             </BodyTemplate>
         </Card>
@@ -186,6 +188,7 @@
     private bool isTable { get; set; } = true;
     public List<Account> accounts = new();
     private Account selectedAccount = new();
+    private Table<Account> accountTable;
     string modalTitle = "Add Account";
 
     private ValidateForm addForm;
@@ -200,7 +203,7 @@
 
     private DateTime AllowValue = DateTime.Today;
     private IEnumerable<string>? CifItems { get; set; } 
-    private IEnumerable<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
+    private List<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
     private bool IsEditMode => modalTitle == "Edit Account";
 
 
@@ -231,7 +234,7 @@
     }
 
 
-    
+
     private bool IsRev
     {
         get => selectedAccount.isrev == 1;
@@ -254,7 +257,7 @@
 
     private string branchidStr
     {
-        get => selectedAccount.branchid == 0 ? null : selectedAccount.branchid.ToString();
+        get => selectedAccount.branchid == 0 ? "0" : selectedAccount.branchid.ToString();
         set
         {
             if (int.TryParse(value, out var val))
@@ -295,12 +298,29 @@
                     Value = x.branchid.ToString()
                 }).ToList();
 
-        var cifs = await _services.GetCifListAsync();
-        CifItems = cifs.Select(x => x.cif);
+        BranchItems.Insert(0, new SelectedItem { Text = "Please Select....", Value = "0" });
 
+        var cifs = await _services.GetCifListAsync();
+        CifItems = cifs.Select(x => x.cif).ToList(); // Ensure CifItems is a list if needed
 
         StateHasChanged();
     }
+
+
+
+    // private async Task LoadBranch()
+    // {
+    //     var dataBranch = await _services3.LoadBranchAsync();
+
+    //     BranchItems = dataBranch.Select(c => new SelectedItem
+    //         {
+    //             Value = c.branchid,
+    //             Text = $"{c.branchid} | {c.branchname}"
+    //         }).ToList();
+
+    //     diItems.Insert(0, new SelectedItem { Text = "Please Select...", Value="0" });
+    // }
+
 
 
     // private async Task LoadPagedAccounts()
@@ -420,6 +440,7 @@
         {
             await LoadData();
             isTable = true;
+            await accountTable.QueryAsync();
             StateHasChanged();
         }
      
@@ -434,6 +455,7 @@
             await LoadData();
         }
 		StateHasChanged();
+        await accountTable.QueryAsync();
         return result;
     }
 
