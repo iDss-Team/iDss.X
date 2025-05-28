@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Components\Pages\LoginPage.razor.css">
+    <Content Include="Components\Pages\Account\LoginPage.razor.css">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
   </ItemGroup>

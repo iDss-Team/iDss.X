@@ -1,0 +1,233 @@
+﻿@page "/login"
+@attribute [AllowAnonymous]
+@layout iDss.X.Components.Shared.AuthLayout
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authentication
+@using iDss.X.Models
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Threading.Tasks
+@inject HttpClient Http
+
+@* @inject NavigationManager Navigation
+@inject ILoginService LoginService
+@inject ToastService ToastService
+@inject IJSRuntime *@
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager Navigation
+@inject IdentityRedirectManager RedirectManager
+@inject ToastService ToastService
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-item login-item-gitee">
+    <div class="login-header">
+        <span>Sign-In</span>
+    </div>
+    <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" role="alert" />
+        <div>
+            <FloatingLabel DisplayText="Username" TValue="string" @bind-Value="loginModel.username" IsSelectAllTextOnFocus="true" IsGroupBox="true" PlaceHolder="your username" />
+        </div>
+        <div>
+            <FloatingLabel DisplayText="Password" TValue="string" type="password" @bind-Value="loginModel.password" IsGroupBox="true" maxlength="30" />
+        </div>
+        <div class="login-sms">
+            <Checkbox TValue="bool" ShowLabel="false" ShowAfterLabel="true" DisplayText="Ingat saya" />
+        </div>
+        <Button ButtonType="@ButtonType.Submit" Text="Masuk" Color="Color.Primary" IsAsync="true"></Button>
+        <div class="text-center my-4">
+            <a href="#">Forgot your passwrod?</a>
+        </div>
+
+        <Divider Text="Ikuti kami di" />
+        <div class="login-oauth">
+            <div class="login-oauth-item">
+                <i class="fa-brands fa-instagram"></i>
+            </div>
+            <div class="login-oauth-item">
+                <i class="fa-brands fa-twitter"></i>
+            </div>
+            <div class="login-oauth-item">
+                <i class="fa-brands fa-youtube"></i>
+            </div>
+            <div class="login-oauth-item">
+                <i class="fa-brands fa-facebook"></i>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+
+    private string? errorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+
+    public async Task LoginUser()
+    {
+        // This doesn't count login failures towards account lockout
+        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("User logged in.");
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.RequiresTwoFactor)
+        {
+            RedirectManager.RedirectTo(
+                "Account/LoginWith2fa",
+                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.LogWarning("User account locked out.");
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            errorMessage = "Error: Invalid login attempt.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; }
+    }
+
+    // private LoginModel loginModel = new();
+    // private string errorMessage = "";
+
+    // private async Task HandleLogin(EditContext editContext)
+    // {
+    //     // try
+    //     // {
+    //     //     var response = await Http.PostAsJsonAsync("api/auth/login", loginModel);
+    //     //     if (response.IsSuccessStatusCode)
+    //     //     {
+    //     //         try
+    //     //         {
+    //     //             // Navigation.NavigateTo("/", forceLoad: true);
+    //     //             // Navigation.NavigateTo("/");
+    //     //             await JS.InvokeVoidAsync("hardRedirectToHome");
+    //     //         }
+    //     //         catch (Exception ex)
+    //     //         {
+    //     //             System.Console.WriteLine($"Exception during login: {ex.Message}");
+    //     //         }
+    //     //     }
+    //     //     else
+    //     //     {
+    //     //         var error = await response.Content.ReadAsStringAsync();
+    //     //         System.Console.WriteLine($"Login failed: {error}");
+    //     //     }
+    //     // }
+    //     // catch (Exception ex)
+    //     // {
+    //     //     System.Console.WriteLine($"Exception during login: {ex.Message}");
+    //     // }
+
+    //     var success = await JS.InvokeAsync<bool>("loginWithFetch", loginModel);
+    //     if (success)
+    //     {
+    //         // Navigation.NavigateTo("/", forceLoad: true); // Hard reload ke halaman utama
+    //         // Navigation.NavigateTo("/"); 
+    //         await JS.InvokeVoidAsync("eval", "location.href = '/'");
+    //     }
+    //     else
+    //     {
+    //         errorMessage = "Login gagal. Periksa kembali username dan password.";
+    //     }
+    // }
+
+    // private async Task HandleLogin(EditContext editContext)
+    // {
+    //     var user = await UserManager.FindByNameAsync(loginModel.username);
+
+    //     if (user == null)
+    //     {
+    //         errorMessage = "Username tidak ditemukan.";
+    //         System.Console.WriteLine("User tidak ditemukan");
+    //         return;
+    //     }
+
+    //     System.Console.WriteLine($"User ditemukan: {user.UserName}");
+
+    //     // Cek dan reset jika user locked out
+    //     if (await UserManager.IsLockedOutAsync(user))
+    //     {
+    //         System.Console.WriteLine("User is locked out. Resetting lockout...");
+    //         await UserManager.ResetAccessFailedCountAsync(user);
+    //         await UserManager.SetLockoutEndDateAsync(user, null); // Hapus status lockout
+    //         System.Console.WriteLine("Lockout reset complete.");
+    //     }
+
+    //     SignInResult result = SignInResult.Failed;
+    //     try
+    //     {
+    //         result = await SignInManager.PasswordSignInAsync(user, loginModel.password, false, false);
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         System.Console.WriteLine($"Login error: {ex.Message}");
+    //     }
+
+    //     System.Console.WriteLine($"Login result: Success={result.Succeeded}, LockedOut={result.IsLockedOut}, NotAllowed={result.IsNotAllowed}, Requires2FA={result.RequiresTwoFactor}");
+
+    //     if (result.Succeeded)
+    //     {
+    //         Navigation.NavigateTo("/");
+    //     }
+    //     else if (result.IsLockedOut)
+    //     {
+    //         errorMessage = "Akun Anda terkunci. Silakan hubungi admin.";
+    //     }
+    //     else if (result.IsNotAllowed)
+    //     {
+    //         errorMessage = "Akun belum diizinkan login.";
+    //     }
+    //     else
+    //     {
+    //         errorMessage = "Username atau password salah.";
+    //     }
+
+    //     await ToastService.Error("Failed Login", errorMessage);
+    // }
+
+
+    // public class LoginModel
+    // {
+    //     public string username { get; set; } = "idssxadmin";
+    //     public string password { get; set; } = "idssxadmin";
+    // }
+}
