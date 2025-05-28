@@ -871,4 +871,48 @@ namespace iDss.X.Models
         public string? remarks { get; set; }
 
     }
+
+    public class Service : CommonField2
+    {
+        [Key]
+        [StringLength(5, ErrorMessage = "Service Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Service Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string servicecode { get; set; }
+
+        [StringLength(30, ErrorMessage = "Service Name cannot be longer than 30 characters.")]
+        [Required]
+        [Display(Name = "Service Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Searchable = true, Filterable = true)]
+        public string servicename { get; set; }
+
+        [StringLength(100, ErrorMessage = "Remarks cannot be longer than 100 characters.")]
+        [Display(Name = "Remarks")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? remarks { get; set; }
+
+    }
+
+    public class PackingType: CommonField2
+    {
+        [Key]
+        [StringLength(5, ErrorMessage = "Packing Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Packing Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string packingcode { get; set; }
+
+        [StringLength(30, ErrorMessage = "Packing Name cannot be longer than 30 characters.")]
+        [Required]
+        [Display(Name = "Packing Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Searchable = true, Filterable = true)]
+        public string packingname { get; set; }
+
+        [StringLength(100, ErrorMessage = "Remarks cannot be longer than 100 characters.")]
+        [Display(Name = "Remarks")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? remarks { get; set; }
+
+    }
 }
