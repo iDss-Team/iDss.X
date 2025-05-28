@@ -38,6 +38,8 @@ namespace iDss.X.Data
         public DbSet<CostComponent> mdt_costcomponent { get; set; }
         public DbSet<Relation> mdt_relation { get; set; }
         public DbSet<ReasonUN> mdt_reasonun { get; set; }
+        public DbSet<Service> mdt_service { get; set; }
+        public DbSet<PackingType> mdt_packingtype { get; set; }
 
 
         //Pickup
