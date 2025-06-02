@@ -35,12 +35,34 @@ namespace iDss.X.Data
         public DbSet<Agent> mdt_agent { get; set; }
         public DbSet<Industry> mdt_industry { get; set; }
         public DbSet<Checkpoint> mdt_checkpoint { get; set; }
+        public DbSet<CostComponent> mdt_costcomponent { get; set; }
+        public DbSet<Relation> mdt_relation { get; set; }
+        public DbSet<ReasonUN> mdt_reasonun { get; set; }
+        public DbSet<Service> mdt_service { get; set; }
+        public DbSet<PackingType> mdt_packingtype { get; set; }
+        public DbSet<Country> mdt_country { get; set; }
+        public DbSet<CityIntl> mdt_cityintl { get; set; }
+        public DbSet<PostCode> mdt_postcode { get; set; }
 
 
         //Pickup
         public DbSet<PickupRequest> pum_pickuprequest { get; set; }
         public DbSet<PickupStatusPool> pum_pickupstatuspool { get; set; }
+        public DbSet<PickupRegular> pum_pickupregular { get; set; }
+        public DbSet<PickupSchedule> pum_pickupschedule { get; set; }
 
+
+        //Transaction
+        public DbSet<ShipmentDetail> trx_shipmentdetail { get; set; }
+        public DbSet<ShipperDetail> trx_shipper { get; set; }
+        public DbSet<ConsigneeDetail> trx_consignee { get; set; }
+        public DbSet<CneeDirectory> trx_cneedirectory { get; set; }
+        public DbSet<CostItem> trx_costitem { get; set; }
+        public DbSet<PaymentDetail> trx_payment { get; set; }
+        public DbSet<UnitItem> trx_unititem { get; set; }
+        public DbSet<CheckpointPool> trx_checkpointpool { get; set; }
+        public DbSet<Attachment> trx_attachment { get; set; }
+        public DbSet<VoidTransaction> trx_void { get; set; }
 
         //Outbound
         public DbSet<AWBInventory> mdt_awbinventory { get; set; }
@@ -59,32 +81,17 @@ namespace iDss.X.Data
             modelBuilder.ApplyConfiguration(new CIFConfiguration());
             modelBuilder.ApplyConfiguration(new AccountAddrConfiguration());
             modelBuilder.ApplyConfiguration(new accountCROConfiguration());
+            modelBuilder.ApplyConfiguration(new PickupRegularConfiguration());
+            modelBuilder.ApplyConfiguration(new PickupRequestConfiguration());
             modelBuilder.ApplyConfiguration(new PickupStatusPoolConfiguration());
-
-
-            modelBuilder.Entity<AWBInventory>()
-               .HasIndex(pr => pr.awb)
-               .IsUnique();
-
-            modelBuilder.Entity<PickupRequest>()
-                .HasIndex(pr => pr.pickupno)
-                .IsUnique();
-
-            modelBuilder.Entity<PickupStatusPool>()
-               .HasOne(psp => psp.PickupRequest)
-               .WithMany(pr => pr.PickupStatusPools)
-               .HasForeignKey(psp => psp.pickupno)
-               .HasPrincipalKey(pr => pr.pickupno);
-
-            modelBuilder.Entity<Courier>()
-                .HasIndex(pr => pr.couriercode)
-                .IsUnique();
-
-            modelBuilder.Entity<PickupRequest>()
-               .HasOne(cou => cou.Courier)
-               .WithMany(pr => pr.PickupRequests)
-               .HasForeignKey(cou => cou.couriercode)
-               .HasPrincipalKey(pr => pr.couriercode);
+            modelBuilder.ApplyConfiguration(new ShipmentDetailConfiguration());
+            modelBuilder.ApplyConfiguration(new CourierConfiguration());
+            modelBuilder.ApplyConfiguration(new AWBInventoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ShipmentDetailConfiguration());
+            modelBuilder.ApplyConfiguration(new ConsigneeDetailConfiguration());
+            modelBuilder.ApplyConfiguration(new PaymentDetailConfiguration());
+            modelBuilder.ApplyConfiguration(new VoidTransactionConfiguration());
+            modelBuilder.ApplyConfiguration(new CheckpointPoolConfiguration());
 
             //Seed table app_module
             modelBuilder.SeedAppModuleCtg();

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using iDss.X.Data;
 
@@ -11,9 +12,11 @@ using iDss.X.Data;
 namespace iDss.X.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250528043016_AppendMasterTableToDb250528")]
+    partial class AppendMasterTableToDb250528
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -8597,83 +8600,6 @@ namespace iDss.X.Migrations
                         });
                 });
 
-            modelBuilder.Entity("iDss.X.Models.CityIntl", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<string>("airport")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("citycode")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("cityname")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("countrycode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("disc3pl1")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<decimal?>("disc3pl2")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<decimal?>("disc3pl3")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("modifieddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("modifier")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("region")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("zone3pl1")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("zone3pl2")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("zone3pl3")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("countrycode");
-
-                    b.ToTable("mdt_cityintl");
-                });
-
             modelBuilder.Entity("iDss.X.Models.CneeDirectory", b =>
                 {
                     b.Property<int>("id")
@@ -8923,13 +8849,10 @@ namespace iDss.X.Migrations
                     b.Property<int>("flag")
                         .HasColumnType("int");
 
-                    b.Property<int>("issystem")
-                        .HasColumnType("int");
-
                     b.Property<string>("type")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.HasKey("id");
 
@@ -9101,43 +9024,6 @@ namespace iDss.X.Migrations
                     b.HasIndex("villid");
 
                     b.ToTable("mdt_counter");
-                });
-
-            modelBuilder.Entity("iDss.X.Models.Country", b =>
-                {
-                    b.Property<string>("countrycode")
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<string>("countryname")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<string>("isoalpha3")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<string>("phonecode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.HasKey("countrycode");
-
-                    b.ToTable("mdt_country");
                 });
 
             modelBuilder.Entity("iDss.X.Models.Courier", b =>
@@ -9703,49 +9589,6 @@ namespace iDss.X.Migrations
                     b.ToTable("pum_pickupstatuspool");
                 });
 
-            modelBuilder.Entity("iDss.X.Models.PostCode", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("modifieddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("modifier")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("postcode")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("villid")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("villid");
-
-                    b.ToTable("mdt_postcode");
-                });
-
             modelBuilder.Entity("iDss.X.Models.Province", b =>
                 {
                     b.Property<string>("provid")
@@ -10256,7 +10099,7 @@ namespace iDss.X.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("itemvalue")
-                        .HasColumnType("decimal(18,0)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("linehaul")
                         .IsRequired()
@@ -10587,6 +10430,9 @@ namespace iDss.X.Migrations
                     b.Property<int>("branchid")
                         .HasColumnType("int");
 
+                    b.Property<int>("branchori")
+                        .HasColumnType("int");
+
                     b.Property<string>("createdby")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -10615,7 +10461,7 @@ namespace iDss.X.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("requestpoint")
+                    b.Property<string>("reqisuestpoint")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -10842,17 +10688,6 @@ namespace iDss.X.Migrations
                     b.Navigation("Province");
                 });
 
-            modelBuilder.Entity("iDss.X.Models.CityIntl", b =>
-                {
-                    b.HasOne("iDss.X.Models.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("countrycode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Country");
-                });
-
             modelBuilder.Entity("iDss.X.Models.CneeDirectory", b =>
                 {
                     b.HasOne("iDss.X.Models.District", "District")
@@ -11049,17 +10884,6 @@ namespace iDss.X.Migrations
                         .IsRequired();
 
                     b.Navigation("PickupRequest");
-                });
-
-            modelBuilder.Entity("iDss.X.Models.PostCode", b =>
-                {
-                    b.HasOne("iDss.X.Models.Village", "Village")
-                        .WithMany()
-                        .HasForeignKey("villid")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Village");
                 });
 
             modelBuilder.Entity("iDss.X.Models.ShipmentDetail", b =>

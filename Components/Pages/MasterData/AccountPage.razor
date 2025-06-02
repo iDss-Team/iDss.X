@@ -1,0 +1,463 @@
+﻿@page "/master/account"
+@using iDss.X.Models
+@using BootstrapBlazor.Components
+@inject ToastService _toastService
+@inject MasterDataPart1Service _services
+@inject MasterDataPart3Service _services3
+@attribute [TabItemOption(Text = "Account")]
+
+
+<PageTitle>Account Management</PageTitle>
+
+<Block OnQueryCondition="OnQueryCondition" Name="table">
+@if (accounts != null)
+    {
+        <Row ItemsPerRow="ItemsPerRow.One">
+            <Row ItemsPerRow="ItemsPerRow.Two">
+                <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+                    <StackItem><h5>Account</h5></StackItem>
+                </Stack>
+            </Row>
+
+            <Table IsPagination="true" @ref="accountTable" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryAccountAsync"
+            IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+            ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+            ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+
+                <TableToolbarTemplate>
+                    <TableToolbarButton TItem="Account" Color="Color.Primary" Icon="fa-solid fa-plus"
+                    Text="Add" IsAsync OnClick="ShowAddModal" />
+                </TableToolbarTemplate>
+
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.acctno" Searchable="true" />
+                    <TableColumn @bind-Field="@context.cif" Searchable="true" />
+                    <TableColumn @bind-Field="@context.acctname" Searchable="true" />
+                    <TableColumn @bind-Field="@context.Branch" Text="Branch">
+                        <Template Context="x">@x.Row.Branch?.branchname
+
+                        </Template>
+
+                    </TableColumn>
+                    <TableColumn @bind-Field="@context.createddate" Searchable="true" />
+                    <TableColumn @bind-Field="@context.createdby" Searchable="true" />
+
+
+                    <TableColumn @bind-Field="@context.isrev" Text="">
+                        <Template Context="item">
+                            <div class="d-grip gap-2 d-md-block">
+                                <Button Text="Edit" OnClick="() => ShowEditModal(item.Row.acctno)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+                                <PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+                                Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+                                IsAsync="true" OnConfirm="() => DeleteAccount(item.Row.acctno)"></PopConfirmButton>
+                            </div>
+                        </Template>
+                    </TableColumn>
+
+
+                </TableColumns>
+
+
+
+
+
+            </Table>
+        </Row>
+    }
+    else
+    {
+        <h5>Loading...</h5>
+    }
+</Block>
+
+@* 
+<Block OnQueryCondition="OnQueryCondition2" Name="detail">
+    <Modal @ref="addModals" IsBackdrop="true" IsFade="true" >
+        <ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveAccount">
+            <BodyTemplate>
+                <ValidateForm @ref="addForm" Model="selectedAccount" @key="@formKey">
+                    <Row ItemsPerRow="ItemsPerRow.Two">
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" PlaceHolder="Input Account Name"/>
+                        <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Select CIF">
+
+                        </AutoComplete>
+                        <Select TValue="string" @bind-Value="branchidStr"
+                        Items="BranchItems" ShowLabel="true" DisplayText="Branch"
+                        PlaceHolder="Select Branch" ShowSearch="true"/>
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="LoB" ShowLabel="true" PlaceHolder="Input LoB"/>
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" PlaceHolder="Input Cost Center"/>
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank AcctNo" ShowLabel="true" PlaceHolder="Input Bank Account Number"/>
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Account Name" ShowLabel="true" PlaceHolder="Input Bank Account Name"/>
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" PlaceHolder="Input Bank Code"/>
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true"  PlaceHolder="Input FRP"/>
+                        <DateTimePicker @bind-Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date"/>
+                        <DateTimePicker @bind-Value="selectedAccount.agreeexpire"  Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date"/>
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
+                        <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Period" ShowLabel="true" />
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" Placeholder="Input Credit Period" ShowLabel="true" />
+                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.iscod" DisplayText="CoD" ShowLabel="true"  Max="1" Min="0"/>
+                        <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" />
+                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isintl" DisplayText="INTL" ShowLabel="true" Max="1" Min="0" Placeholder="Input INTL" />
+                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isnl" DisplayText="NL" ShowLabel="true" Max="1" Min="0" Placeholder="Input NL"/>
+                        <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" />
+                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isrev" DisplayText="Rev"  ShowLabel="true" Max="1" Min="0" Placeholder="Input Rev"/>
+                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.istrace" DisplayText="Trace" ShowLabel="true" Max="1" Min="0" PlaceHolder="Input Trace"/>
+
+                    </Row>
+                </ValidateForm>
+            </BodyTemplate>
+        </ModalDialog>
+    </Modal>
+</Block> *@
+
+
+<Block OnQueryCondition="OnQueryCondition2">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>@modalTitle</h5>
+            </StackItem>
+        </Stack>
+    </Row>
+    <ValidateForm  @ref="addForm" Model="selectedAccount" @key="@formKey" OnValidSubmit="SaveAccount">
+        <Card>
+            <BodyTemplate>
+
+                <Row ItemsPerRow="ItemsPerRow.Two">
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" PlaceHolder="Input Account Name" />
+                    <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Select CIF" >
+
+                    </AutoComplete>
+                    <Select TValue="string" @bind-Value="branchidStr"
+                    Items="BranchItems" ShowLabel="true" DisplayText="Branch"
+                    PlaceHolder="Select Branch" ShowSearch="true" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="LoB" ShowLabel="true" PlaceHolder="Input LoB" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" PlaceHolder="Input Cost Center" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank AcctNo" ShowLabel="true" PlaceHolder="Input Bank Account Number" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Account Name" ShowLabel="true" PlaceHolder="Input Bank Account Name" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" PlaceHolder="Input Bank Code" />
+                </Row>
+                <Divider />
+
+                <Row ItemsPerRow="ItemsPerRow.Two">
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" PlaceHolder="Input FRP" />
+                    <DateTimePicker @bind-Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" />
+                    <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Period" ShowLabel="true" />
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" Placeholder="Input Credit Period" ShowLabel="true" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" />
+                    <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Two" >
+                    <Checkbox @bind-Value="IsCODChecked" DisplayText="CoD" Size="Size.Medium" />
+                    <Checkbox @bind-Value="IsINTLChecked" DisplayText="International" Size="Size.Medium"/>
+                    <Checkbox @bind-Value="IsNLChecked" DisplayText="National" Size="Size.Medium" />
+                    <Checkbox @bind-Value="IsRev" DisplayText="Rev" Size="Size.Medium"/>
+                    <Checkbox @bind-Value="IsTrace" DisplayText="Trace" Size="Size.Medium" />
+                    </Row>
+                </Row>
+            </BodyTemplate>
+        </Card>
+        <Divider />
+        <Stack IsRow="true" Justify="StackJustifyContent.Evenly" AlignItems="StackAlignItems.Center" IsWrap="true">
+            <StackItem>
+                <Button ButtonType="@ButtonType.Submit" Color="Color.Success" Icon="fa-solid fa-floppy-disk" IsAsync="true" Text="Save" />
+                <Divider IsVertical="true" />
+                <Button ButtonType="@ButtonType.Button" Color="Color.Secondary" Icon="fa-solid fa-xmark" IsAsync="true" Text="Cancel" OnClick="Cancel" />
+            </StackItem>
+        </Stack>
+    </ValidateForm>
+
+
+</Block>
+
+
+
+
+
+
+
+
+
+
+
+@code {
+    private Modal addModals;
+    private Modal editModals;
+    private bool isEditMode = false;
+    private bool isTable { get; set; } = true;
+    public List<Account> accounts = new();
+    private Account selectedAccount = new();
+    private Table<Account> accountTable;
+    string modalTitle = "Add Account";
+
+    private ValidateForm addForm;
+
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalCount = 0;
+
+    private Task<bool> OnQueryCondition(string name) => Task.FromResult(isTable);
+    private Task<bool> OnQueryCondition2(string name) => Task.FromResult(!isTable);
+    private Task<bool> OnQueryCondition3(string name) => Task.FromResult(!isTable);
+
+    private DateTime AllowValue = DateTime.Today;
+    private IEnumerable<string>? CifItems { get; set; } 
+    private List<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
+    private bool IsEditMode => modalTitle == "Edit Account";
+
+
+
+
+
+    private string selectedIndustryId;
+    private string selectedBranchId;
+
+    private bool IsCODChecked
+    {
+        get => selectedAccount.iscod == 1;
+        set => selectedAccount.iscod = value ? 1 : 0;
+    }
+
+    private bool IsINTLChecked
+    {
+        get => selectedAccount.isintl == 1;
+        set => selectedAccount.isintl = value ? 1 : 0;
+    }
+
+
+
+    private bool IsNLChecked
+    {
+        get => selectedAccount.isnl == 1;
+        set => selectedAccount.isnl = value ? 1 : 0;
+    }
+
+
+
+    private bool IsRev
+    {
+        get => selectedAccount.isrev == 1;
+        set => selectedAccount.isrev = value ? 1 : 0;
+    }
+
+
+
+    private bool IsTrace
+    {
+        get => selectedAccount.istrace == 1;
+        set => selectedAccount.istrace = value ? 1 : 0;
+    }
+
+
+
+
+
+    private Guid formKey = Guid.NewGuid();
+
+    private string branchidStr
+    {
+        get => selectedAccount.branchid == 0 ? "0" : selectedAccount.branchid.ToString();
+        set
+        {
+            if (int.TryParse(value, out var val))
+            {
+                selectedAccount.branchid = val;
+            }
+            else
+            {
+                selectedAccount.branchid = 0;
+            }
+        }
+    }
+
+
+    private async Task Cancel()
+    {
+        isTable = true;
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+
+    private async Task LoadData()
+    {
+        accounts = (await _services.GetAllAccountAsync()).ToList();
+
+        var branches = await _services3.LoadBranchAsync();
+        BranchItems = branches
+            .DistinctBy(x => x.branchid)
+            .OrderBy(x => x.branchname)
+            .Select(x => new SelectedItem
+                {
+                    Text = x.branchname,
+                    Value = x.branchid.ToString()
+                }).ToList();
+
+        BranchItems.Insert(0, new SelectedItem { Text = "Please Select....", Value = "0" });
+
+        var cifs = await _services.GetCifListAsync();
+        CifItems = cifs.Select(x => x.cif).ToList(); // Ensure CifItems is a list if needed
+
+        StateHasChanged();
+    }
+
+
+
+    // private async Task LoadBranch()
+    // {
+    //     var dataBranch = await _services3.LoadBranchAsync();
+
+    //     BranchItems = dataBranch.Select(c => new SelectedItem
+    //         {
+    //             Value = c.branchid,
+    //             Text = $"{c.branchid} | {c.branchname}"
+    //         }).ToList();
+
+    //     diItems.Insert(0, new SelectedItem { Text = "Please Select...", Value="0" });
+    // }
+
+
+
+    // private async Task LoadPagedAccounts()
+    // {
+    //     var result = await _services.GetAccountsPagedAsync(currentPage, pageSize);
+    //     accounts = result.Accounts;
+    //     totalCount = result.TotalCount;
+
+    //     StateHasChanged();
+    // }
+
+
+
+    private async Task LoadDropdownData()
+    {
+        var branches = await _services3.LoadBranchAsync();
+        BranchItems = branches
+            .DistinctBy(x => x.branchid)
+            .OrderBy(x => x.branchname)
+            .Select(x => new SelectedItem
+                {
+                    Text = x.branchname,
+                    Value = x.branchid.ToString()
+                }).ToList();
+
+        var cifs = await _services.GetCifAsync();
+        CifItems = cifs.Select(x => x.cif);
+    }
+
+
+
+    private async Task ShowAddModal()
+    {
+        isTable = false;
+        selectedAccount = new Account();
+        isEditMode = false;
+        // selectedAccount.agreedate = null;   
+        // selectedAccount.agreeexpire = null;
+        formKey = Guid.NewGuid();
+        modalTitle = "Create New Account";
+        await Task.Delay(10);
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+
+
+    private async Task ShowEditModal(string acct)
+    {
+        var data = await _services.GetAccountByAcctNoAsync(acct);
+        isTable = false;
+
+        selectedAccount = new Account
+            {
+                acctno = data.acctno,
+                acctname = data.acctname,
+                cif = data.cif,
+                branchid = data.branchid,
+                lob = data.lob,
+                costcenter = data.costcenter,
+                bankacctno = data.bankacctno,
+                bankacctname = data.bankacctname,
+                bankcode = data.bankcode,
+                frp = data.frp,
+                agreedate = data.agreedate,
+                agreeexpire = data.agreeexpire,
+                termofpayment = data.termofpayment,
+                creditlimit = data.creditlimit,
+                creditperiod = data.creditperiod,
+                iscod = data.iscod,
+                feecod = data.feecod,
+                isintl = data.isintl,
+                isnl = data.isnl,
+                discrates = data.discrates,
+                isrev = data.isrev,
+                istrace = data.istrace,
+                flag    = data.flag,
+				modifieddate = DateTime.Now,
+				modifier = "System",
+            };
+        isEditMode = true;
+        modalTitle = "Edit Account";
+    }
+
+
+
+
+
+
+
+
+    private async Task SaveAccount(EditContext context)
+    {
+        bool isExisting = !string.IsNullOrWhiteSpace(selectedAccount.acctno)
+                          && accounts.Any(c => c.acctno == selectedAccount.acctno);
+
+        bool result;
+        if (isEditMode)
+        {
+            selectedAccount.modifieddate = DateTime.Now;
+            selectedAccount.modifier = "System";
+            result = await _services.UpdateAccountAsync(selectedAccount.acctno, selectedAccount);
+            await _toastService.Success("Success", $"Account {selectedAccount.acctno} updated successfully");
+        }
+        else
+        {
+            selectedAccount.flag = 1;
+            selectedAccount.createddate = DateTime.Now;
+            selectedAccount.createdby = "System";
+
+            var createdAccount = await _services.CreateAccountAsync(selectedAccount);
+            result = createdAccount != null;
+            await _toastService.Success("Success", $"Account {selectedAccount.acctno} created successfully");
+        }
+
+        if (result)
+        {
+            await LoadData();
+            isTable = true;
+            await accountTable.QueryAsync();
+            StateHasChanged();
+        }
+     
+    }
+
+
+    private async Task<bool> DeleteAccount(string acctno)
+    {
+        var result = await _services.DeleteAccountAsync(acctno);
+        if (result)
+        {
+            await LoadData();
+        }
+		StateHasChanged();
+        await accountTable.QueryAsync();
+        return result;
+    }
+
+
+}

@@ -1,0 +1,352 @@
+﻿@page "/pickup/entrypickuponcall"
+@using iDss.X.Models
+@using AutoMapper;
+@inject ToastService _toastService;
+@inject MasterDataPart1Service _service1
+@inject MasterDataPart2Service _service2
+@inject MasterDataPart3Service _service3
+@inject PickupService _pickupService
+@inject IMapper Mapper;
+@attribute [TabItemOption(Text = "On-Call Request")]
+
+<PageTitle>On-Call Request</PageTitle>
+
+<Block OnQueryCondition="OnQueryCondition" Name="Table">
+    @if (pickupRequests != null)
+    {
+        <Row ItemsPerRow="ItemsPerRow.One">
+            <Row ItemsPerRow="ItemsPerRow.Two">
+                <span>
+                    <h5>On-Call Request</h5>
+                </span>
+            </Row>
+            <Table TItem="PickupRequest" IsPagination="true" PageItemsSource="@_pickupService.PageItemsSource" OnQueryAsync="@_pickupService.OnQueryPickupRequestAsync"
+            IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="false"
+            ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" IsAutoRefresh AutoRefreshInterval="1000"
+            OnDeleteAsync="@_pickupService.DeletePickupRequestByIDAsync" DeleteButtonText="">
+                <TableToolbarTemplate>
+                    <TableToolbarButton TItem="PickupRequest"
+                    Color="Color.Primary"
+                    Icon="fa-solid fa-plus"
+                    Text="Add"
+                    IsAsync OnClickCallback="@ShowAddModal" />
+                </TableToolbarTemplate>
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.pickupno" Text="Pickup Request Number" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.pickuptype" Text="Pickup Type" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.pickupdate" Text="Pickup Date" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.timeto" Text="To Date" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.createddate" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
+                    <TableColumn @bind-Field="@context.id" Text="">
+                        <Template Context="item">
+                            <div class="d-grip gap-2 d-md-block">
+                                <Button Text="" OnClick="@(() => ShowEditModal(item.Row.pickupno))" Color="Color.Success" Icon="fa-solid fa-pen"></Button>
+                                <PopConfirmButton Color="Color.Danger"
+                                Text="" Icon="fa-solid fa-trash"
+                                Content="Are you sure you want to delete the data?"
+                                ConfirmButtonColor="Color.Danger" Size="Size.None"
+                                ConfirmIcon="fa-solid fa-triangle-exclamation text-danger"
+                                OnConfirm="@(() => DeletePickupById(item.Row.pickupno))" />
+                            </div>
+                        </Template>
+                    </TableColumn>
+                </TableColumns>
+            </Table>
+        </Row>
+    }
+    else
+    {
+        <h5>Loading . . .</h5>
+    }
+</Block>
+
+<Block OnQueryCondition="OnQueryCondition2">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>@ModalTitle</h5>
+            </StackItem>
+        </Stack>
+    </Row>
+    <ValidateForm Model="data">
+        <Card>
+            <BodyTemplate>
+                <div class="row">
+                    <div class="col-6">
+                        <Card>
+                            <HeaderTemplate>
+                                Detail Pickup
+                            </HeaderTemplate>
+                            <BodyTemplate>
+                                <Row RowType="RowType.Inline">
+                                    <AutoComplete Items="@PickupTypes" @bind-Value="data.pickuptype" DisplayText="Pickup Type"></AutoComplete>
+                                    <BootstrapInput TValue="string" @bind-Value="data.pickuppoint" ShowLabel="true"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="data.latitude" ShowRequired="true" DisplayText="Latitude"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="data.longitude" ShowRequired="true" DisplayText="Longitude"></BootstrapInput>
+                                    <Select TValue="int?" Items="@BranchItems" @bind-Value="data.branchid" DisplayText="Branch" ShowSearch></Select>
+                                    <Select TValue="string" Items="@CourierItems" @bind-Value="data.couriercode" DisplayText="Courier" ShowSearch></Select>
+                                    <AutoComplete Items="@TrasportTypes" @bind-Value="data.transporttype" DisplayText="Transport Type"></AutoComplete>
+                                    <DateTimePicker @bind-Value="PikupDate" DisplayText="Pickup Date" />
+                                    <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                                        <BootstrapInput TValue="TimeOnly" @bind-Value="data.timefrom" DisplayText="Time From" @onclick="ShowTimeFromPicker"> </BootstrapInput>
+                                        <BootstrapInput TValue="TimeOnly" @bind-Value="data.timeto" DisplayText="Time To" @onclick="ShowTimeToPicker"> </BootstrapInput>
+                                        @if (showClockFrom)
+                                        {
+                                            <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                                <TimePicker @bind-Value="TimeFromConvert" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                            </div>
+                                        }
+                                        @if (showClockTo)
+                                        {
+                                            <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                                <TimePicker @bind-Value="TimeToConvert" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                            </div>
+                                        }
+                                    </Row>
+                                </Row>
+                            </BodyTemplate>
+                        </Card>
+
+                    </div>
+                    <div class="col-6">
+                        <Card>
+                            <HeaderTemplate>
+                                From Account (Shipper)
+                            </HeaderTemplate>
+                            <BodyTemplate>
+                                <Row RowType="RowType.Inline">
+                                    <Select TValue="string" Items="@AccountItems" @bind-Value="data.acctno" DisplayText="Accouunt" ShowSearch></Select>
+                                    <BootstrapInput TValue="string" @bind-Value="data.picname" ShowLabel="true"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="data.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="data.email" DisplayText="Email"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="data.postcode" ShowLabel="true"></BootstrapInput>
+                                    <Textarea @bind-Value="data.addr" ShowLabel="true"></Textarea>
+                                    <Select TValue="string" Items="@DistrictItems" @bind-Value="data.distid" DisplayText="District" ShowSearch></Select>
+                                    <Textarea TValue="string" @bind-Value="data.notes" ShowLabel="true"></Textarea>
+                                </Row>
+                            </BodyTemplate>
+                        </Card>
+                    </div>
+                </div>
+            </BodyTemplate>
+        </Card>
+        <Divider />
+        <Stack IsRow="true" Justify="StackJustifyContent.Evenly" AlignItems="StackAlignItems.Center" IsWrap="true">
+            <StackItem>
+                <Button ButtonType="@ButtonType.Submit" Color="Color.Success" Icon="fa-solid fa-floppy-disk" IsAsync="true" Text="Save" OnClick="SavePickupRequest" />
+                <Divider IsVertical="true" />
+                <Button ButtonType="@ButtonType.Button" Color="Color.Secondary" Icon="fa-solid fa-xmark" IsAsync="true" Text="Cancel" OnClick="Cancel" />
+            </StackItem>
+        </Stack>
+    </ValidateForm>
+</Block>
+
+@code {
+    private bool IsTable { get; set; } = true;
+    private Task<bool> OnQueryCondition(string name) => Task.FromResult(IsTable);
+    private Task<bool> OnQueryCondition2(string name) => Task.FromResult(!IsTable);
+    private string ModalTitle;
+
+    public List<PickupRequest> pickupRequests = new();
+    private PickupRequest data = new();
+
+    private IEnumerable<SelectedItem>? DistrictItems;
+    private IEnumerable<SelectedItem>? BranchItems;
+    private IEnumerable<SelectedItem>? AccountItems;
+    private IEnumerable<SelectedItem>? CourierItems;
+
+    private bool showClockFrom = false;
+    private bool showClockTo = false;
+
+    private List<string> PickupTypes => ["Schedule", "On-Call", "Agent", "API", "Mobile", "WMS"];
+    private List<string> TrasportTypes => ["Van", "Pickup", "Truck", "Motorcycle"];
+
+    private DateTime PikupDate
+    {
+        get => data.pickupdate.ToDateTime(TimeOnly.MinValue);
+        set => data.pickupdate = DateOnly.FromDateTime(value);
+    }
+
+    private TimeSpan TimeFromConvert
+    {
+        get => data.timefrom.ToTimeSpan();
+        set
+        {
+            data.timefrom = TimeOnly.FromTimeSpan(value);
+            showClockFrom = false; // hide after selection
+            ValidateTime();
+        }
+    }
+
+    private TimeSpan TimeToConvert
+    {
+        get => data.timeto.ToTimeSpan();
+        set
+        {
+            data.timeto = TimeOnly.FromTimeSpan(value);
+            showClockTo = false; // hide after selection
+            ValidateTime();
+        }
+    }
+
+    private void ShowTimeFromPicker()
+    {
+        showClockFrom = true;
+        showClockTo = false;
+    }
+
+    private void ShowTimeToPicker()
+    {
+        showClockTo = true;
+        showClockFrom = false;
+    }
+
+    private void ValidateTime()
+    {
+        var minTimeDifference = TimeSpan.FromMinutes(30);
+
+        if (data.timefrom != default && data.timeto != default)
+        {
+            var timeDifference = data.timeto.ToTimeSpan() - data.timefrom.ToTimeSpan();
+
+            if (timeDifference < minTimeDifference)
+            {
+                var result = data.timefrom.ToTimeSpan() + minTimeDifference;
+                TimeToConvert = result;
+            }
+        }
+    }
+
+    private bool ValidateInput()
+    {
+        var requiredFields = new List<(string Value, string FieldName)>
+        {
+            (data.pickuptype, "Pickup Type"),
+            (data.acctno, "Account"),
+            (data.latitude, "Latitude"),
+            (data.longitude, "Longitude"),
+            (data.addr, "Address"),
+            (data.distid, "District"),
+        };
+
+        foreach (var (value, name) in requiredFields)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                _toastService.Error($"{name} is null.", "data cannot be empty.");
+                return false;
+            }
+        }
+
+        if (data.branchid == null)
+        {
+            _toastService.Error("Branch harus dipilih.", "error");
+            return false;
+        }
+
+        return true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async void ShowEditModal(string pickupNoo)
+    {
+        var data1 = await _pickupService.GetPickupRequestByPickno(pickupNoo);
+        var distnew = await _service1.GetDistrictById(data1);
+        data1.distid = distnew;
+        data = Mapper.Map<PickupRequest>(data1);
+        ModalTitle = "Edit On-Call Request";
+
+        IsTable = false;
+        StateHasChanged();
+    }
+
+    private async Task ShowAddModal(IEnumerable<PickupRequest> items)
+    {
+        data = new PickupRequest();
+        ModalTitle = "Create New On-Call Request";
+        IsTable = false;
+        StateHasChanged();
+    }
+
+    private async Task Cancel()
+    {
+        IsTable = true;
+    }
+
+    private async Task LoadData()
+    {
+        pickupRequests = await _pickupService.GetPickupRequestAsync();
+
+        var districts = await _service1.LoadDistrictAsync();
+        DistrictItems = districts.Select(b => new SelectedItem(b.distid, b.distname));
+
+        var branches = await _service3.LoadBranchAsync();
+        BranchItems = branches.Select(b => new SelectedItem(b.branchid.ToString(), b.branchname));
+
+        var couriers = await _service2.GetCourierComboAsync();
+        CourierItems = couriers.Select(b => new SelectedItem(b.couriercode, b.couriername));
+
+        var accounts = await _service1.GetAllAccountAsync();
+        AccountItems = accounts.Select(b => new SelectedItem(b.acctno, b.acctname));
+
+        StateHasChanged();
+    }
+
+    private async Task<string> DeletePickupById(string picknoo)
+    {
+        if (picknoo == null)
+        {
+            return "pickno not found";
+        }
+        var result = await _pickupService.DeletePickupByPickno(picknoo);
+        await LoadData();
+        await _toastService.Show(new ToastOption()
+        {
+            Category = ToastCategory.Success,
+            Title = "Success",
+                Content = "Delete Data"
+        });
+        StateHasChanged();
+        return result;
+    }
+
+    private async Task<bool> SavePickupRequest()
+    {
+        bool result;
+        if (pickupRequests.Any(c => c.pickupno == data.pickupno) && ValidateInput())
+        {
+            result = await _pickupService.UpdatePickupRequestAsync(data, ItemChangedType.Update);
+            await _toastService.Success("Success", "Data Saved");
+        }
+        else if (ValidateInput())
+        {
+            var pickupNo = await _pickupService.GeneratePickupNoAsync();
+            if (pickupNo == null)
+            {
+                return false;
+            }
+            var acctNamee = await _service1.GetAccountByAcctNoAsync(data.acctno);
+            var courierNamee = await _service2.GetCourierByCodeAsync(data.couriercode);
+            var branchNamee = await _service3.GetBranchByBranchIdAsync(data.branchid.Value);
+            if (data.pickupdate == default)
+            {
+                data.pickupdate = DateOnly.FromDateTime(DateTime.Today);
+            }
+
+            data.pickupno = pickupNo;
+            data.acctname = acctNamee.acctname;
+            data.couriername = courierNamee.couriername;
+            data.branchname = branchNamee.branchname;
+            result = await _pickupService.SavePickupRequestAsync(data, ItemChangedType.Add);
+            await _toastService.Success("Success", "Data Saved");
+        }
+        IsTable = true;
+        StateHasChanged();
+        await LoadData();
+        return true;
+    }
+}

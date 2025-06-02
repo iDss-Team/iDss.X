@@ -97,20 +97,26 @@ namespace iDss.X.Services
             var result = _db.mdt_branch
                                 .Select(p => new Branch()
                                 {
-                                    branchcode = p.branchcode,
+                                    branchid = p.branchid,
                                     branchname = p.branchname,
                                 })
                 .ToListAsync();
             return await result;
         }
 
-        public async Task<Branch> GetBranchByIDAsync(Guid id)
+        public async Task<Branch> GetBranchByIDAsync(int id)
         {
             var result = _db.mdt_branch.FindAsync(id);
             return await result;
         }
 
-        public async Task<bool> CreateBranchAsync(Branch data, ItemChangedType changedType)
+        public async Task<Branch> GetBranchByBranchIdAsync(int id)
+        {
+            var result = _db.mdt_branch.FirstOrDefaultAsync(p => p.branchid == id);
+            return await result;
+        }
+
+        public async Task<bool> CreateBranchAsync(Branch data)
         {
             bool result;
             try
@@ -161,42 +167,43 @@ namespace iDss.X.Services
             }
         }
 
-        public async Task<string> UpdateBranchAsync(Branch data)
+        public async Task<bool> UpdateBranchAsync(Branch data)
         {
-            string result;
+            bool result;
             try
             {
                 _db.Entry(data).State = EntityState.Modified;
                 await _db.SaveChangesAsync();
-                result = "ok";
+                result = true;
             }
             catch (Exception ex)
             {
-                result = ex.Message;
+                result = false;
             }
             return result;
         }
 
-        public async Task<bool> DeleteBranchByIDAsync(IEnumerable<Branch> branchs)
+        public async Task<bool> DeleteBranchByIDAsync(int id)
         {
+            bool result;
             try
             {
-                foreach (var branch in branchs)
-                {
-                    var existing = await _db.mdt_checkpoint.FindAsync(branch.branchid);
-                    if (existing != null)
-                    {
-                        _db.mdt_checkpoint.Remove(existing);
-                    }
-                }
-
-                await _db.SaveChangesAsync();
-                return true;
+                var affectedRows = await _db.mdt_branch.Where(x => x.branchid.Equals(id)).ExecuteDeleteAsync();
+                result = true;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                if (ex.Message.Contains("23503"))
+                {
+                    //msg = "Cannot delete: This record is linked to other data already.";
+                    result = false;
+                }
+                else
+                {
+                    result = false;
+                }
             }
+            return result;
         }
         #endregion
 

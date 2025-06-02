@@ -12,8 +12,8 @@ using iDss.X.Data;
 namespace iDss.X.Migrations.AuthDb
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20250325054324_AddInitialIdentityToDb")]
-    partial class AddInitialIdentityToDb
+    [Migration("20250527203420_AuthInitialCreate")]
+    partial class AuthInitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

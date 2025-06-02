@@ -1,0 +1,211 @@
+﻿@page "/master/industry"
+@using iDss.X.Models
+@inject ToastService _toastService
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "Industry")]
+
+
+<PageTitle>Industry</PageTitle>
+
+@if (industries != null)
+{
+	<Row ItemsPerRow="ItemsPerRow.One">
+		<Row ItemsPerRow="ItemsPerRow.Two">
+			<Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+				<StackItem><h5>Industry</h5></StackItem>
+			</Stack>
+		</Row>
+
+		<Table Items="industries" IsPagination="true" PageItemsSource="@_services.PageItemsSource"
+		IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+		ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+		ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+
+			<TableToolbarTemplate>
+				<TableToolbarButton TItem="Industry" Color="Color.Primary" Icon="fa-solid fa-plus"
+				Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
+			</TableToolbarTemplate>
+
+			<TableColumns>
+				<TableColumn @bind-Field="@context.id" Searchable="true" />
+				<TableColumn @bind-Field="@context.industryname" Searchable="true" />
+				<TableColumn @bind-Field="@context.description" Searchable="true" />
+				<TableColumn @bind-Field="@context.createddate" Searchable="true" />
+				<TableColumn @bind-Field="@context.createdby" Searchable="true" />
+
+
+				<TableColumn @bind-Field="@context.createdby" Text="">
+					<Template Context="item">
+						<div class="d-grip gap-2 d-md-block">
+							<Button Text="Edit" OnClick="() => ShowEditModal(item.Row.id)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+							<PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+							Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+							IsAsync="true" OnConfirm="() => DeleteIndustry(item.Row.id)"></PopConfirmButton>
+						</div>
+					</Template>
+				</TableColumn>
+
+
+			</TableColumns>
+
+
+
+
+
+
+		</Table>
+	</Row>
+}
+else
+{
+	<h5>Loading...</h5>
+}
+
+
+<Modal @ref="addModals" IsBackdrop="true" IsFade="true">
+	<ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveIndustry">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedIndustry" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two">
+					<BootstrapInput TValue="string" @bind-Value="selectedIndustry.industryname" DisplayText="Industry Name" ShowLabel="true" PlaceHolder="Input Industry Name"/>
+					<BootstrapInput TValue="string" @bind-Value="selectedIndustry.description" DisplayText="Description" ShowLabel="true" PlaceHolder="Input Description" />
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+<Modal @ref="editModals" IsBackdrop="true" IsFade="true">
+	<ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveIndustry">
+		<BodyTemplate>
+			<ValidateForm Model="selectedIndustry">
+				<Row ItemsPerRow="ItemsPerRow.Two">
+					<BootstrapInput TValue="string" @bind-Value="selectedIndustry.industryname" DisplayText="Industry Name" ShowLabel="true" />
+					<BootstrapInput TValue="string" @bind-Value="selectedIndustry.description" DisplayText="Description" ShowLabel="true" />
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+@code {
+	private Modal addModals;
+	private Modal editModals;
+	private ValidateForm addForm;
+	public List<Industry> industries = new();
+	private Industry selectedIndustry = new();
+	string modalTitle = "Add Industry";
+
+	private Guid formKey = Guid.NewGuid();
+
+
+	private DateTime AllowValue = DateTime.Today;
+	private bool IsEditMode => modalTitle == "Edit Industry";
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadData();
+	}
+
+
+
+
+
+
+
+
+	private async Task LoadData()
+	{
+
+		industries = (await _services.GetAllIndustryAsync()).ToList();
+		StateHasChanged();
+	}
+
+
+
+	private async Task ShowAddModal(IEnumerable<Industry> items)
+	{
+		editModals.Close();
+		selectedIndustry = new Industry();
+		// selectedAccount.agreedate = null;
+		// selectedAccount.agreeexpire = null;
+		modalTitle = "Create New Account";
+		formKey = Guid.NewGuid();
+		addModals.Show();
+		await Task.Delay(10);
+		await InvokeAsync(StateHasChanged);
+
+	}
+
+
+
+	private async Task ShowEditModal(int item)
+	{
+		var data = await _services.GetIndustryByIdAsync(item);
+		addModals.Close();
+
+
+		selectedIndustry = new Industry
+			{
+				id = data.id,
+				industryname = data.industryname,
+				description = data.description,
+				flag = data.flag
+			};
+
+		modalTitle = "Edit Account";
+		editModals.Show();
+	}
+
+
+
+
+
+	private async Task<bool> SaveIndustry()
+	{
+		bool isExisting = !string.IsNullOrWhiteSpace(selectedIndustry.id.ToString())
+								&& industries.Any(c => c.id == selectedIndustry.id);
+
+		bool result;
+		if (isExisting)
+		{
+			result = await _services.UpdateIndustryAsync(selectedIndustry.id, selectedIndustry);
+			await _toastService.Success("Success" , "Industry updated successfully");
+		}
+		else
+		{
+			selectedIndustry.flag = 1;
+			selectedIndustry.createddate = DateTime.Now;
+			selectedIndustry.createdby = "System";
+
+			var createdIndustry = await _services.CreateIndustryAsync(selectedIndustry);
+			result = createdIndustry != null;
+			await _toastService.Success( "Success" , "Industry created successfully");
+		}
+
+		if (result)
+		{
+			addModals.Close();
+			await LoadData();
+		}
+
+		return result;
+	}
+
+
+	private async Task<bool> DeleteIndustry(int id)
+	{
+		var result = await _services.DeleteIndustryByIdAsync(id);
+		if (result)
+		{
+			await LoadData();
+		}
+		StateHasChanged();
+		return result;
+	}
+
+
+}

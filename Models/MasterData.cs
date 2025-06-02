@@ -27,6 +27,7 @@ namespace iDss.X.Models
         public String? branchcode { get; set; }
 
         [StringLength(10)]
+        [Display(Name = "Branch Type")]
         [AutoGenerateColumn(Order = 5, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? branchtype { get; set; }
 
@@ -73,11 +74,13 @@ namespace iDss.X.Models
         public String? postcode { get; set; }
 
         [StringLength(100)]
+        [Display(Name = "Latitude")]
         [Required]
         [AutoGenerateColumn(Order = 41, Visible = false, GroupName = "Location", GroupOrder = 2, ComponentType = typeof(BootstrapInput<string>))]
         public String latitude { get; set; }
 
         [StringLength(100)]
+        [Display(Name = "Longitude")]
         [Required]
         [AutoGenerateColumn(Order = 42, Visible = false, GroupName = "Location", GroupOrder = 2, ComponentType = typeof(BootstrapInput<string>))]
         public String longitude { get; set; }
@@ -114,10 +117,15 @@ namespace iDss.X.Models
         [AutoGenerateColumn(Order = 20, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? citycode { get; set; }
 
+
         public List<Courier> couriers {  get; set; } 
+
+        [NotMapped]
+        public virtual ICollection<ShipperDetail> Shippers { get; set; } = new List<ShipperDetail>();
+
+        [NotMapped]
+        public virtual ICollection<ConsigneeDetail> Consignees { get; set; } = new List<ConsigneeDetail>();
     }
-
-
 
     [Index(nameof(couriercode), IsUnique = true)]
     public class Courier : CommonField2
@@ -171,6 +179,12 @@ namespace iDss.X.Models
         [NotMapped]
         public virtual ICollection<PickupRequest> PickupRequests { get; set; } = new List<PickupRequest>();
 
+        [NotMapped]
+        public virtual ICollection<CheckpointPool> CheckpointPools { get; set; } = new List<CheckpointPool>();
+
+        [NotMapped]
+        public virtual ICollection<PickupRegular> PickupRegulars { get; set; } = new List<PickupRegular>();
+
     }
 
     public class Industry : CommonField3
@@ -186,10 +200,11 @@ namespace iDss.X.Models
         [AutoGenerateColumn(Order = 70, Cols = 12, Searchable = true, Filterable = true)]
         public String industryname { get; set; }
 
+        [Display(Name = "Description")]
         [AutoGenerateColumn(Order = 70, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
         public String? description { get; set; }
 
-        [ValidateNever]
+        [AutoGenerateColumn(Ignore = true)]
         [NotMapped]
         public virtual ICollection<CIF> CIFs { get; set; } = new List<CIF>();
 
@@ -294,7 +309,7 @@ namespace iDss.X.Models
         [Display(Name = "Term of Payment")]
         public String? termofpayment { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
+        [Column(TypeName = "decimal(18,0)")]
         [Display(Name = "Credit Limit")]
         public decimal? creditlimit { get; set; }
 
@@ -304,10 +319,11 @@ namespace iDss.X.Models
 
         public int? iscod { get; set; } = 0;
 
-        [Column(TypeName = "decimal(18,2)")]
+        [Column(TypeName = "decimal(10,2)")]
         [Display(Name = "COD Fee")]
         public decimal? feecod { get; set; }
 
+        [Display(Name = "Intl Transaction")]
         public int? isintl { get; set; } = 0;
 
         public int? isnl { get; set; } = 0;
@@ -316,8 +332,10 @@ namespace iDss.X.Models
         [Display(Name = "Discount Rates")]
         public decimal? discrates { get; set; }
 
+        [Display(Name = "DO Transaction")]
         public int? isrev { get; set; } = 0;
 
+        [Display(Name = "Trace in Apps")]
         public int? istrace { get; set; } = 0;
 
         [NotMapped]
@@ -325,6 +343,12 @@ namespace iDss.X.Models
 
         [NotMapped]
         public virtual ICollection<AccountCro> AccountCros { get; set; } = new List<AccountCro>();
+
+        [NotMapped]
+        public virtual ICollection<ShipperDetail> Shippers { get; set; } = new List<ShipperDetail>();
+
+        [NotMapped]
+        public virtual ICollection<ConsigneeDetail> Consignees { get; set; } = new List<ConsigneeDetail>();
 
     }
 
@@ -456,22 +480,25 @@ namespace iDss.X.Models
         [ForeignKey("crocode")][ValidateNever] public CRO CRO { get; set; }
     }
 
-    public class Province
+    public class Province : CommonField2
     {
-        [Key][StringLength(2)]
+        [Key]
+        [StringLength(2)]
         [Required]
         public String provid { get; set; }
 
         [StringLength(50)]
+        [Display(Name = "Province")]
         [Required]
         public String provname { get; set; }
 
     }
 
-    public class City
+    public class City : CommonField2
     {
         [Key]
         [StringLength(4)]
+        [Display(Name = "City ID")]
         [Required]
         public String cityid { get; set; }
 
@@ -492,14 +519,21 @@ namespace iDss.X.Models
         public String hubcode { get; set; }
 
 
-        [StringLength(2)][ValidateNever][Required][Display(Name = "Province")] public String provid { get; set; }
-        [ForeignKey("provid")][ValidateNever] public Province Province { get; set; }
+        [StringLength(2)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Province")] 
+        public String provid { get; set; }
+        [ForeignKey("provid")]
+        [ValidateNever] 
+        public Province Province { get; set; }
     }
 
-    public class District
+    public class District : CommonField2
     {
         [Key]
         [StringLength(6)]
+        [Display(Name = "District ID")]
         [Required]
         public String distid { get; set; }
 
@@ -508,15 +542,22 @@ namespace iDss.X.Models
         [Required]
         public String distname { get; set; }
 
-        [StringLength(4)][ValidateNever][Required][Display(Name = "City")] public String cityid { get; set; }
-        [ForeignKey("cityid")][ValidateNever] public City City { get; set; }
+        [StringLength(4)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "City")] 
+        public String cityid { get; set; }
+        [ForeignKey("cityid")]
+        [ValidateNever] 
+        public City City { get; set; }
 
     }
 
-    public class Village
+    public class Village : CommonField2
     {
         [Key]
         [StringLength(10)]
+        [Display(Name = "Village ID")]
         [Required]
         public String villid { get; set; }
 
@@ -524,14 +565,21 @@ namespace iDss.X.Models
         [Display(Name = "Village Name")]
         public String? villname { get; set; }
 
-        [StringLength(6)][ValidateNever][Required][Display(Name = "District")] public String distid { get; set; }
-        [ForeignKey("distid")] [ValidateNever] public District District { get; set; }
+        [StringLength(6)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "District")] 
+        public String distid { get; set; }
+        [ForeignKey("distid")] 
+        [ValidateNever] 
+        public District District { get; set; }
     }
 
     public class Checkpoint : CommonField3
     {
         [Key]
         [StringLength(3)]
+        [Display(Name = "Checkpoint Code")]
         [Required]
         [AutoGenerateColumn(Order = 10, Filterable = true, Searchable = true, Sortable = true, Cols = 5)]
         public string cpcode { get; set; }
@@ -543,6 +591,7 @@ namespace iDss.X.Models
         public string cpname { get; set; }
 
         [AutoGenerateColumn(Order = 70, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        [Display(Name = "Description")]
         public String? description { get; set; }
     }
 
@@ -572,24 +621,38 @@ namespace iDss.X.Models
         [Display(Name = "Address 3")]
         public string? addr3 { get; set; }
 
-        [StringLength(10)][ValidateNever][Required][Display(Name = "Village")] public String villid { get; set; }
-        [ForeignKey("villid")][ValidateNever] public Village Village { get; set; }
+        [StringLength(10)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Village")] 
+        public String villid { get; set; }
+        [ForeignKey("villid")]
+        [ValidateNever] 
+        public Village Village { get; set; }
 
-        [StringLength(50)] public String? distname { get; set; }
+        [StringLength(50)]
+        [Display(Name = "District")]
+        public String? distname { get; set; }
 
-        [StringLength(50)] public String? cityname { get; set; }
+        [StringLength(50)]
+        [Display(Name = "City")] 
+        public String? cityname { get; set; }
 
-        [StringLength(50)] public String? provname { get; set; }
+        [StringLength(50)]
+        [Display(Name = "Province")]
+        public String? provname { get; set; }
 
         [StringLength(5, ErrorMessage = "Postal Code cannot be longer than 5 characters.")]
         [Display(Name = "Postal Code")]
         public String? postcode { get; set; }
 
         [StringLength(100)]
+        [Display(Name = "Latitude")]
         [Required]
         public String latitude { get; set; }
 
         [StringLength(100)]
+        [Display(Name = "Longitude")]
         [Required]
         public String longitude { get; set; }
 
@@ -602,6 +665,7 @@ namespace iDss.X.Models
         public String? phonealt { get; set; }
 
         [StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
+        [Display(Name = "Email")]
         [Required]
         public String? email { get; set; }
 
@@ -613,23 +677,37 @@ namespace iDss.X.Models
         [Display(Name = "PIC Phone No")]
         public String? picno { get; set; }
 
-        [StringLength(3)] public String? citycode { get; set; }
+        [Display(Name = "City Code")]
+        [StringLength(3)] 
+        public String? citycode { get; set; }
 
-        [Required(ErrorMessage = "Comission Is Required")][Precision(18, 2)] public decimal comission { get; set; }
+        [Required(ErrorMessage = "Comission Is Required")]
+        [Display(Name = "Comission")]
+        [Precision(18, 2)] 
+        public decimal comission { get; set; }
 
-        [ValidateNever][Required][Display(Name = "Branch")] public int branchid { get; set; }
-        [ForeignKey("branchid")][ValidateNever] public Branch Branch { get; set; }
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Branch")] 
+        public int branchid { get; set; }
+        [ForeignKey("branchid")]
+        [ValidateNever] 
+        public Branch Branch { get; set; }
     }
 
     public class Agent : CommonField2
     {
-        [Key][DatabaseGenerated(DatabaseGeneratedOption.Identity)] public int agentid { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
+        public int agentid { get; set; }
 
         [StringLength(50, ErrorMessage = "Agent Name cannot be longer than 50 characters.")]
         [Display(Name = "Agent Name")]
         public String agentname { get; set; }
 
-        [StringLength(10)] public String? agentcode { get; set; }
+        [StringLength(10)]
+        [Display(Name = "Agent Code")]
+        public String? agentcode { get; set; }
 
         [StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
         [Display(Name = "Address")]
@@ -644,24 +722,38 @@ namespace iDss.X.Models
         [Display(Name = "Address 3")]
         public string? addr3 { get; set; }
 
-        [StringLength(10)][ValidateNever][Required][Display(Name = "Village")] public String villid { get; set; }
-        [ForeignKey("villid")][ValidateNever] public Village Village { get; set; }
+        [StringLength(10)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Village")] 
+        public String villid { get; set; }
+        [ForeignKey("villid")]
+        [ValidateNever] 
+        public Village Village { get; set; }
 
-        [StringLength(50)] public String? distname { get; set; }
+        [StringLength(50)]
+        [Display(Name = "District")]
+        public String? distname { get; set; }
 
-        [StringLength(50)] public String? cityname { get; set; }
+        [StringLength(50)]
+        [Display(Name = "City")]
+        public String? cityname { get; set; }
 
-        [StringLength(50)] public String? provname { get; set; }
+        [StringLength(50)]
+        [Display(Name = "Province")]
+        public String? provname { get; set; }
 
         [StringLength(5, ErrorMessage = "Postal Code cannot be longer than 5 characters.")]
         [Display(Name = "Postal Code")]
         public String? postcode { get; set; }
 
         [StringLength(100)]
+        [Display(Name = "Latitude")]
         [Required]
         public String latitude { get; set; }
 
         [StringLength(100)]
+        [Display(Name = "Longitude")]
         [Required]
         public String longitude { get; set; }
 
@@ -674,6 +766,7 @@ namespace iDss.X.Models
         public String? phonealt { get; set; }
 
         [StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
+        [Display(Name = "Email")]
         [Required]
         public String? email { get; set; }
 
@@ -685,11 +778,254 @@ namespace iDss.X.Models
         [Display(Name = "PIC Phone No")]
         public String? picno { get; set; }
 
-        [StringLength(3)] public String? citycode { get; set; }
+        [StringLength(3)]
+        [Display(Name = "City Code")] 
+        public String? citycode { get; set; }
 
-        [Required(ErrorMessage = "Comission Is Required")][Precision(18, 2)] public decimal comission { get; set; }
+        [Required(ErrorMessage = "Comission Is Required")]
+        [Precision(18, 2)] 
+        public decimal comission { get; set; }
 
-        [ValidateNever][Required][Display(Name = "Branch")] public int branchid { get; set; }
-        [ForeignKey("branchid")][ValidateNever] public Branch Branch { get; set; }
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Branch")] 
+        public int branchid { get; set; }
+        [ForeignKey("branchid")]
+        [ValidateNever] 
+        public Branch Branch { get; set; }
+    }
+
+    public class CostComponent : CommonField3
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [AutoGenerateColumn(Ignore = true)]
+        public int id { get; set; }
+
+        [StringLength(100)]
+        [Required]
+        [Display(Name = "Component Name")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string componentname { get; set; }
+
+        [StringLength(6)]
+        [Required]
+        [Display(Name = "Type")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Filterable = true)]
+        public string type { get; set; }
+
+        [StringLength(300, ErrorMessage = "Description cannot be longer than 300 characters.")]
+        [Display(Name = "Description")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? description { get; set; }
+
+        [Required]
+        [Display(Name = "System Data")]
+        [AutoGenerateColumn(Ignore = true)] 
+        public int issystem { get; set; } = 0;
+    }
+
+    public class Relation : CommonField3
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [AutoGenerateColumn(Ignore = true)]
+        public int id { get; set; }
+
+        [StringLength(50, ErrorMessage = "Relation Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Relation Name")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string relationname { get; set; }
+
+        [StringLength(5, ErrorMessage = "Relation Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Relation Code")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Searchable = true, Filterable = true)]
+        public string relationcode { get; set; }
+
+        [StringLength(100, ErrorMessage = "Remarks cannot be longer than 100 characters.")]
+        [Display(Name = "Remarks")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? remarks { get; set; }
+
+    }
+
+    public class ReasonUN : CommonField3
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [AutoGenerateColumn(Ignore = true)]
+        public int id { get; set; }
+
+        [StringLength(50, ErrorMessage = "Reason Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Reason Name")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string reasonname { get; set; }
+
+        [StringLength(5, ErrorMessage = "Reason Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Reason Code")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Searchable = true, Filterable = true)]
+        public string reasoncode { get; set; }
+
+        [StringLength(100, ErrorMessage = "Remarks cannot be longer than 100 characters.")]
+        [Display(Name = "Remarks")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? remarks { get; set; }
+
+    }
+
+    public class Service : CommonField2
+    {
+        [Key]
+        [StringLength(5, ErrorMessage = "Service Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Service Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string servicecode { get; set; }
+
+        [StringLength(30, ErrorMessage = "Service Name cannot be longer than 30 characters.")]
+        [Required]
+        [Display(Name = "Service Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Searchable = true, Filterable = true)]
+        public string servicename { get; set; }
+
+        [StringLength(100, ErrorMessage = "Remarks cannot be longer than 100 characters.")]
+        [Display(Name = "Remarks")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? remarks { get; set; }
+
+    }
+
+    public class PackingType: CommonField2
+    {
+        [Key]
+        [StringLength(5, ErrorMessage = "Packing Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Packing Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string packingcode { get; set; }
+
+        [StringLength(30, ErrorMessage = "Packing Name cannot be longer than 30 characters.")]
+        [Required]
+        [Display(Name = "Packing Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Searchable = true, Filterable = true)]
+        public string packingname { get; set; }
+
+        [StringLength(100, ErrorMessage = "Remarks cannot be longer than 100 characters.")]
+        [Display(Name = "Remarks")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? remarks { get; set; }
+
+    }
+
+    public class Country : CommonField3
+    {
+        [Key]
+        [StringLength(3, ErrorMessage = "Country Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Country Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 6, Searchable = true, Filterable = true)]
+        public string countrycode { get; set; }
+
+        [StringLength(50, ErrorMessage = "Country Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Country Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 6, Searchable = true, Filterable = true)]
+        public string countryname { get; set; }
+
+        [StringLength(3, ErrorMessage = "ISO Alpha3 cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "ISO Alpha3")]
+        [AutoGenerateColumn(Order = 30, Cols = 6, Searchable = true, Filterable = true)]
+        public string isoalpha3 { get; set; }
+
+        [StringLength(3, ErrorMessage = "Phone Code cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Phone Code")]
+        [AutoGenerateColumn(Order = 40, Cols = 6)]
+        public string phonecode { get; set; }
+
+    }
+
+    public class CityIntl : CommonField2
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+
+        [StringLength(50, ErrorMessage = "City Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "City Name")]
+        public string cityname { get; set; }
+
+        [StringLength(5, ErrorMessage = "City Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "City Code")]
+        public string citycode { get; set; }
+
+        [StringLength(100, ErrorMessage = "Airport cannot be longer than 100 characters.")]
+        [Display(Name = "Airport")]
+        public string? airport { get; set; }
+
+        [StringLength(3)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Country")]
+        public String countrycode { get; set; }
+        [ForeignKey("countrycode")]
+        [ValidateNever]
+        public Country Country { get; set; }
+
+        [StringLength(30, ErrorMessage = "Region be longer than 30 characters.")]
+        [Display(Name = "Region")]
+        public string? region { get; set; }
+
+        [StringLength(10, ErrorMessage = "Zone 3PL 1 be longer than 10 characters.")]
+        [Display(Name = "Zone 3PL 1")]
+        public string? zone3pl1 { get; set; }
+
+        [StringLength(10, ErrorMessage = "Zone 3PL 2 be longer than 10 characters.")]
+        [Display(Name = "Zone 3PL 2")]
+        public string? zone3pl2 { get; set; }
+
+        [StringLength(10, ErrorMessage = "Zone 3PL 3 be longer than 10 characters.")]
+        [Display(Name = "Zone 3PL 3")]
+        public string? zone3pl3 { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Disc 3PL 1")]
+        public decimal? disc3pl1 { get; set; } = 0;
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Disc 3PL 2")]
+        public decimal? disc3pl2 { get; set; } = 0;
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Disc 3PL 3")]
+        public decimal? disc3pl3 { get; set; } = 0;
+    }
+
+    public class PostCode : CommonField2
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+
+        [StringLength(10, ErrorMessage = "Postal Code cannot be longer than 10 characters.")]
+        [Required]
+        [Display(Name = "Postal Code")]
+        public string postcode { get; set; }
+
+        [StringLength(10)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Village")]
+        public String villid { get; set; }
+        [ForeignKey("villid")]
+        [ValidateNever]
+        public Village Village { get; set; }
     }
 }

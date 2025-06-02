@@ -1,0 +1,283 @@
+﻿@page "/master/district"
+@using iDss.X.Models
+@inject ToastService _toastService
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "District")]
+
+<PageTitle>District Page</PageTitle>
+
+
+@if (districts!= null)
+{
+	<Row ItemsPerRow="ItemsPerRow.One">
+		<Row ItemsPerRow="ItemsPerRow.Two">
+			<Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+				<StackItem><h5>District</h5></StackItem>
+			</Stack>
+		</Row>
+
+		<Table  IsPagination="true" @ref="districtTable" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryDistrictAsync"
+		IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+		ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+		ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+
+			<TableToolbarTemplate>
+				<TableToolbarButton TItem="District" Color="Color.Primary" Icon="fa-solid fa-plus"
+				Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
+			</TableToolbarTemplate>
+
+			<TableColumns>
+				<TableColumn @bind-Field="@context.distid" Searchable="true" />
+				<TableColumn @bind-Field="@context.distname" Searchable="true" />
+				<TableColumn @bind-Field="@context.cityid" Searchable="true" />
+
+
+				<TableColumn @bind-Field="@context.distid" Text="">
+					<Template Context="item">
+						<div class="d-grip gap-2 d-md-block">
+							<Button Text="Edit" OnClick="() => ShowEditModal(item.Row.distid)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+							<PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+							Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+							IsAsync="true" OnConfirm="() => DeleteDistrict(item.Row.distid)"></PopConfirmButton>
+						</div>
+					</Template>
+				</TableColumn>
+
+
+			</TableColumns>
+
+
+
+
+
+
+		</Table>
+	</Row>
+}
+else
+{
+	<h5>Loading...</h5>
+}
+
+
+<Modal @ref="addModals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveDistrict">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedDistrict" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<Select TValue="string"
+					Items="cityItems"
+					@bind-Value="SelectedCity"
+					DisplayText="City:"
+							ShowLabel="true" ShowSearch="true" />
+					<BootstrapInput TValue="string" @bind-Value="selectedDistrict.distname" DisplayText="District Name" ShowLabel="true"></BootstrapInput>		
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+<Modal @ref="editModals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveDistrict">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedDistrict" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<Select TValue="string"
+					Items="cityItems"
+					@bind-Value="SelectedCity"
+					DisplayText="City:"
+							ShowLabel="true" ShowSearch="true" />
+					<BootstrapInput TValue="string" @bind-Value="selectedDistrict.distid" DisplayText="District ID" IsDisabled="true" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedDistrict.distname" DisplayText="District Name" ShowLabel="true"></BootstrapInput>
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+
+@code {
+	private Modal addModals;
+	private Modal editModals;
+	private ValidateForm addForm;
+	private Table<District> districtTable;
+
+	public List<District> districts = new();
+	private List<City> CityItems { get; set; } = new();
+	private List<SelectedItem> cityItems = new();
+	private Guid formKey = Guid.NewGuid();
+	private string selectedCity;
+
+
+	private bool isEditMode = false;
+	private bool isModalOpen = false;
+	private string modalTitle = "Add District";
+	private District selectedDistrict = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadData();
+		await LoadCity();
+	}
+
+
+
+
+	private async Task LoadData()
+	{
+		districts = await _services.GetDistrictAsync();
+
+		CityItems = await _services.GetCityAsync();
+
+		StateHasChanged();
+	}
+
+
+	private async Task LoadCity()
+	{
+		var dataCity = await _services.GetCityAsync();
+
+		cityItems = dataCity.Select(c => new SelectedItem
+			{
+				Value = c.cityid,
+				Text = $"{c.cityid} | {c.cityname}"
+			}).ToList();
+
+		cityItems.Insert(0, new SelectedItem { Text = "Please Select...", Value="0"});
+	}
+
+
+
+	private async Task ShowAddModal(IEnumerable<District> items)
+	{
+
+		modalTitle = "Create New District";
+		selectedDistrict = new District();
+		SelectedCity = "0";
+		await addModals.Show();
+		await Task.Delay(10);
+		await InvokeAsync(StateHasChanged);
+	}
+
+
+	private async Task ShowEditModal(string distid)
+	{
+		var data = await _services.GetDistrictByDistrictId(distid);
+		selectedDistrict = new District
+		{
+				distid = data.distid,
+				distname    = data.distname,
+				cityid    = data.cityid,
+		};
+		selectedCity = selectedDistrict.cityid;
+		modalTitle = "Edit District";
+		editModals.Show();
+		StateHasChanged();
+	}
+
+	private string SelectedCity
+	{
+		get => selectedCity;
+		set
+		{
+			if (selectedCity != value)
+			{
+				selectedCity = value;
+				selectedDistrict.cityid = value;
+			}
+		}
+	}
+
+
+	private async Task<string> GenerateDistrictId(string cityid)
+	{
+		var districtInCity = districts.Where(c => c.cityid == cityid).ToList(); 
+
+		int maxSuffix = 0;
+
+		foreach(var district in districtInCity)
+		{
+			if (district.distid.StartsWith(cityid))
+			{
+				var suffixStr = district.distid.Substring(cityid.Length);
+				if (int.TryParse(suffixStr, out int suffixNum))
+				{
+					if(suffixNum > maxSuffix)
+					{
+						maxSuffix = suffixNum;
+					}
+				}
+			}
+		}
+
+		int newSuffix = maxSuffix + 1;
+		string newDistrictId = $"{cityid}{newSuffix.ToString("D2")}";
+
+
+		return newDistrictId;
+
+	}
+
+
+
+	private async Task<bool> SaveDistrict()
+	{
+
+		if (string.IsNullOrWhiteSpace(selectedDistrict.cityid) || selectedDistrict.cityid == "0")
+		{
+			await _toastService.Error("Validation Error", "Please select a valid city.");
+			return false;
+		}
+
+		bool isExisting = !string.IsNullOrWhiteSpace(selectedDistrict.distid)
+						&& districts.Any(c => c.distid == selectedDistrict.distid);
+
+		bool result;
+		if (isExisting)
+		{
+			result = await _services.UpdateDistrictAsync(selectedDistrict.distid, selectedDistrict);
+			await _toastService.Success("Success", "District updated successfully");
+		}
+		else
+		{
+			if (string.IsNullOrWhiteSpace(selectedDistrict.distid))
+			{
+				selectedDistrict.distid = await GenerateDistrictId(selectedCity);
+			}
+			var createdDistrict = await _services.CreateDistrictAsync(selectedDistrict);
+			result = createdDistrict != null;
+			await _toastService.Success("Success", "Industry created successfully");
+		}
+
+		if (result)
+		{
+			addModals.Close();
+			editModals.Close();
+			await districtTable.QueryAsync();
+		}
+
+		return result;
+	}
+
+
+	private async Task<bool> DeleteDistrict(string distid)
+	{
+		var result = await _services.DeleteDistrictAsync(distid);
+		if (result)
+		{
+			await districtTable.QueryAsync();
+			await _toastService.Success("Success", "Village deleted successfully");
+		}
+		StateHasChanged();
+		return result;
+	}
+
+
+
+
+
+}

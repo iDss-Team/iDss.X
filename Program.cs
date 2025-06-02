@@ -29,8 +29,7 @@ builder.Configuration
 // Cek Environment Name (Debugging)
 Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 
-builder.Services.AddDbContextFactory<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddDbContextFactory<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 builder.Services.AddDbContext<AuthDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("AuthDbConnection")));
 
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();

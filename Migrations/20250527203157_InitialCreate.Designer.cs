@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using iDss.X.Data;
 
@@ -11,9 +12,11 @@ using iDss.X.Data;
 namespace iDss.X.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250527203157_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -721,84 +724,6 @@ namespace iDss.X.Migrations
                         },
                         new
                         {
-                            menuid = "2.2.6",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-people-arrows",
-                            menuname = "Relation Code",
-                            menusort = 6,
-                            moduleid = "102",
-                            parentid = "2.2",
-                            path = "/master/relation"
-                        },
-                        new
-                        {
-                            menuid = "2.2.7",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-road-circle-exclamation",
-                            menuname = "Reason fo Undelivered",
-                            menusort = 7,
-                            moduleid = "102",
-                            parentid = "2.2",
-                            path = "/master/reasonun"
-                        },
-                        new
-                        {
-                            menuid = "2.2.8",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-bell-concierge",
-                            menuname = "Service Code",
-                            menusort = 8,
-                            moduleid = "102",
-                            parentid = "2.2",
-                            path = "/master/service"
-                        },
-                        new
-                        {
-                            menuid = "2.2.9",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-boxes-packing",
-                            menuname = "Packing Type",
-                            menusort = 9,
-                            moduleid = "102",
-                            parentid = "2.2",
-                            path = "/master/packingtype"
-                        },
-                        new
-                        {
-                            menuid = "2.2.10",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-filter-circle-dollar",
-                            menuname = "Cost Component",
-                            menusort = 10,
-                            moduleid = "102",
-                            parentid = "2.2",
-                            path = "/master/costcomponent"
-                        },
-                        new
-                        {
-                            menuid = "2.2.11",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-circle-dollar-to-slot",
-                            menuname = "Payment Gateway",
-                            menusort = 11,
-                            moduleid = "102",
-                            parentid = "2.2",
-                            path = "/master/paymentgateway"
-                        },
-                        new
-                        {
                             menuid = "2.3",
                             createdby = "System",
                             createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -872,71 +797,6 @@ namespace iDss.X.Migrations
                             moduleid = "102",
                             parentid = "2.4",
                             path = "/master/cro"
-                        },
-                        new
-                        {
-                            menuid = "2.5",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-map-location-dot",
-                            menuname = "Area",
-                            menusort = 5,
-                            moduleid = "102",
-                            parentid = "",
-                            path = ""
-                        },
-                        new
-                        {
-                            menuid = "2.5.1",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-mountain-city",
-                            menuname = "Province",
-                            menusort = 1,
-                            moduleid = "102",
-                            parentid = "2.5",
-                            path = "/master/province"
-                        },
-                        new
-                        {
-                            menuid = "2.5.2",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-tree-city",
-                            menuname = "City",
-                            menusort = 2,
-                            moduleid = "102",
-                            parentid = "2.5",
-                            path = "/master/city"
-                        },
-                        new
-                        {
-                            menuid = "2.5.3",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-bridge-circle-exclamation",
-                            menuname = "District",
-                            menusort = 3,
-                            moduleid = "102",
-                            parentid = "2.5",
-                            path = "/master/district"
-                        },
-                        new
-                        {
-                            menuid = "2.5.4",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            icon = "fa-solid fa-diamond",
-                            menuname = "Village",
-                            menusort = 4,
-                            moduleid = "102",
-                            parentid = "2.5",
-                            path = "/master/village"
                         },
                         new
                         {
@@ -8597,83 +8457,6 @@ namespace iDss.X.Migrations
                         });
                 });
 
-            modelBuilder.Entity("iDss.X.Models.CityIntl", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<string>("airport")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("citycode")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("cityname")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("countrycode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("disc3pl1")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<decimal?>("disc3pl2")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<decimal?>("disc3pl3")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("modifieddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("modifier")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("region")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("zone3pl1")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("zone3pl2")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("zone3pl3")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("countrycode");
-
-                    b.ToTable("mdt_cityintl");
-                });
-
             modelBuilder.Entity("iDss.X.Models.CneeDirectory", b =>
                 {
                     b.Property<int>("id")
@@ -8923,13 +8706,10 @@ namespace iDss.X.Migrations
                     b.Property<int>("flag")
                         .HasColumnType("int");
 
-                    b.Property<int>("issystem")
-                        .HasColumnType("int");
-
                     b.Property<string>("type")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.HasKey("id");
 
@@ -9103,43 +8883,6 @@ namespace iDss.X.Migrations
                     b.ToTable("mdt_counter");
                 });
 
-            modelBuilder.Entity("iDss.X.Models.Country", b =>
-                {
-                    b.Property<string>("countrycode")
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<string>("countryname")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<string>("isoalpha3")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<string>("phonecode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.HasKey("countrycode");
-
-                    b.ToTable("mdt_country");
-                });
-
             modelBuilder.Entity("iDss.X.Models.Courier", b =>
                 {
                     b.Property<string>("nip")
@@ -9290,44 +9033,6 @@ namespace iDss.X.Migrations
                     b.HasKey("id");
 
                     b.ToTable("mdt_industry");
-                });
-
-            modelBuilder.Entity("iDss.X.Models.PackingType", b =>
-                {
-                    b.Property<string>("packingcode")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("modifieddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("modifier")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("packingname")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("remarks")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("packingcode");
-
-                    b.ToTable("mdt_packingtype");
                 });
 
             modelBuilder.Entity("iDss.X.Models.PaymentDetail", b =>
@@ -9701,49 +9406,6 @@ namespace iDss.X.Migrations
                     b.HasIndex("pickupno");
 
                     b.ToTable("pum_pickupstatuspool");
-                });
-
-            modelBuilder.Entity("iDss.X.Models.PostCode", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("modifieddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("modifier")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("postcode")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("villid")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("villid");
-
-                    b.ToTable("mdt_postcode");
                 });
 
             modelBuilder.Entity("iDss.X.Models.Province", b =>
@@ -10130,44 +9792,6 @@ namespace iDss.X.Migrations
                     b.ToTable("mdt_relation");
                 });
 
-            modelBuilder.Entity("iDss.X.Models.Service", b =>
-                {
-                    b.Property<string>("servicecode")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("modifieddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("modifier")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("remarks")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("servicename")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("servicecode");
-
-                    b.ToTable("mdt_service");
-                });
-
             modelBuilder.Entity("iDss.X.Models.ShipmentDetail", b =>
                 {
                     b.Property<long>("id")
@@ -10256,7 +9880,7 @@ namespace iDss.X.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("itemvalue")
-                        .HasColumnType("decimal(18,0)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("linehaul")
                         .IsRequired()
@@ -10587,6 +10211,9 @@ namespace iDss.X.Migrations
                     b.Property<int>("branchid")
                         .HasColumnType("int");
 
+                    b.Property<int>("branchori")
+                        .HasColumnType("int");
+
                     b.Property<string>("createdby")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -10615,7 +10242,7 @@ namespace iDss.X.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("requestpoint")
+                    b.Property<string>("reqisuestpoint")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -10842,17 +10469,6 @@ namespace iDss.X.Migrations
                     b.Navigation("Province");
                 });
 
-            modelBuilder.Entity("iDss.X.Models.CityIntl", b =>
-                {
-                    b.HasOne("iDss.X.Models.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("countrycode")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Country");
-                });
-
             modelBuilder.Entity("iDss.X.Models.CneeDirectory", b =>
                 {
                     b.HasOne("iDss.X.Models.District", "District")
@@ -11049,17 +10665,6 @@ namespace iDss.X.Migrations
                         .IsRequired();
 
                     b.Navigation("PickupRequest");
-                });
-
-            modelBuilder.Entity("iDss.X.Models.PostCode", b =>
-                {
-                    b.HasOne("iDss.X.Models.Village", "Village")
-                        .WithMany()
-                        .HasForeignKey("villid")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Village");
                 });
 
             modelBuilder.Entity("iDss.X.Models.ShipmentDetail", b =>

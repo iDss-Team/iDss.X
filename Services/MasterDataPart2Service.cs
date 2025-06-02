@@ -180,12 +180,13 @@ namespace iDss.X.Services
             return result;
         }
 
+        private static readonly ConcurrentDictionary<Type, Func<IEnumerable<Courier>, string, SortOrder, IEnumerable<Courier>>> SortLambdaCache = new();
+
         public async Task<QueryData<Courier>> OnQueryCourierAsync(QueryPageOptions options)
         {
             //var items = _db.mdt_branch.ToList();
             // Ambil data dari database
             var items = await GetCourierAsync();
-
 
             var isSearched = false;
             // Memproses kueri tingkat lanjut.
@@ -218,15 +219,15 @@ namespace iDss.X.Services
                 isFiltered = true;
             }
 
-            //// Pengurutan
-            //var isSorted = false;
-            //if (!string.IsNullOrEmpty(options.SortName))
-            //{
-            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
-            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
-            //    items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
-            //    isSorted = true;
-            //}
+            // Pengurutan
+            var isSorted = false;
+            if (!string.IsNullOrEmpty(options.SortName))
+            {
+                // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+                var invoker = SortLambdaCache.GetOrAdd(typeof(Courier), key => LambdaExtensions.GetSortLambda<Courier>().Compile());
+                items = (List<Courier>)invoker(items, options.SortName, options.SortOrder);
+                isSorted = true;
+            }
 
             var total = items.Count();
 
@@ -260,6 +261,12 @@ namespace iDss.X.Services
         public async Task<Courier> GetCourierByIDAsync(string id)
         {
             var result = _db.mdt_courier.FindAsync(id);
+            return await result;
+        }
+
+        public async Task<Courier?> GetCourierByCodeAsync(string? code)
+        {
+            var result = _db.mdt_courier.FirstOrDefaultAsync(p => p.couriercode == code);
             return await result;
         }
 
@@ -353,6 +360,29 @@ namespace iDss.X.Services
             {
                 return false;
             }
+        }
+
+        public async Task<bool> DeleteCourierByIDAsync(string id)
+        {
+            bool result;
+            try
+            {
+                var affectedRows = await _db.mdt_courier.Where(x => x.nip.Equals(id)).ExecuteDeleteAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("23503"))
+                {
+                    //msg = "Cannot delete: This record is linked to other data already.";
+                    result = false;
+                }
+                else
+                {
+                    result = false;
+                }
+            }
+            return result;
         }
         #endregion
 

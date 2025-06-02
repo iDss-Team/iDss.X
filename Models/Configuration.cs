@@ -58,7 +58,7 @@ namespace iDss.X.Models
     {
         [Key][StringLength(10)] public String menuid { get; set; }
 
-        [StringLength(30)] public String menuname { get; set; }
+        [StringLength(50)] public String menuname { get; set; }
 
         [StringLength(100)] public String? path { get; set; }
 

@@ -1,0 +1,32 @@
+﻿@page "/master/province"
+@using iDss.X.Models
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "Province")]
+
+
+<PageTitle>Province</PageTitle>
+
+<Row ItemsPerRow="ItemsPerRow.One">
+	<Row ItemsPerRow="ItemsPerRow.Two">
+		<Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+			<StackItem>
+				<h5>Province</h5>
+			</StackItem>
+		</Stack>
+	</Row>
+	<Table TItem="Province" OnQueryAsync="@_services.OnQueryProvinceAsync" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
+		   IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
+		   EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" OnSaveAsync="@_services.SaveProvinceAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteProvinceByIDAsync">
+	</Table>
+
+
+
+
+</Row>
+
+
+
+@code {
+
+
+}
