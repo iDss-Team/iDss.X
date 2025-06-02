@@ -40,6 +40,9 @@ namespace iDss.X.Data
         public DbSet<ReasonUN> mdt_reasonun { get; set; }
         public DbSet<Service> mdt_service { get; set; }
         public DbSet<PackingType> mdt_packingtype { get; set; }
+        public DbSet<Country> mdt_country { get; set; }
+        public DbSet<CityIntl> mdt_cityintl { get; set; }
+        public DbSet<PostCode> mdt_postcode { get; set; }
 
 
         //Pickup

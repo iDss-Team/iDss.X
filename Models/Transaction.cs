@@ -100,7 +100,7 @@ namespace iDss.X.Models
         [Required]
         public string content { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
+        [Column(TypeName = "decimal(18,0)")]
         [Display(Name = "Item Value")]
         public decimal? itemvalue { get; set; }
 
@@ -665,13 +665,13 @@ namespace iDss.X.Models
         [ValidateNever]
         [Required]
         [Display(Name = "Branch")]
-        public int branchori { get; set; }
+        public int branchid { get; set; }
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
 
         [StringLength(50)]
-        public string? reqisuestpoint { get; set; }
+        public string? requestpoint { get; set; }
 
         [StringLength(200)]
         [Display(Name = "Reason")]
