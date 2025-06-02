@@ -808,7 +808,7 @@ namespace iDss.X.Models
         [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
         public string componentname { get; set; }
 
-        [StringLength(5)]
+        [StringLength(6)]
         [Required]
         [Display(Name = "Type")]
         [AutoGenerateColumn(Order = 20, Cols = 12, Filterable = true)]
@@ -818,6 +818,11 @@ namespace iDss.X.Models
         [Display(Name = "Description")]
         [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
         public string? description { get; set; }
+
+        [Required]
+        [Display(Name = "System Data")]
+        [AutoGenerateColumn(Ignore = true)] 
+        public int issystem { get; set; } = 0;
     }
 
     public class Relation : CommonField3
@@ -914,5 +919,113 @@ namespace iDss.X.Models
         [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
         public string? remarks { get; set; }
 
+    }
+
+    public class Country : CommonField3
+    {
+        [Key]
+        [StringLength(3, ErrorMessage = "Country Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Country Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 6, Searchable = true, Filterable = true)]
+        public string countrycode { get; set; }
+
+        [StringLength(50, ErrorMessage = "Country Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Country Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 6, Searchable = true, Filterable = true)]
+        public string countryname { get; set; }
+
+        [StringLength(3, ErrorMessage = "ISO Alpha3 cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "ISO Alpha3")]
+        [AutoGenerateColumn(Order = 30, Cols = 6, Searchable = true, Filterable = true)]
+        public string isoalpha3 { get; set; }
+
+        [StringLength(3, ErrorMessage = "Phone Code cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Phone Code")]
+        [AutoGenerateColumn(Order = 40, Cols = 6)]
+        public string phonecode { get; set; }
+
+    }
+
+    public class CityIntl : CommonField2
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+
+        [StringLength(50, ErrorMessage = "City Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "City Name")]
+        public string cityname { get; set; }
+
+        [StringLength(5, ErrorMessage = "City Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "City Code")]
+        public string citycode { get; set; }
+
+        [StringLength(100, ErrorMessage = "Airport cannot be longer than 100 characters.")]
+        [Display(Name = "Airport")]
+        public string? airport { get; set; }
+
+        [StringLength(3)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Country")]
+        public String countrycode { get; set; }
+        [ForeignKey("countrycode")]
+        [ValidateNever]
+        public Country Country { get; set; }
+
+        [StringLength(30, ErrorMessage = "Region be longer than 30 characters.")]
+        [Display(Name = "Region")]
+        public string? region { get; set; }
+
+        [StringLength(10, ErrorMessage = "Zone 3PL 1 be longer than 10 characters.")]
+        [Display(Name = "Zone 3PL 1")]
+        public string? zone3pl1 { get; set; }
+
+        [StringLength(10, ErrorMessage = "Zone 3PL 2 be longer than 10 characters.")]
+        [Display(Name = "Zone 3PL 2")]
+        public string? zone3pl2 { get; set; }
+
+        [StringLength(10, ErrorMessage = "Zone 3PL 3 be longer than 10 characters.")]
+        [Display(Name = "Zone 3PL 3")]
+        public string? zone3pl3 { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Disc 3PL 1")]
+        public decimal? disc3pl1 { get; set; } = 0;
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Disc 3PL 2")]
+        public decimal? disc3pl2 { get; set; } = 0;
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Disc 3PL 3")]
+        public decimal? disc3pl3 { get; set; } = 0;
+    }
+
+    public class PostCode : CommonField2
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+
+        [StringLength(10, ErrorMessage = "Postal Code cannot be longer than 10 characters.")]
+        [Required]
+        [Display(Name = "Postal Code")]
+        public string postcode { get; set; }
+
+        [StringLength(10)]
+        [ValidateNever]
+        [Required]
+        [Display(Name = "Village")]
+        public String villid { get; set; }
+        [ForeignKey("villid")]
+        [ValidateNever]
+        public Village Village { get; set; }
     }
 }
