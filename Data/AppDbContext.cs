@@ -40,6 +40,8 @@ namespace iDss.X.Data
         public DbSet<ReasonUN> mdt_reasonun { get; set; }
         public DbSet<Service> mdt_service { get; set; }
         public DbSet<PackingType> mdt_packingtype { get; set; }
+        public DbSet<PackingSize> mdt_packingsize { get; set; }
+        public DbSet<PackingPrice> mdt_packingprice { get; set; }
         public DbSet<Country> mdt_country { get; set; }
         public DbSet<CityIntl> mdt_cityintl { get; set; }
         public DbSet<PostCode> mdt_postcode { get; set; }
@@ -92,6 +94,7 @@ namespace iDss.X.Data
             modelBuilder.ApplyConfiguration(new PaymentDetailConfiguration());
             modelBuilder.ApplyConfiguration(new VoidTransactionConfiguration());
             modelBuilder.ApplyConfiguration(new CheckpointPoolConfiguration());
+            modelBuilder.ApplyConfiguration(new PackingPriceConfiguration());
 
             //Seed table app_module
             modelBuilder.SeedAppModuleCtg();
