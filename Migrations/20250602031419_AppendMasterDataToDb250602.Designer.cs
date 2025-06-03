@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using iDss.X.Data;
 
@@ -11,9 +12,11 @@ using iDss.X.Data;
 namespace iDss.X.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250602031419_AppendMasterDataToDb250602")]
+    partial class AppendMasterDataToDb250602
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -9292,94 +9295,6 @@ namespace iDss.X.Migrations
                     b.ToTable("mdt_industry");
                 });
 
-            modelBuilder.Entity("iDss.X.Models.PackingPrice", b =>
-                {
-                    b.Property<string>("packingcode")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("sizecode")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("price")
-                        .HasColumnType("decimal(10,0)");
-
-                    b.HasKey("packingcode", "sizecode");
-
-                    b.HasIndex("sizecode");
-
-                    b.ToTable("mdt_packingprice");
-                });
-
-            modelBuilder.Entity("iDss.X.Models.PackingSize", b =>
-                {
-                    b.Property<string>("sizecode")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<string>("createdby")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("createddate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("flag")
-                        .HasColumnType("int");
-
-                    b.Property<string>("remarks")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("sizename")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("sizecode");
-
-                    b.ToTable("mdt_packingsize");
-
-                    b.HasData(
-                        new
-                        {
-                            sizecode = "X",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            remarks = "",
-                            sizename = "Small"
-                        },
-                        new
-                        {
-                            sizecode = "m",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            remarks = "",
-                            sizename = "Medium"
-                        },
-                        new
-                        {
-                            sizecode = "l",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            remarks = "",
-                            sizename = "Large"
-                        });
-                });
-
             modelBuilder.Entity("iDss.X.Models.PackingType", b =>
                 {
                     b.Property<string>("packingcode")
@@ -9416,44 +9331,6 @@ namespace iDss.X.Migrations
                     b.HasKey("packingcode");
 
                     b.ToTable("mdt_packingtype");
-
-                    b.HasData(
-                        new
-                        {
-                            packingcode = "101",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            packingname = "Bubble Wrap",
-                            remarks = ""
-                        },
-                        new
-                        {
-                            packingcode = "102",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            packingname = "Kardus (Box)",
-                            remarks = ""
-                        },
-                        new
-                        {
-                            packingcode = "103",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            packingname = "Kayu",
-                            remarks = ""
-                        },
-                        new
-                        {
-                            packingcode = "104",
-                            createdby = "System",
-                            createddate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            flag = 1,
-                            packingname = "Styrofoam",
-                            remarks = ""
-                        });
                 });
 
             modelBuilder.Entity("iDss.X.Models.PaymentDetail", b =>
@@ -11074,25 +10951,6 @@ namespace iDss.X.Migrations
                     b.Navigation("City");
                 });
 
-            modelBuilder.Entity("iDss.X.Models.PackingPrice", b =>
-                {
-                    b.HasOne("iDss.X.Models.PackingType", "PackingType")
-                        .WithMany("PackingPrices")
-                        .HasForeignKey("packingcode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("iDss.X.Models.PackingSize", "PackingSize")
-                        .WithMany("PackingPrices")
-                        .HasForeignKey("sizecode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PackingSize");
-
-                    b.Navigation("PackingType");
-                });
-
             modelBuilder.Entity("iDss.X.Models.PaymentDetail", b =>
                 {
                     b.HasOne("iDss.X.Models.ShipmentDetail", "ShipmentDetail")
@@ -11323,16 +11181,6 @@ namespace iDss.X.Migrations
             modelBuilder.Entity("iDss.X.Models.Industry", b =>
                 {
                     b.Navigation("CIFs");
-                });
-
-            modelBuilder.Entity("iDss.X.Models.PackingSize", b =>
-                {
-                    b.Navigation("PackingPrices");
-                });
-
-            modelBuilder.Entity("iDss.X.Models.PackingType", b =>
-                {
-                    b.Navigation("PackingPrices");
                 });
 
             modelBuilder.Entity("iDss.X.Models.PickupRequest", b =>

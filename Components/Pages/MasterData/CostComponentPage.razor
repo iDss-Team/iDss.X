@@ -1,0 +1,25 @@
+﻿@page "/master/costcomponent"
+@using iDss.X.Models
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "Cost Component")]
+
+<PageTitle>Cost Component</PageTitle>
+
+<Row ItemsPerRow="ItemsPerRow.One">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>Cost Component</h5>
+            </StackItem>
+        </Stack>
+    </Row>
+    <Table TItem="CostComponent" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
+           IsStriped="true" IsBordered="true" OnQueryAsync="@_services.OnQueryCostComponentAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
+           EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" OnSaveAsync="@_services.SaveCostComponentAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteCostComponentByIDAsync">
+    </Table>
+</Row>
+
+@code {
+
+
+}
