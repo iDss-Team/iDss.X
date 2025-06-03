@@ -1,0 +1,37 @@
+﻿::deep .form-control {
+    height: 30px;
+    font-weight: 600;
+    font-size: 12px;
+    border-radius: 4px;
+    min-width: 120px;
+}
+
+::deep .custom-width .form-control {
+    width: 100px;
+}
+
+::deep .form-label {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+::deep .g-3 {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 0.2rem;
+}
+
+::deep .btn-danger {
+    --bs-btn-font-size: 0.780rem;
+    --bb-btn-label-margin-left: 0px;
+}
+
+/*override css checkbox shipmnet detail*/
+/*::deep .custom-chekbox .form-check-input {
+    margin-left: 30px;
+}*/
+
+.origin-code {
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: 110px;
+}
