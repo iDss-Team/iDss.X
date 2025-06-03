@@ -180,4 +180,22 @@ namespace iDss.X.Data.Configuration
                 .HasPrincipalKey(cou => cou.couriercode);
         }
     }
+
+    public class PackingPriceConfiguration : IEntityTypeConfiguration<PackingPrice>
+    {
+        public void Configure(EntityTypeBuilder<PackingPrice> builder)
+        {
+            builder.HasKey(pp => new { pp.packingcode, pp.sizecode }); 
+
+            builder.HasOne(a => a.PackingType) // Relasi ke mdt_packingtype
+                .WithMany(b => b.PackingPrices)
+                .HasForeignKey(a => a.packingcode) // Foreign Key
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(a => a.PackingSize) // Relasi ke mdt_packingsize
+                .WithMany(b => b.PackingPrices)
+                .HasForeignKey(a => a.sizecode) // Foreign Key
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
 }

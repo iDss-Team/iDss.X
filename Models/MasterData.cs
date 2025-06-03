@@ -919,6 +919,58 @@ namespace iDss.X.Models
         [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
         public string? remarks { get; set; }
 
+        [NotMapped]
+        public virtual ICollection<PackingPrice> PackingPrices { get; set; } = new List<PackingPrice>();
+
+    }
+
+    public class PackingSize : CommonField3
+    {
+        [Key]
+        [StringLength(5, ErrorMessage = "Size Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Size Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string sizecode { get; set; }
+
+        [StringLength(30, ErrorMessage = "Size Name cannot be longer than 30 characters.")]
+        [Required]
+        [Display(Name = "Size Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Searchable = true, Filterable = true)]
+        public string sizename { get; set; }
+
+        [StringLength(100, ErrorMessage = "Remarks cannot be longer than 100 characters.")]
+        [Display(Name = "Remarks")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? remarks { get; set; }
+
+        [NotMapped]
+        public virtual ICollection<PackingPrice> PackingPrices { get; set; } = new List<PackingPrice>();
+
+    }
+
+    [Keyless]
+    public class PackingPrice : CommonField1
+    {
+        [Required]
+        [StringLength(5)]
+        public string packingcode { get; set; }
+        [ForeignKey("packingcode")]
+        [NotMapped]
+        public PackingType PackingType { get; set; }
+
+        [Required]
+        [StringLength(5)]
+        public string sizecode { get; set; }
+        [ForeignKey("sizecode")]
+        [NotMapped]
+        public PackingSize PackingSize { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(10,0)")]
+        [Display(Name = "Price")]
+        public decimal price { get; set; }
+
     }
 
     public class Country : CommonField3
