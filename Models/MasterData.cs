@@ -117,6 +117,9 @@ namespace iDss.X.Models
         [AutoGenerateColumn(Order = 20, Visible = false, GroupName = "General", GroupOrder = 1, ComponentType = typeof(BootstrapInput<string>))]
         public String? citycode { get; set; }
 
+        [StringLength(10)]
+        [Display(Name = "Branch Size")]
+        public String? branchsize { get; set; }
 
         public List<Courier> couriers {  get; set; } 
 
@@ -666,7 +669,6 @@ namespace iDss.X.Models
 
         [StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
         [Display(Name = "Email")]
-        [Required]
         public String? email { get; set; }
 
         [StringLength(50, ErrorMessage = "PIC Name cannot be longer than 50 characters.")]
