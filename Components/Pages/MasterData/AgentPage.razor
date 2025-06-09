@@ -1,49 +1,48 @@
-﻿@page "/master/branch"
+﻿@page "/master/agent"
 @using iDss.X.Models
 @inject MasterDataPart1Service _service1
-@inject MasterDataPart2Service _service2
 @inject MasterDataPart3Service _service3
 @inject ToastService ToastService
-@attribute [TabItemOption(Text = "Branch")]
+@attribute [TabItemOption(Text = "Agent")]
 
-<PageTitle>Branch</PageTitle>
+<PageTitle>Agent</PageTitle>
 
 <Block OnQueryCondition="OnQueryCondition" Name="table">
-    @if (branches != null) {
+    @if (agents != null)
+    {
         <Row ItemsPerRow="ItemsPerRow.One">
             <Row ItemsPerRow="ItemsPerRow.Two">
                 <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
                     <StackItem>
-                        <h5>Branch</h5>
+                        <h5>Agent</h5>
                     </StackItem>
                 </Stack>
             </Row>
-            <Table Items="branches" IsPagination="true" PageItemsSource="@_service2.PageItemsSource" IsFixedHeader="true" ShowLoading="true"
+            <Table Items="agents" IsPagination="true" PageItemsSource="@_service3.PageItemsSource" IsFixedHeader="true" ShowLoading="true"
                    IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="false"
                    ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" EditButtonText="" DeleteButtonText="">
                 <TableToolbarTemplate>
-                    <TableToolbarButton TItem="Branch"
+                    <TableToolbarButton TItem="Agent"
                                         Color="Color.Primary"
                                         Icon="fa-solid fa-plus"
                                         Text="Add"
                                         OnClick="() => AddNew()" />
                 </TableToolbarTemplate>
                 <TableColumns>
-                    <TableColumn @bind-Field="@context.branchid" />
-                    <TableColumn @bind-Field="@context.branchcode" Searchable="true" Filterable="true" />
-                    <TableColumn @bind-Field="@context.branchname" Searchable="true" Filterable="true" />
-                    <TableColumn @bind-Field="@context.branchtype" Filterable="true" />
+                    <TableColumn @bind-Field="@context.agentid" />
+                    <TableColumn @bind-Field="@context.agentcode" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.agentname" Searchable="true" Filterable="true" />
                     <TableColumn @bind-Field="@context.cityname" />
-                    @* <TableColumn @bind-Field="@context.Branch" Text="Branch Name">
+                    <TableColumn @bind-Field="@context.Branch" Text="Branch Name">
                         <Template Context="x">
                             @{
                                 var br = x.Row.Branch.branchname;
                                 <p>@br</p>
                             }
                         </Template>
-                    </TableColumn> *@
+                    </TableColumn>
                     <TableColumn @bind-Field="@context.createddate" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
-                    <TableColumn @bind-Field="@context.branchid" Text="" Width="70">
+                    <TableColumn @bind-Field="@context.agentid" Text="" Width="70">
                         <Template Context="x">
                             <Button Color="Color.None" Icon="fa-solid fa-pen" Size="Size.ExtraSmall" OnClick="() => UpdateByID(x.Value)" />
                             <span class="w-50"></span>
@@ -73,16 +72,15 @@
         <Card>
             <BodyTemplate>
                 <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Normal">
-                    <BootstrapInput TValue="string" @bind-Value="@data.branchcode" ShowLabel="true"></BootstrapInput>
-                    <BootstrapInput TValue="string" @bind-Value="@data.branchname" ShowLabel="true"></BootstrapInput>
-                    <Select TValue="string" Items="BranchTypes" @bind-Value="@data.branchtype" DisplayText="Branch Type" ShowLabel="true"></Select>
+                    <Select TValue="int" Items="BranchItems" @bind-Value="@data.branchid" ShowSearch></Select>
+                    <BootstrapInput TValue="string" @bind-Value="@data.agentcode" ShowLabel="true"></BootstrapInput>
+                    <BootstrapInput TValue="string" @bind-Value="@data.agentname" ShowLabel="true"></BootstrapInput>
                     <Textarea TValue="string" @bind-Value="@data.addr1" ShowLabel="true"></Textarea>
                     <Select TValue="string" Items="VillageItems" @bind-Value="@data.villid" ShowSearch></Select>
                     <BootstrapInput TValue="string" @bind-Value="@data.latitude" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="@data.longitude" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="@data.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
                     <BootstrapInput TValue="string" @bind-Value="@data.email" DisplayText="Email" ShowLabel="true"></BootstrapInput>
-                    <Select TValue="string" Items="BranchSizes" @bind-Value="@data.branchsize" DisplayText="Branch Size" ShowLabel="true"></Select>
                 </Row>
             </BodyTemplate>
         </Card>
@@ -104,21 +102,10 @@
     string mode;
     string titlePage;
     string resultString;
-    public List<Branch> branches = new();
-    private Branch data = new();
+    public List<Agent> agents = new();
+    private Agent data = new();
+    private IEnumerable<SelectedItem>? BranchItems { get; set; }
     private IEnumerable<SelectedItem>? VillageItems { get; set; }
-    private IEnumerable<SelectedItem>? BranchTypes { get; set; } = new[]
-    {
-        new SelectedItem ("Central", "Central"),
-        new SelectedItem ("Branch", "Branch"),
-        new SelectedItem ("Sub-Branch", "Sub-Branch")
-    };
-    private IEnumerable<SelectedItem>? BranchSizes { get; set; } = new[]
-    {
-        new SelectedItem ("small", "Small"),
-        new SelectedItem ("medium", "Medium"),
-        new SelectedItem ("large", "Large")
-    };
     private Task<bool> OnQueryCondition(string name) => Task.FromResult(IsTable);
     private Task<bool> OnQueryCondition2(string name) => Task.FromResult(!IsTable);
 
@@ -133,6 +120,8 @@
     {
         await RefreshTable();
 
+        var branches = await _service3.LoadBranchAsync();
+        BranchItems = branches.Select(b => new SelectedItem(b.branchid.ToString(), b.branchname));
 
         var districts = await _service1.LoadVillageAsync();
         VillageItems = districts.Select(b => new SelectedItem(b.villid.ToString(), b.villname));
@@ -142,7 +131,7 @@
 
     private async Task RefreshTable()
     {
-        branches = await _service3.GetBranchAsync();
+        agents = await _service3.GetAgentAsync();
         IsTable = true;
         await InvokeAsync(StateHasChanged);
     }
@@ -157,7 +146,7 @@
 
     private async Task UpdateByID(int id)
     {
-        data = await _service3.GetBranchByIDAsync(id);
+        data = await _service3.GetAgentByIDAsync(id);
         if (data != null)
         {
             mode = "edit";
@@ -168,7 +157,7 @@
 
     private async Task RemoveByID(int id)
     {
-        bool result = await _service3.DeleteBranchByIDAsync(id);
+        bool result = await _service3.DeleteAgentByIDAsync(id);
         if (result)
         {
             await RefreshTable();
@@ -185,8 +174,8 @@
     private async Task OnValidSubmit(EditContext context)
     {
         bool result = mode == "input"
-           ? await _service3.CreateBranchAsync(data)
-           : await _service3.UpdateBranchAsync(data);
+           ? await _service3.CreateAgentAsync(data)
+           : await _service3.UpdateAgentAsync(data);
         if (result)
         {
             await RefreshTable();

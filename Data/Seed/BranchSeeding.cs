@@ -23,7 +23,7 @@ namespace iDss.X.Data.Seed
 
             modelBuilder.Entity<PackingSize>().HasData(new PackingSize[]
             {
-            new() { sizecode = "X", sizename = "Small", remarks = "", createddate = new DateTime(2025, 1, 1), createdby = "System" },
+            new() { sizecode = "s", sizename = "Small", remarks = "", createddate = new DateTime(2025, 1, 1), createdby = "System" },
             new() { sizecode = "m", sizename = "Medium", remarks = "", createddate = new DateTime(2025, 1, 1), createdby = "System" },
             new() { sizecode = "l", sizename = "Large", remarks = "", createddate = new DateTime(2025, 1, 1), createdby = "System" }
             });

@@ -208,11 +208,271 @@ namespace iDss.X.Services
         #endregion
 
         #region "Counter"
+        public async Task<List<Counter>> GetCounterAsync()
+        {
+            var result = _db.mdt_counter
+                .Include(c => c.Village)
+                .Include(b => b.Branch)
+                .OrderByDescending(c => c.createddate)
+                .ToListAsync();
+            return await result;
+        }
 
+        public async Task<QueryData<Counter>> OnQueryCounterAsync(QueryPageOptions options)
+        {
+            //var items = _db.mdt_counter.ToList();
+            // Ambil data dari database
+            var items = await GetCounterAsync();
+
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is Counter model)
+            {
+                if (!string.IsNullOrEmpty(model.countercode))
+                {
+                    items = items.Where(item => item.countercode?.Contains(model.countercode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.countername))
+                {
+                    items = items.Where(item => item.countername?.Contains(model.countername, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.countercode) || !string.IsNullOrEmpty(model.countername);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<Counter>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Counter>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return await Task.FromResult(new QueryData<Counter>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<Counter> GetCounterByIDAsync(int id)
+        {
+            var result = _db.mdt_counter.FindAsync(id);
+            return await result;
+        }
+
+        public async Task<bool> CreateCounterAsync(Counter data)
+        {
+            bool result;
+            try
+            {
+                data.createddate = DateTime.Now.ToUniversalTime();
+                _db.mdt_counter.Add(data);
+                await _db.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+
+        public async Task<bool> UpdateCounterAsync(Counter data)
+        {
+            bool result;
+            try
+            {
+                _db.Entry(data).State = EntityState.Modified;
+                await _db.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+
+        public async Task<bool> DeleteCounterByIDAsync(int id)
+        {
+            bool result;
+            try
+            {
+                var affectedRows = await _db.mdt_counter.Where(x => x.counterid.Equals(id)).ExecuteDeleteAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("23503"))
+                {
+                    //msg = "Cannot delete: This record is linked to other data already.";
+                    result = false;
+                }
+                else
+                {
+                    result = false;
+                }
+            }
+            return result;
+        }
         #endregion
 
         #region "Agent"
+        public async Task<List<Agent>> GetAgentAsync()
+        {
+            var result = _db.mdt_agent
+                .Include(c => c.Village)
+                .Include(b => b.Branch)
+                .OrderByDescending(c => c.createddate)
+                .ToListAsync();
+            return await result;
+        }
 
+        public async Task<QueryData<Agent>> OnQueryAgentAsync(QueryPageOptions options)
+        {
+            //var items = _db.mdt_agent.ToList();
+            // Ambil data dari database
+            var items = await GetAgentAsync();
+
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is Agent model)
+            {
+                if (!string.IsNullOrEmpty(model.agentcode))
+                {
+                    items = items.Where(item => item.agentcode?.Contains(model.agentcode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.agentname))
+                {
+                    items = items.Where(item => item.agentname?.Contains(model.agentname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.agentcode) || !string.IsNullOrEmpty(model.agentname);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<Agent>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Agent>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return await Task.FromResult(new QueryData<Agent>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<Agent> GetAgentByIDAsync(int id)
+        {
+            var result = _db.mdt_agent.FindAsync(id);
+            return await result;
+        }
+
+        public async Task<bool> CreateAgentAsync(Agent data)
+        {
+            bool result;
+            try
+            {
+                data.createddate = DateTime.Now.ToUniversalTime();
+                _db.mdt_agent.Add(data);
+                await _db.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+
+        public async Task<bool> UpdateAgentAsync(Agent data)
+        {
+            bool result;
+            try
+            {
+                _db.Entry(data).State = EntityState.Modified;
+                await _db.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+
+        public async Task<bool> DeleteAgentByIDAsync(int id)
+        {
+            bool result;
+            try
+            {
+                var affectedRows = await _db.mdt_agent.Where(x => x.agentid.Equals(id)).ExecuteDeleteAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("23503"))
+                {
+                    //msg = "Cannot delete: This record is linked to other data already.";
+                    result = false;
+                }
+                else
+                {
+                    result = false;
+                }
+            }
+            return result;
+        }
         #endregion
     }
 }
