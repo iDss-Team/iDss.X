@@ -1,0 +1,211 @@
+﻿@page "/master/country"
+@using iDss.X.Models
+@inject ToastService _toastService
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "Country")]
+
+<PageTitle>Country Page</PageTitle>
+
+
+@if (countries!= null)
+{
+	<Row ItemsPerRow="ItemsPerRow.One">
+		<Row ItemsPerRow="ItemsPerRow.Two">
+			<Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+				<StackItem><h5>Country</h5></StackItem>
+			</Stack>
+		</Row>
+
+		<Table IsPagination="true" @ref="countryTable" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryCountryAsync"
+		IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+		ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+		ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+
+			<TableToolbarTemplate>
+				<TableToolbarButton TItem="Country" Color="Color.Primary" Icon="fa-solid fa-plus"
+				Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
+			</TableToolbarTemplate>
+
+			<TableColumns>
+				<TableColumn @bind-Field="@context.countrycode" Searchable="true" />
+				<TableColumn @bind-Field="@context.countryname" Searchable="true" />
+				<TableColumn @bind-Field="@context.isoalpha3" Searchable="true" />
+				<TableColumn @bind-Field="@context.phonecode" Searchable="true" />
+				<TableColumn @bind-Field="@context.createdby" Searchable="true" />
+				<TableColumn @bind-Field="@context.createddate" Searchable="true" />
+
+				<TableColumn @bind-Field="@context.flag" Text="">
+					<Template Context="item">
+						<div class="d-grip gap-2 d-md-block">
+							<Button Text="Edit" OnClick="() => ShowEditModal(item.Row.countrycode)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+							<PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+							Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+							IsAsync="true" OnConfirm="() => DeleteCountry(item.Row.countrycode)"></PopConfirmButton>
+						</div>
+					</Template>
+				</TableColumn>
+
+
+			</TableColumns>
+
+
+
+
+
+
+		</Table>
+	</Row>
+}
+else
+{
+	<h5>Loading...</h5>
+}
+
+
+<Modal @ref="addModals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCountry">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedCountry" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<BootstrapInput TValue="string" @bind-Value="selectedCountry.countrycode" DisplayText="Country Code" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCountry.countryname" DisplayText="Country Name" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCountry.isoalpha3" DisplayText="ISO Alpha 3" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCountry.phonecode" DisplayText="Phone Code" ShowLabel="true"></BootstrapInput>
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+<Modal @ref="editModals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCountry">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedCountry" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<BootstrapInput TValue="string" @bind-Value="selectedCountry.countrycode" DisplayText="Country Code" ShowLabel="true" IsDisabled="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCountry.countryname" DisplayText="Country Name" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCountry.isoalpha3" DisplayText="ISO Alpha 3" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCountry.phonecode" DisplayText="Phone Code" ShowLabel="true"></BootstrapInput>
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+
+@code {
+	private Modal addModals;
+	private Modal editModals;
+	private ValidateForm addForm;
+	private Table<Country> countryTable;
+
+	public List<Country> countries = new();
+	private Guid formKey = Guid.NewGuid();
+	// private string selectedCity;
+
+
+	private bool isEditMode = false;
+	private bool isModalOpen = false;
+	private string modalTitle = "Add District";
+	private Country selectedCountry = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadData();
+	}
+
+
+
+
+	private async Task LoadData()
+	{
+		countries = await _services.GetCountryAsync();
+
+		StateHasChanged();
+	}
+
+
+
+	private async Task ShowAddModal(IEnumerable<Country> items)
+	{
+
+		modalTitle = "Create New Country";
+		selectedCountry = new Country();
+		await addModals.Show();
+		await Task.Delay(10);
+		await InvokeAsync(StateHasChanged);
+		isEditMode = false;
+	}
+
+
+	private async Task ShowEditModal(string countrycode)
+	{
+		var data = await _services.GetCountryByCountryCodeAsync(countrycode);
+		selectedCountry = new Country
+			{
+				countrycode = data.countrycode,
+				countryname    = data.countryname,
+				isoalpha3    = data.isoalpha3,
+				phonecode = data.phonecode,
+				flag = data.flag
+			};
+		modalTitle = "Edit Country";
+		isEditMode = true;
+		editModals.Show();
+		StateHasChanged();
+	}
+
+
+
+
+
+	private async Task<bool> SaveCountry()
+	{
+		bool result;
+
+
+		if (isEditMode)
+		{
+			result = await _services.UpdateCountryAsync(selectedCountry.countrycode, selectedCountry);
+			await _toastService.Success("Success", "Country Updated Successfully");
+		}
+		else
+		{
+			var created = await _services.CreateCountryAsync(selectedCountry);
+			result = created != null;
+			await _toastService.Success("Success", "Country Created Successfully");
+		}
+
+
+		if (result)
+		{
+			addModals.Close();
+			editModals.Close();
+			await countryTable.QueryAsync();
+		}
+
+		return result;
+	}
+
+
+	private async Task<bool> DeleteCountry(string countrycode)
+	{
+		var result = await _services.DeleteCountryAsync(countrycode);
+		if (result)
+		{
+			await countryTable.QueryAsync();
+			await _toastService.Success("Success", "Village deleted successfully");
+		}
+		StateHasChanged();
+		return result;
+	}
+
+
+
+
+
+}

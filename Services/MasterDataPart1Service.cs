@@ -26,6 +26,242 @@ namespace iDss.X.Services
 
         //private static readonly ConcurrentDictionary<Type, Func<IEnumerable<TModel>, string, SortOrder, IEnumerable<TModel>>> SortLambdaCache = new();
 
+        #region "Country"
+
+        public async Task<List<Country>> GetCountryAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = await _context.mdt_country
+                .AsNoTracking()
+                .OrderByDescending(c => c.createddate)
+                .ToListAsync();
+
+            return result;
+        }
+
+        public async Task<(List<Country> Items, int TotalCount)> GetCountriesPagedAsync(int pageIndex, int pageSize)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+
+            var query = _context.mdt_country
+                .AsNoTracking();
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(c => c.countrycode)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+
+
+        public async Task<IEnumerable<Country>> GetCountriesAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_country.ToListAsync();
+        }
+
+        public async Task<Country?> GetCountryByCountryCodeAsync(string countrycode)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_country.FirstOrDefaultAsync(a => a.countrycode == countrycode);
+        }
+
+
+
+        public Task<QueryData<Country>> OnQueryCountryAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_country
+            .AsNoTracking()
+            .ToList();
+
+
+            var isSearched = false;
+
+            if (options.SearchModel is Country country)
+            {
+                if (!string.IsNullOrEmpty(country.countrycode))
+                {
+                    items = items.Where(item => item.countrycode?.Contains(country.countrycode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+                if (!string.IsNullOrEmpty(country.countryname))
+                {
+                    items = items.Where(item => item.countryname?.Contains(country.countryname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+
+                isSearched = !string.IsNullOrEmpty(country.countryname) || !string.IsNullOrEmpty(country.countrycode);
+            }
+
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<Country>(FilterLogic.Or)).ToList();
+            }
+
+
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Country>()).ToList();
+                isFiltered = true;
+            }
+
+            var total = items.Count();
+
+
+            return Task.FromResult(new QueryData<Country>
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                IsSearch = isSearched
+            });
+
+
+
+        }
+
+        public async Task<bool> CreateCountryAsync(Country data)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            bool result;
+            try
+            {
+                _context.mdt_country.Add(data);
+                await _context.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception for debugging purposes
+                System.Console.WriteLine($"Error in CreateCountryAsync: {ex.Message}");
+                result = false;
+            }
+            return result;
+        }
+
+
+
+
+        public async Task<List<Country>> LoadCountryAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_country
+                                .Select(p => new Country()
+                                {
+                                    countrycode = p.countrycode,
+                                    countryname = p.countryname,
+                                    isoalpha3 = p.isoalpha3,
+                                    phonecode = p.phonecode,
+                                    createdby = p.createdby,
+                                    createddate = p.createddate,
+                                    flag = p.flag
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+
+
+        public async Task<bool> SaveCountryAsync(Country data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    //data.createdby = "System";
+                    //data.createddate = DateTime.Now;
+                    _context.mdt_country.Add(data);
+                }
+                //else if (changedType == ItemChangedType.Update)
+                //{
+                //    _db.mdt_city.Update(data);
+                //}
+                else
+                {
+                    var existingEntity = await _context.mdt_country.FindAsync(data.countrycode);
+                    if (existingEntity != null)
+                    {
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                return false;
+            }
+
+        }
+
+        public async Task<bool> UpdateCountryAsync(string countrycode , Country updatedCountry)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var data = await _context.mdt_country.FirstOrDefaultAsync(a => a.countrycode == countrycode);
+            if (data == null)
+            {
+                return false;
+            }
+            data.countryname = updatedCountry.countryname;
+            data.isoalpha3 = updatedCountry.isoalpha3;
+            data.phonecode = updatedCountry.phonecode;
+            data.flag = updatedCountry.flag;
+
+
+            _context.Entry(data).State = EntityState.Modified;
+
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in Update District Async: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
+
+        public async Task<bool> DeleteCountryAsync(string countrycode)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var country = await _context.mdt_country.FirstOrDefaultAsync(a => a.countrycode == countrycode);
+
+            if (country == null)
+            {
+                return false;
+            }
+
+            _=_context.mdt_country.Remove(country);
+            await _context.SaveChangesAsync();
+            return true;
+
+        }
+
+
+        #endregion
+
+
+
+
+
+
         #region "Province"
         public async Task<List<Province>> GetProvinceAsync()
         {
@@ -1314,16 +1550,6 @@ namespace iDss.X.Services
             await _context.SaveChangesAsync();
             return true;
         }
-
-
-
-
-
-
-
-
-
-
         #endregion
 
 
@@ -1633,6 +1859,22 @@ namespace iDss.X.Services
             return await result;
         }
 
+        public async Task<IEnumerable<CostComponent>> GetAllCostComponentAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_costcomponent.ToListAsync();
+        }
+
+
+
+        public async Task<CostComponent?> GetCostComponentByIdAsync(int id)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_costcomponent.FirstOrDefaultAsync(a => a.id == id);
+        }
+
+
+
         public Task<QueryData<CostComponent>> OnQueryCostComponentAsync(QueryPageOptions options)
         {
             using var _context = _contextFactory.CreateDbContext();
@@ -1707,6 +1949,41 @@ namespace iDss.X.Services
             return await result;
         }
 
+        public async Task<bool> UpdateCostComponentAsync(int _id, CostComponent updatedCostComponent)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var costcomponent = await _context.mdt_costcomponent.FirstOrDefaultAsync(a => a.id == _id);
+            if (costcomponent == null)
+            {
+                return false;
+            }
+            costcomponent.componentname = updatedCostComponent.componentname;
+            costcomponent.type = updatedCostComponent.type;
+            costcomponent.description = updatedCostComponent.description;
+
+            _context.Entry(costcomponent).State = EntityState.Modified;
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("Error saving changes: " + ex.Message);
+                return false;
+            }
+
+        }
+
+        public async Task<CostComponent> CreateCostComponentAsync(CostComponent costcomponent)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.mdt_costcomponent.Add(costcomponent);
+            await _context.SaveChangesAsync();
+            return costcomponent;
+        }
+
         public async Task<bool> SaveCostComponentAsync(CostComponent data, ItemChangedType changedType)
         {
             using var _context = _contextFactory.CreateDbContext();
@@ -1740,38 +2017,30 @@ namespace iDss.X.Services
             }
         }
 
-        public async Task<bool> DeleteCostComponentByIDAsync(IEnumerable<CostComponent> components)
+        public async Task<bool> DeleteCostComponentByIdAsync(int _id)
         {
             using var _context = _contextFactory.CreateDbContext();
-            try
-            {
-                foreach (var reason in components)
-                {
-                    var existing = await _context.mdt_costcomponent.FindAsync(reason.id);
-                    if (existing != null)
-                    {
-                        _context.mdt_costcomponent.Remove(existing);
-                    }
-                }
+            var costcomponent = await _context.mdt_costcomponent.FirstOrDefaultAsync(a => a.id == _id);
 
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch
+            if (costcomponent == null)
             {
                 return false;
             }
+
+            _context.mdt_costcomponent.Remove(costcomponent);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         #endregion
 
 
-    
 
 
 
-    #region "Service Code"
-          public async Task<List<Service>> GetServiceAsync()
+
+        #region "Service Code"
+        public async Task<List<Service>> GetServiceAsync()
         {
             using var _context = _contextFactory.CreateDbContext();
             var result = _context.mdt_service
@@ -1917,7 +2186,7 @@ namespace iDss.X.Services
         {
             using var _context = _contextFactory.CreateDbContext();
             var result = _context.mdt_packingtype
-                .OrderByDescending(c => c.packingcode)
+                .OrderBy(c => c.packingcode)
                 .AsNoTracking()
                 .ToListAsync();
             return await result;
@@ -2055,6 +2324,515 @@ namespace iDss.X.Services
 
 
         #endregion
+
+
+        #region "CityINTL"
+        public async Task<List<CityIntl>> GetCityIntlAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_cityintl
+                .OrderByDescending(c => c.id)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<IEnumerable<CityIntl>> GetAllCityIntlAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_cityintl.ToListAsync();
+        }
+
+
+
+        public async Task<CityIntl?> GetCityIntlByIdAsync(int id)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_cityintl.FirstOrDefaultAsync(a => a.id == id);
+        }
+
+
+
+        public Task<QueryData<CityIntl>> OnQueryCityIntlAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_cityintl.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is CityIntl model)
+            {
+                if (!string.IsNullOrEmpty(model.countrycode))
+                {
+                    items = items.Where(item => item.countrycode?.Contains(model.countrycode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.citycode))
+                {
+                    items = items.Where(item => item.citycode?.Contains(model.citycode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.countrycode) || !string.IsNullOrEmpty(model.citycode);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<CityIntl>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<CityIntl>()).ToList();
+                isFiltered = true;
+            }
+
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<CityIntl>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<CityIntl>> GetCityIntlComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_cityintl
+                                .Select(p => new CityIntl()
+                                {
+                                    id = p.id,
+                                    cityname = p.cityname,
+                                    citycode = p.citycode,
+                                    airport = p.airport,
+                                    countrycode = p.countrycode,
+                                    region = p.region,
+                                    zone3pl1 = p.zone3pl1,
+                                    zone3pl2 = p.zone3pl2,
+                                    zone3pl3 = p.zone3pl3,
+                                    disc3pl1 = p.disc3pl1,
+                                    disc3pl2 = p.disc3pl2,
+                                    disc3pl3 = p.disc3pl3
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> UpdateCityIntlAsync(int _id, CityIntl updatedCityIntl)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var cityintl = await _context.mdt_cityintl.FirstOrDefaultAsync(a => a.id == _id);
+            if (cityintl == null)
+            {
+                return false;
+            }
+            cityintl.cityname = updatedCityIntl.cityname;
+            cityintl.citycode = updatedCityIntl.citycode;
+            cityintl.airport = updatedCityIntl.airport;
+            cityintl.countrycode = updatedCityIntl.countrycode;
+            
+
+            _context.Entry(cityintl).State = EntityState.Modified;
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("Error saving changes: " + ex.Message);
+                return false;
+            }
+
+        }
+
+        public async Task<CityIntl> CreateCityIntlAsync(CityIntl cityintl)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.mdt_cityintl.Add(cityintl);
+            await _context.SaveChangesAsync();
+            return cityintl;
+        }
+
+        public async Task<bool> SaveCityIntlAsync(CityIntl data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_cityintl.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_cityintl.FindAsync(data.id);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> DeleteCityIntlByIdAsync(int _id)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var cityintl = await _context.mdt_cityintl.FirstOrDefaultAsync(a => a.id == _id);
+
+            if (cityintl == null)
+            {
+                return false;
+            }
+
+            _context.mdt_cityintl.Remove(cityintl);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+        #endregion
+
+
+
+        #region "Packing Size"
+        public async Task<List<PackingSize>> GetPackingSizeAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_packingsize
+                .OrderBy(c => c.sizecode)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+        public Task<QueryData<PackingSize>> OnQueryPackingSizeAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_packingsize.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is PackingSize model)
+            {
+                if (!string.IsNullOrEmpty(model.sizecode))
+                {
+                    items = items.Where(item => item.sizecode?.Contains(model.sizecode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.sizename))
+                {
+                    items = items.Where(item => item.sizename?.Contains(model.sizename, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.sizecode) || !string.IsNullOrEmpty(model.sizename);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<PackingSize>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<PackingSize>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    //items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    items = invoker(items, options.SortName, options.SortOrder).ToList();
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<PackingSize>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<PackingSize>> GetPackingSizeComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_packingsize
+                                .Select(p => new PackingSize()
+                                {
+                                    sizecode = p.sizecode,
+                                    sizename = p.sizename,
+                                    remarks = p.remarks,
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> SavePackingSizeAsync(PackingSize data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_packingsize.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_packingsize.FindAsync(data.sizecode);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> DeletePackingSizeBySizeCodeAsync(IEnumerable<PackingSize> packingsizes)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                foreach (var packingsize in packingsizes)
+                {
+                    var existing = await _context.mdt_packingsize.FindAsync(packingsize.sizecode);
+                    if (existing != null)
+                    {
+                        _context.mdt_packingsize.Remove(existing);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        #endregion
+
+
+        #region "Packing Price"
+
+        public async Task<List<PackingPrice>> GetPackingPriceAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = await _context.mdt_packingprice
+                .OrderByDescending(c => c.packingcode)
+                .Include(c => c.PackingType)
+                .Include(c => c.PackingSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return result;
+        }
+
+
+        public async Task<IEnumerable<PackingPrice>> GetAllPackingPriceAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_packingprice.ToListAsync();
+        }
+
+
+
+        public async Task<PackingPrice?> GetPackingPriceByIdAsync(string packingcode, string sizecode)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_packingprice
+                .FirstOrDefaultAsync(a => a.packingcode == packingcode && a.sizecode == sizecode);
+        }
+
+
+
+
+        public Task<QueryData<PackingPrice>> OnQueryPackingPriceAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_packingprice.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is PackingPrice model)
+            {
+                if (!string.IsNullOrEmpty(model.packingcode))
+                {
+                    items = items.Where(item => item.packingcode?.Contains(model.packingcode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.sizecode))
+                {
+                    items = items.Where(item => item.sizecode?.Contains(model.sizecode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.packingcode) || !string.IsNullOrEmpty(model.sizecode);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<PackingPrice>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<PackingPrice>()).ToList();
+                isFiltered = true;
+            }
+
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<PackingPrice>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<PackingPrice>> GetPackingPriceComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_packingprice
+                                .Select(p => new PackingPrice()
+                                {
+                                    packingcode = p.packingcode,
+                                    sizecode = p.sizecode,
+                                    price = p.price,
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> UpdatePackingPriceAsync(string packingcode, string sizecode, PackingPrice updatedPackingPrice)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var packingprice = await _context.mdt_packingprice
+                .FirstOrDefaultAsync(a => a.packingcode == packingcode && a.sizecode == sizecode);
+            if (packingprice == null)
+            {
+                return false;
+            }
+            packingprice.price = updatedPackingPrice.price;
+
+            _context.Entry(packingprice).State = EntityState.Modified;
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                return false;
+            }
+        }
+
+
+        public async Task<PackingPrice> CreatePackingPriceAsync(PackingPrice packingPrice)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.mdt_packingprice.Add(packingPrice);
+            await _context.SaveChangesAsync();
+            return packingPrice ;
+        }
+
+        public async Task SavePackingPricesAsync(List<PackingPrice> updatedPrices)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+
+            foreach (var price in updatedPrices)
+            {
+                var existing = await _context.mdt_packingprice
+                    .FirstOrDefaultAsync(pp => pp.packingcode == price.packingcode && pp.sizecode == price.sizecode);
+                if (existing != null)
+                {
+                    existing.price = price.price;
+                    _context.Update(existing);
+                }
+                else
+                {
+                    _context.Add(price);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task<bool> DeletePackingPrizeByPackingCodeAsync(string packingcode)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var packingprice = await _context.mdt_packingprice.FirstOrDefaultAsync(a => a.packingcode == packingcode);
+
+            if (packingprice == null)
+            {
+                return false;
+            }
+
+            _context.mdt_packingprice.Remove(packingprice);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+        #endregion
+
+
+
+        
+
+
 
 
     }

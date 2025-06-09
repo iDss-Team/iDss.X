@@ -1,0 +1,25 @@
+﻿@page "/master/packingsize"
+@using iDss.X.Models
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "Packing Size")]
+
+<PageTitle>Packing Size</PageTitle>
+
+<Row ItemsPerRow="ItemsPerRow.One">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>Packing Size</h5>
+            </StackItem>
+        </Stack>
+    </Row>
+    <Table TItem="PackingSize" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
+           IsStriped="true" IsBordered="true" OnQueryAsync="@_services.OnQueryPackingSizeAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
+           EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" OnSaveAsync="@_services.SavePackingSizeAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeletePackingSizeBySizeCodeAsync">
+    </Table>
+</Row>
+
+@code {
+
+
+}
