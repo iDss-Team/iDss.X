@@ -6,8 +6,10 @@
     min-width: 120px;
 }
 
-::deep .custom-width .form-control {
-    width: 100px;
+::deep .col-12 .origin-code {
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: 20px;
 }
 
 ::deep .form-label {
@@ -25,13 +27,27 @@
     --bb-btn-label-margin-left: 0px;
 }
 
+::deep .datetime-picker i.datetime-picker-bar.fa-regular.fa-calendar-days {
+    font-size: medium;
+    --bb-height: 30px;
+}
+
+::deep .select-kecil {
+}
+
+.select-kecil ::deep .form-control,
+.select-kecil ::deep .form-select {
+    width: 60px !important;
+    min-width: 60px !important;
+    padding: 0 4px;
+}
+
 /*override css checkbox shipmnet detail*/
 /*::deep .custom-chekbox .form-check-input {
     margin-left: 30px;
 }*/
 
-.origin-code {
+/*.origin-code {
     font-size: 12px;
     color: #6c757d;
-    margin-left: 110px;
-}
+}*/
