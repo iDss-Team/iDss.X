@@ -1,0 +1,268 @@
+﻿@page "/master/cityintl"
+@using iDss.X.Models
+@inject ToastService _toastService
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "City INTL")]
+
+<PageTitle>City INTL Page</PageTitle>
+
+
+@if (cityintls!= null)
+{
+	<Row ItemsPerRow="ItemsPerRow.One">
+		<Row ItemsPerRow="ItemsPerRow.Two">
+			<Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+				<StackItem><h5>City International</h5></StackItem>
+			</Stack>
+		</Row>
+
+		<Table IsPagination="true" @ref="cityintlTable" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryCityIntlAsync"
+		IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+		ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+		ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+
+			<TableToolbarTemplate>
+				<TableToolbarButton TItem="CityIntl" Color="Color.Primary" Icon="fa-solid fa-plus"
+				Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
+			</TableToolbarTemplate>
+
+			<TableColumns>
+				<TableColumn @bind-Field="@context.id" Searchable="true" />
+				<TableColumn @bind-Field="@context.cityname" Searchable="true" />
+				<TableColumn @bind-Field="@context.citycode" Searchable="true" />
+				<TableColumn @bind-Field="@context.airport" Searchable="true" />
+				<TableColumn @bind-Field="@context.countrycode" Searchable="true" />
+				<TableColumn @bind-Field="@context.createdby" Searchable="true" />
+				<TableColumn @bind-Field="@context.createddate" Searchable="true" />
+
+				<TableColumn @bind-Field="@context.flag" Text="">
+					<Template Context="item">
+						<div class="d-grip gap-2 d-md-block">
+							<Button Text="Edit" OnClick="() => ShowEditModal(item.Row.id)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+							<PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+							Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+							IsAsync="true" OnConfirm="() => DeleteCityIntl(item.Row.id)"></PopConfirmButton>
+						</div>
+					</Template>
+				</TableColumn>
+
+
+			</TableColumns>
+
+
+
+
+
+
+		</Table>
+	</Row>
+}
+else
+{
+	<h5>Loading...</h5>
+}
+
+
+<Modal @ref="addModals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCountry">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedCityIntl" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.cityname" DisplayText="City Name" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.citycode" DisplayText="City Code" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.airport" DisplayText="Airport" ShowLabel="true"></BootstrapInput>
+					<Select TValue="string" 
+					Items="countryItems"
+					@bind-Value="SelectedCountry"
+					DisplayText="Country Code" ShowLabel="true" ShowSearch="true">
+					</Select>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.region" DisplayText="Region" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.zone3pl1" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.zone3pl2" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.zone3pl3" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="decimal?" @bind-Value="selectedCityIntl.disc3pl1" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="decimal?" @bind-Value="selectedCityIntl.disc3pl2" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="decimal?" @bind-Value="selectedCityIntl.disc3pl3" ShowLabel="true"></BootstrapInput>
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+<Modal @ref="editModals">
+	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCountry">
+		<BodyTemplate>
+			<ValidateForm @ref="addForm" Model="selectedCityIntl" @key="formKey">
+				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.cityname" DisplayText="City Name" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.citycode" DisplayText="City Code" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.airport" DisplayText="Airport" ShowLabel="true"></BootstrapInput>
+					<Select TValue="string"
+							Items="countryItems"
+							@bind-Value="SelectedCountry"
+							DisplayText="Country Code" ShowLabel="true" ShowSearch="true">
+					</Select>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.region" DisplayText="Region" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.zone3pl1" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.zone3pl2" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="string" @bind-Value="selectedCityIntl.zone3pl3" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="decimal?" @bind-Value="selectedCityIntl.disc3pl1" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="decimal?" @bind-Value="selectedCityIntl.disc3pl2" ShowLabel="true"></BootstrapInput>
+					<BootstrapInput TValue="decimal?" @bind-Value="selectedCityIntl.disc3pl3" ShowLabel="true"></BootstrapInput>
+				</Row>
+			</ValidateForm>
+		</BodyTemplate>
+	</ModalDialog>
+</Modal>
+
+
+
+
+@code {
+	private Modal addModals;
+	private Modal editModals;
+	private ValidateForm addForm;
+	private Table<CityIntl> cityintlTable;
+
+	public List<CityIntl> cityintls = new();
+	private Guid formKey = Guid.NewGuid();
+	// private string selectedCity;
+	private List<SelectedItem> countryItems = new();
+	private string selectedCountry;
+
+
+	private bool isEditMode = false;
+	private bool isModalOpen = false;
+	private string modalTitle = "Add City International Data";
+	private CityIntl selectedCityIntl = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadData();
+		await LoadCountry();
+	}
+
+
+
+
+	private async Task LoadData()
+	{
+		cityintls = await _services.GetCityIntlAsync();
+
+		StateHasChanged();
+	}
+
+
+	private async Task LoadCountry()
+	{
+		var dataCountry = await _services.GetCountryAsync();
+
+		countryItems = dataCountry.Select(c => new SelectedItem
+			{
+				Value = c.countrycode,
+				Text = $"{c.countrycode} | {c.countryname}"
+			}).ToList();
+
+		countryItems.Insert(0, new SelectedItem { Value = "", Text = "Select Country" }); 
+	}
+
+
+	private string SelectedCountry
+	{
+		get => selectedCountry;
+		set
+		{
+			if(selectedCountry != value)
+			{
+				selectedCountry = value;
+				selectedCityIntl.countrycode = value;
+			}
+		}
+	}
+
+
+
+	private async Task ShowAddModal(IEnumerable<CityIntl> items)
+	{
+
+		modalTitle = "Create New City International Data";
+		selectedCityIntl = new CityIntl();
+		await addModals.Show();
+		await Task.Delay(10);
+		await InvokeAsync(StateHasChanged);
+		isEditMode = false;
+	}
+
+
+	private async Task ShowEditModal(int id)
+	{
+		var data = await _services.GetCityIntlByIdAsync(id);
+		selectedCityIntl = new CityIntl
+			{
+				id = data.id,
+				cityname = data.cityname,
+				citycode = data.citycode,
+				airport = data.airport,
+				countrycode = data.countrycode,
+				createdby = data.createdby,
+				createddate = data.createddate,
+				flag = data.flag
+			};
+		modalTitle = "Edit Country";
+		isEditMode = true;
+		editModals.Show();
+		StateHasChanged();
+	}
+
+
+
+
+
+	private async Task<bool> SaveCountry()
+	{
+		bool result;
+
+
+		if (isEditMode)
+		{
+			result = await _services.UpdateCityIntlAsync(selectedCityIntl.id, selectedCityIntl);
+			await _toastService.Success("Success", "City International Data Updated Successfully");
+		}
+		else
+		{
+			var created = await _services.CreateCityIntlAsync(selectedCityIntl);
+			result = created != null;
+			await _toastService.Success("Success", "City International Data Created Successfully");
+		}
+
+
+		if (result)
+		{
+			addModals.Close();
+			editModals.Close();
+			await cityintlTable.QueryAsync();
+		}
+
+		return result;
+	}
+
+
+	private async Task<bool> DeleteCityIntl(int id)
+	{
+		var result = await _services.DeleteCityIntlByIdAsync(id);
+		if (result)
+		{
+			await cityintlTable.QueryAsync();
+			await _toastService.Success("Success", "City International Data deleted successfully");
+		}
+		StateHasChanged();
+		return result;
+	}
+
+
+
+
+
+}

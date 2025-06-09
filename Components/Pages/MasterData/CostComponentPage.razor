@@ -1,25 +1,204 @@
 ﻿@page "/master/costcomponent"
 @using iDss.X.Models
+@using BootstrapBlazor.Components
+@inject ToastService _toastService
 @inject MasterDataPart1Service _services
 @attribute [TabItemOption(Text = "Cost Component")]
 
-<PageTitle>Cost Component</PageTitle>
+<PageTitle>Cost Component Page</PageTitle>
 
-<Row ItemsPerRow="ItemsPerRow.One">
-    <Row ItemsPerRow="ItemsPerRow.Two">
-        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
-            <StackItem>
-                <h5>Cost Component</h5>
-            </StackItem>
-        </Stack>
+@if (costcomponents != null)
+{
+    <Row ItemsPerRow="ItemsPerRow.One">
+        <Row ItemsPerRow="ItemsPerRow.Two">
+            <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+                <StackItem>
+                    <h5>Cost Component Data </h5>
+                </StackItem>
+            </Stack>
+        </Row>
+        <Table IsPagination="true" @ref="tableRef" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryCostComponentAsync" IsFixedHeader="true" ShowLoading="true"
+        IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="false"
+        ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false"
+        DeleteButtonText="">
+            <TableToolbarTemplate>
+                <TableToolbarButton TItem="CostComponent"
+                Color="Color.Primary"
+                Icon="fa-solid fa-plus"
+                Text="Add"
+                IsAsync OnClickCallback="@ShowAddModal" />
+            </TableToolbarTemplate>
+            <TableColumns>
+                <TableColumn @bind-Field="@context.id" Text="ID" Searchable="true" Filterable="true" />
+                <TableColumn @bind-Field="@context.componentname" Searchable="true" Filterable="true" />
+                <TableColumn @bind-Field="@context.type"  Searchable="true" Filterable="true" />
+                <TableColumn @bind-Field="@context.description" Searchable="true" Filterable="true" />
+                <TableColumn @bind-Field="@context.id" Text="">
+                    <Template Context="item">
+                        <div class="d-grip gap-2 d-md-block">
+                            <Button Text="Edit" OnClick="() => ShowEditModal(item.Row.id)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+                            <PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+                            Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+                            IsAsync="true" OnConfirm="() => DeleteCostComponent(item.Row.id)"></PopConfirmButton>
+                        </div>
+                    </Template>
+                </TableColumn>
+
+
+
+            </TableColumns>
+        </Table>
+
+
     </Row>
-    <Table TItem="CostComponent" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
-           IsStriped="true" IsBordered="true" OnQueryAsync="@_services.OnQueryCostComponentAsync" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
-           EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" OnSaveAsync="@_services.SaveCostComponentAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteCostComponentByIDAsync">
-    </Table>
-</Row>
+}
+else
+{
+    <h5>Loading . . .</h5>
+}
+
+
+<Modal @ref="addModals">
+    <ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCostComponent">
+        <BodyTemplate>
+            <ValidateForm @ref="addForm" Model="selectedCostComponent" @key="formKey">
+                <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                    <BootstrapInput TValue="string" @bind-Value="selectedCostComponent.componentname" DisplayText="Component Name" ShowLabel="true"></BootstrapInput>
+                    <AutoComplete Items="@TypeOptions" @bind-Value="selectedCostComponent.type" DisplayText="Type"></AutoComplete>
+                    <Textarea TValue="string" @bind-Value="selectedCostComponent.description" ShowLabel="true" DisplayText="Description" PlaceHolder="Please Enter Description..."></Textarea>
+                </Row>
+            </ValidateForm>
+        </BodyTemplate>
+    </ModalDialog>
+</Modal>
+
+
+<Modal @ref="editModals">
+    <ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveCostComponent">
+        <BodyTemplate>
+            <ValidateForm Model="selectedCostComponent">
+                <Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
+                    <BootstrapInput TValue="string" @bind-Value="selectedCostComponent.componentname" DisplayText="Component Name" ShowLabel="true"></BootstrapInput>
+                    <AutoComplete Items="@TypeOptions" @bind-Value="selectedCostComponent.type" DisplayText="Type"></AutoComplete>
+                    <Textarea TValue="string" @bind-Value="selectedCostComponent.description" ShowLabel="true" DisplayText="Description" PlaceHolder="Please Enter Description..."></Textarea>
+                </Row>
+            </ValidateForm>
+        </BodyTemplate>
+    </ModalDialog>
+</Modal>
+
 
 @code {
+    private Modal addModals;
+    private Modal editModals;
+    private ValidateForm addForm;
+
+
+    public List<CostComponent> costcomponents = new();
+    private Table<CostComponent> tableRef;
+    private List<string> TypeOptions => ["Credit", "Debit"];
+
+    private Guid formKey = Guid.NewGuid();
+
+
+    private bool isEditMode = false;
+    private bool isModalOpen = false;
+    private string modalTitle = "Add Cost Component";
+    private CostComponent selectedCostComponent = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+
+    private async Task LoadData()
+    {
+		costcomponents = await _services.GetCostComponentAsync();
+    }
+
+
+    private async Task ShowAddModal(IEnumerable<CostComponent> items)
+    {
+        selectedCostComponent = new CostComponent();
+        modalTitle = "Create New Cost Component Data";
+        formKey = Guid.NewGuid();
+        isEditMode = false;
+        addModals.Show();
+        await Task.Delay(10);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ShowEditModal(int costcomponentid)
+    {
+        var data = await _services.GetCostComponentByIdAsync(costcomponentid);
+
+        addModals.Close();
+        selectedCostComponent = new CostComponent
+            {
+                id = data.id,
+				componentname = data.componentname,
+				type = data.type,
+				description = data.description,
+            };
+
+        modalTitle = "Edit Cost Component";
+        isEditMode = true;
+        editModals.Show();
+        StateHasChanged();
+    }
+
+
+
+    private async Task<bool> SaveCostComponent()
+    {
+        bool result;
+
+        if (isEditMode)
+        {
+            result = await _services.UpdateCostComponentAsync(selectedCostComponent.id, selectedCostComponent);
+            await _toastService.Success("Success", "Cost Component updated successfully");
+        }
+        else
+        {
+            var created = await _services.CreateCostComponentAsync(selectedCostComponent);
+            result = created != null;
+            await _toastService.Success("Success", "Cost Component created successfully");
+        }
+
+        if (result)
+        {
+            isModalOpen = false;
+            isEditMode = false;
+            await tableRef.QueryAsync();
+            StateHasChanged();
+        }
+
+        return result;
+    }
+
+
+
+
+
+    private async Task<bool> DeleteCostComponent(int costcomponentid)
+    {
+        bool result = await _services.DeleteCostComponentByIdAsync(costcomponentid);
+        if (result)
+        {
+            await tableRef.QueryAsync();
+            await _toastService.Success("Success", "Cost Component deleted successfully");
+            StateHasChanged();
+        }
+        return result;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+        StateHasChanged();
+    }
+
 
 
 }

@@ -920,6 +920,8 @@ namespace iDss.X.Models
         public string? remarks { get; set; }
 
         [NotMapped]
+        [ScaffoldColumn(false)]
+        [AutoGenerateColumn(Ignore = true)]
         public virtual ICollection<PackingPrice> PackingPrices { get; set; } = new List<PackingPrice>();
 
     }
@@ -945,6 +947,8 @@ namespace iDss.X.Models
         public string? remarks { get; set; }
 
         [NotMapped]
+        [ScaffoldColumn(false)]
+        [AutoGenerateColumn(Ignore = true)]
         public virtual ICollection<PackingPrice> PackingPrices { get; set; } = new List<PackingPrice>();
 
     }
@@ -970,6 +974,9 @@ namespace iDss.X.Models
         [Column(TypeName = "decimal(10,0)")]
         [Display(Name = "Price")]
         public decimal price { get; set; }
+
+
+
 
     }
 

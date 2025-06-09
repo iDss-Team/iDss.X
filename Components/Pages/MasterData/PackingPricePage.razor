@@ -1,0 +1,250 @@
+﻿@page "/master/packingprice"
+@using iDss.X.Models
+@using BootstrapBlazor.Components
+@inject ToastService _toastService
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "Packing Price")]
+
+<PageTitle>Packing Price Page</PageTitle>
+
+@if (packingPrices != null)
+{
+    <Row ItemsPerRow="ItemsPerRow.One">
+        <Row ItemsPerRow="ItemsPerRow.Two">
+            <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+                <StackItem>
+                    <h5>Packing Price Data</h5>
+                </StackItem>
+            </Stack>
+        </Row>
+        <Table IsPagination="true" @ref="tableRef" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryPackingPriceAsync"
+               IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false"
+               ShowSearch="true" ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+            <TableToolbarTemplate>
+                <TableToolbarButton TItem="PackingPrice" Color="Color.Primary" Icon="fa-solid fa-plus" Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
+            </TableToolbarTemplate>
+            <TableColumns>
+                <TableColumn @bind-Field="@context.packingcode" Text="Packing Name" Searchable="true" Filterable="true">
+                    <Template Context="item">
+                        @{
+                            var packingType = packingCodeNameList.FirstOrDefault(x => x.Item1 == item.Row.packingcode);
+                            var packingName = packingType != default ? packingType.Item2 : "Unknown";
+                        }
+                        <span>@packingName</span>
+                    </Template>
+                </TableColumn>
+                <TableColumn @bind-Field="@context.sizecode" Searchable="true" Filterable="true" />
+                <TableColumn @bind-Field="@context.price" Searchable="true" Filterable="true" />
+            </TableColumns>
+        </Table>
+    </Row>
+}
+else
+{
+    <h5>Loading . . .</h5>
+}
+
+<Modal @ref="addModal">
+    <ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SavePackingPrice">
+        <BodyTemplate>
+            @if (sizeCodes.Any() && packingCodes.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-light table-striped table-hover align-middle text-center">
+                        <thead>
+                            <tr>
+                                <th>Size \ Packing</th>
+                                @foreach (var packing in packingCodeNameList)
+                                {
+                                    <th>@packing.packingName</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var size in sizeCodes)
+                            {
+                                <tr class="bg-light">
+                                    <td><strong>@size</strong></td>
+                                    @foreach (var packing in packingCodeNameList)
+                                    {
+                                        <td>
+                                            <BootstrapInput TValue="decimal"
+                                                            Value="@priceData[(size, packing.packingCode)]"
+                                                            ValueChanged="@(val => SetPrice(size, packing.packingCode, val))"
+                                                            ShowLabel="false"
+                                                            Placeholder="0.00" />
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p>Loading matrix...</p>
+            }
+        </BodyTemplate>
+    </ModalDialog>
+</Modal>
+
+
+@code {
+    private Modal addModal;
+    private ValidateForm addForm;
+
+    public List<PackingPrice> packingPrices = new();
+    private Table<PackingPrice> tableRef;
+
+    private Guid formKey = Guid.NewGuid();
+
+    private bool isEditMode = false;
+    private string modalTitle = "Add Packing Price";
+    private PackingPrice selectedPackingPrice = new();
+
+
+
+    private List<string> sizeCodes = new();
+    private List<string> packingCodes = new();
+
+
+    private Dictionary<(string size, string packing), decimal> priceData = new();
+
+    private List<(string packingCode, string packingName)> packingCodeNameList = new();
+
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+       
+        packingPrices = await _services.GetPackingPriceAsync();
+
+        
+        var packingTypes = await _services.GetPackingTypeAsync();
+        packingCodeNameList = packingTypes.Select(x => (x.packingcode, x.packingname)).ToList();
+
+
+        packingCodes = packingCodeNameList.Select(x => x.packingCode).ToList();
+
+
+
+        
+        var packingSizes = await _services.GetPackingSizeAsync();
+        sizeCodes = packingSizes.Select(x => x.sizecode).ToList();
+
+        
+        priceData.Clear();
+        foreach (var size in sizeCodes)
+        {
+            foreach (var packing in packingCodes)
+            {
+                var existing = packingPrices.FirstOrDefault(p =>
+                    p.sizecode == size &&
+                    p.packingcode == packing);
+
+                priceData[(size, packing)] = existing?.price ?? 0.00M;
+            }
+        }
+    }
+
+    private void SetPrice(string size, string packing, decimal value)
+    {
+        priceData[(size, packing)] = value;
+    }
+
+
+
+    private async Task ShowAddModal(IEnumerable<PackingPrice> items)
+    {
+        selectedPackingPrice = new PackingPrice();
+        modalTitle = "Add Packing Price";
+        formKey = Guid.NewGuid();
+        isEditMode = false;
+
+        await InvokeAsync(StateHasChanged); 
+        addModal.Show();
+        await Task.Delay(10);
+        await InvokeAsync(StateHasChanged); 
+    }
+
+
+    private async Task ShowEditModal(string packingcode, string sizecode)
+    {
+        var data = await _services.GetPackingPriceByIdAsync(packingcode, sizecode);
+
+        selectedPackingPrice = new PackingPrice
+            {
+                packingcode = data.packingcode,
+                sizecode = data.sizecode,
+                price = data.price
+            };
+
+        modalTitle = "Edit Packing Price";
+        isEditMode = true;
+        addModal.Show();
+        StateHasChanged();
+    }
+
+
+    private async Task<bool> SavePackingPrice()
+    {
+        bool result = true;
+
+        foreach (var kvp in priceData)
+        {
+            var (size, packing) = kvp.Key;
+            var price = kvp.Value;
+
+            if (price > 0)
+            {
+                var existing = await _services.GetPackingPriceByIdAsync(packing, size);
+                if (existing != null)
+                {
+                    existing.price = price;
+                    result &= await _services.UpdatePackingPriceAsync(packing, size, existing);
+                }
+                else
+                {
+                    var newPrice = new PackingPrice
+                        {
+                            packingcode = packing,
+                            sizecode = size,
+                            price = price
+                        };
+                    var created = await _services.CreatePackingPriceAsync(newPrice);
+                    result &= created != null;
+                }
+            }
+        }
+
+        if (result)
+        {
+            await _toastService.Success("Success", "Packing Price data saved successfully");
+            await tableRef.QueryAsync();
+            StateHasChanged();
+        }
+
+        return result;
+    }
+
+
+    // private async Task<bool> DeletePackingPrice(string packingcode, string sizecode)
+    // {
+    //     bool result = await _services.DeletePackingPriceByIdAsync(packingcode, sizecode);
+    //     if (result)
+    //     {
+    //         await tableRef.QueryAsync();
+    //         await _toastService.Success("Success", "Packing Price deleted successfully");
+    //         StateHasChanged();
+    //     }
+    //     return result;
+    // }
+}
