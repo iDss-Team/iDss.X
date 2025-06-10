@@ -247,12 +247,10 @@ namespace iDss.X.Models
         [StringLength(10, ErrorMessage = "Origin Code cannot be longer than 10 characters.")]
         [Display(Name = "Origin Code")]
         [Required]
-        [EmailAddress]
         public string oricode { get; set; }
 
         [StringLength(10, ErrorMessage = "Cost Center cannot be longer than 10 characters.")]
         [Display(Name = "Cost Center")]
-        [EmailAddress]
         public string? costcenter { get; set; }
 
         [NotMapped]
@@ -347,14 +345,12 @@ namespace iDss.X.Models
         public string? email { get; set; }
 
         [StringLength(10, ErrorMessage = "Origin Code cannot be longer than 10 characters.")]
-        [Display(Name = "Origin Code")]
+        [Display(Name = "Destination Code")]
         [Required]
-        [EmailAddress]
         public string descode { get; set; }
 
         [StringLength(10, ErrorMessage = "Cost Center cannot be longer than 10 characters.")]
         [Display(Name = "Cost Center")]
-        [EmailAddress]
         public string? costcenter { get; set; }
 
         [NotMapped]
@@ -428,14 +424,12 @@ namespace iDss.X.Models
         public string? email { get; set; }
 
         [StringLength(10, ErrorMessage = "Origin Code cannot be longer than 10 characters.")]
-        [Display(Name = "Origin Code")]
+        [Display(Name = "Destination Code")]
         [Required]
-        [EmailAddress]
         public string descode { get; set; }
 
         [StringLength(10, ErrorMessage = "Cost Center cannot be longer than 10 characters.")]
         [Display(Name = "Cost Center")]
-        [EmailAddress]
         public string? costcenter { get; set; }
     }
 

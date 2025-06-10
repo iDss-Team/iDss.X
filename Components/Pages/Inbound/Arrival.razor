@@ -1,0 +1,22 @@
+﻿@page "/icl/arrival"
+@using System.Text
+@using iDss.X.Models
+@inject MasterDataPart2Service _service2
+@inject MasterDataPart3Service _service3
+@inject InboundService inboundService
+@attribute [TabItemOption(Text = "Arrival")]
+
+
+
+@* <AutoFill @bind-Value="Model1" Items="Items1" IsLikeMatch="true" OnGetDisplayText="OnGetDisplayText" IsSelectAllTextOnFocus="true">
+
+</AutoFill>
+<section ignore>
+    <img src="@WebsiteOption.CurrentValue.GetAvatarUrl(Model1.Id)" class="shadow" style="width: 140px; margin-bottom: 1rem; border-radius: 6px;" />
+    <EditorForm Model="@Model1" RowType="RowType.Inline" ItemsPerRow="2" />
+</section> *@
+
+
+@code {
+    private ShipperDetail shipperDetail = new();
+}
