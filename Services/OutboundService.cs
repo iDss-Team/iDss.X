@@ -137,6 +137,20 @@ namespace iDss.X.Services
                 .OrderBy(c => c.cityname)
                 .ToListAsync();
         }
+        
+        public async Task<List<District>> GetAllDistricAsync()
+        {
+            return await _db.mdt_district
+                .OrderBy(d => d.distname)
+                .ToListAsync();
+        }
+        
+        public async Task<List<PackingType>> PackingTypeAsync()
+        {
+            return await _db.mdt_packingtype
+                .OrderBy(p => p.packingname)
+                .ToListAsync();
+        }
         public async Task<bool> SaveEntryDataPrimaryASync(EntryDataPrimaryDto edp)
         {
             using var entryData = await _db.Database.BeginTransactionAsync();
