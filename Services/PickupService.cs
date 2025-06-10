@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore.Internal;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace iDss.X.Services
 {
@@ -25,6 +26,17 @@ namespace iDss.X.Services
         public async Task<List<PickupRequest>> GetPickupRequestAsync()
         {
             var result = _db.pum_pickuprequest
+                .Include(c => c.Branch)
+                .Include(c => c.District)
+                .AsNoTracking()
+                .OrderByDescending(c => c.createddate)
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<List<PickupRegular>> GetPickupRegularAsync()
+        {
+            var result = _db.pum_pickupregular
                 .Include(c => c.Branch)
                 .Include(c => c.District)
                 .AsNoTracking()
@@ -80,6 +92,53 @@ namespace iDss.X.Services
             });
         }
 
+        public async Task<QueryData<PickupRegular>> OnQueryPickupRegularAsync(QueryPageOptions options)
+        {
+            var items = await GetPickupRegularAsync();
+
+            var isSearched = false;
+
+            if (options.SearchModel is PickupRegular model)
+            {
+                if (model.id != 0)
+                {
+                    items = items.Where(item => item.id == model.id).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.pickuptype))
+                {
+                    items = items.Where(item => item.pickuptype?.Contains(model.pickuptype, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = model.id != 0 || !string.IsNullOrEmpty(model.pickuptype);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<PickupRegular>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<PickupRegular>()).ToList();
+                isFiltered = true;
+            }
+
+            var total = items.Count();
+
+            return await Task.FromResult(new QueryData<PickupRegular>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
         public async Task<List<PickupRequest>> LoadPickupRequestAsync()
         {
             var result = _db.pum_pickuprequest
@@ -95,6 +154,12 @@ namespace iDss.X.Services
         public async Task<PickupRequest> GetPickupRequestByIDAsync(Guid id)
         {
             var result = _db.pum_pickuprequest.FindAsync(id);
+            return await result;
+        }
+
+        public async Task<PickupRegular> GetPickupRegularByIDAsync(int id)
+        {
+            var result = _db.pum_pickupregular.FindAsync(id);
             return await result;
         }
 
@@ -142,8 +207,16 @@ namespace iDss.X.Services
                     _db.Attach(data);
                     _db.Entry(data).State = EntityState.Modified;
                 }
-
                 await _db.SaveChangesAsync();
+
+                var status = new PickupStatusPool
+                {
+                    pickupno = data.pickupno,
+                    pickupstatus = "request pickup"
+                };
+                _db.pum_pickupstatuspool.Add(status);
+                await _db.SaveChangesAsync();
+
                 return true; // Jika berhasil
             }
             catch (Exception)
@@ -205,6 +278,37 @@ namespace iDss.X.Services
                 return false;
             }
         }
+        public async Task<bool> DeletePickupRegularByIDAsync(IEnumerable<PickupRegular> pickupRegulars)
+        {
+            try
+            {
+                foreach (var item in pickupRegulars)
+                {
+                    var existingSchedulers = await _db.pum_pickupschedule.Where(p => p.puregid == item.id).ToListAsync();
+                    if (existingSchedulers.Any())
+                    {
+                        _db.pum_pickupschedule.RemoveRange(existingSchedulers);
+                    }
+                }
+
+                foreach (var pickupRegular in pickupRegulars)
+                {
+                    var existingRegular = await _db.pum_pickupregular.FindAsync(pickupRegular.id);
+                    if (existingRegular != null)
+                    {
+                        _db.pum_pickupregular.Remove(existingRegular);
+                    }
+                }
+
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
 
         public async Task<string> DeletePickupByPickno(string picknoo)
         {
@@ -234,6 +338,141 @@ namespace iDss.X.Services
         #endregion
 
         #region "Control Status Pickup"
+
+        public async Task<string> SavePickupRegularAsync(PickupRegular dataRegular, List<PickupSchedule> dataSchedules, ItemChangedType changedType)
+        {
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    dataRegular.createdby = "user.login"; //ganti dengan username by session login
+                    dataRegular.createddate = DateTime.Now.ToUniversalTime();
+                    _db.pum_pickupregular.Add(dataRegular);
+                }
+                else
+                {
+                    var existingEntity = await _db.pum_pickupregular.FindAsync(dataRegular.id);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _db.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _db.Attach(dataRegular);
+                    _db.Entry(dataRegular).State = EntityState.Modified;
+                }
+                await _db.SaveChangesAsync();
+
+                int regularId = dataRegular.id;
+
+                var newSchedules = dataSchedules.Select(d => new PickupSchedule
+                {
+                    puregid = dataRegular.id,
+                    pickupday = d.pickupday,
+                    shift = d.shift,
+                    timefrom = d.timefrom,
+                    timeto = d.timeto
+                }).ToList();
+                _db.pum_pickupschedule.AddRange(newSchedules);
+                await _db.SaveChangesAsync();
+                return "success"; // Jika berhasil
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return $"Database error: {dbEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                return $"An unexpected error occurred: {ex.Message}";
+            }
+        }
+
+        public async Task<string> DeleteRegularAsync(int id)
+        {
+            try
+            {
+                var deletePickupScheduler = await _db.pum_pickupschedule.FirstOrDefaultAsync(p => p.id == id);
+                if (deletePickupScheduler == null)
+                {
+                    return "not found";
+                }
+
+                _db.pum_pickupschedule.Remove(deletePickupScheduler);
+                await _db.SaveChangesAsync();
+
+                var deletePickupRegular = await _db.pum_pickupregular.FirstOrDefaultAsync(p => p.id == id);
+                if (deletePickupRegular == null)
+                {
+                    return "not found";
+                }
+
+                _db.pum_pickupregular.Remove(deletePickupRegular);
+                await _db.SaveChangesAsync();
+
+                return "Delete Success";
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return $"Database error: {dbEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                return $"An unexpected error occurred: {ex.Message}";
+            }
+        }
+
+        public async Task<List<PickupSchedule>> GetPickupSchedulesByiD(int id)
+        {
+            return await _db.pum_pickupschedule.Where(p => p.puregid == id).ToListAsync();
+        }
+
+        public async Task CreateScheduleAsync(PickupSchedule schedule)
+        {
+            _db.pum_pickupschedule.Add(schedule);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task UpdateScheduleAsync(PickupSchedule schedule)
+        {
+            var existing = await _db.pum_pickupschedule.FindAsync(schedule.id);
+            if (existing != null)
+            {
+                existing.timefrom = schedule.timefrom;
+                existing.timeto = schedule.timeto;
+                existing.pickupday = schedule.pickupday;
+                existing.shift = schedule.shift;
+
+                _db.pum_pickupschedule.Update(existing);
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        public async Task<string> DeleteScheduleAsync(int id)
+        {
+            try
+            {
+                var deletePickup = await _db.pum_pickupschedule.FirstOrDefaultAsync(p => p.id == id);
+                if (deletePickup == null)
+                {
+                    return "not found";
+                }
+
+                _db.pum_pickupschedule.Remove(deletePickup);
+                await _db.SaveChangesAsync();
+
+                return "Delete Success";
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return $"Database error: {dbEx.Message}";
+            }
+            catch (Exception ex)
+            {
+                return $"An unexpected error occurred: {ex.Message}";
+            }
+        }
         #endregion
 
         #region "Monitoring Pickup"

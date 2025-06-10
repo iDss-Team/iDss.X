@@ -79,7 +79,7 @@
                             </HeaderTemplate>
                             <BodyTemplate>
                                 <Row RowType="RowType.Inline">
-                                    <AutoComplete Items="@PickupTypes" @bind-Value="data.pickuptype" DisplayText="Pickup Type"></AutoComplete>
+                                    <BootstrapInput @bind-Value="data.pickuptype" IsDisabled="true" DisplayText="Pickup Type"></BootstrapInput>
                                     <BootstrapInput TValue="string" @bind-Value="data.pickuppoint" ShowLabel="true"></BootstrapInput>
                                     <BootstrapInput TValue="string" @bind-Value="data.latitude" ShowRequired="true" DisplayText="Latitude"></BootstrapInput>
                                     <BootstrapInput TValue="string" @bind-Value="data.longitude" ShowRequired="true" DisplayText="Longitude"></BootstrapInput>
@@ -115,7 +115,11 @@
                             </HeaderTemplate>
                             <BodyTemplate>
                                 <Row RowType="RowType.Inline">
-                                    <Select TValue="string" Items="@AccountItems" @bind-Value="data.acctno" DisplayText="Accouunt" ShowSearch></Select>
+                                    <Select TValue="string" Items="@AccountItems" @bind-Value="data.acctno" class="@(FieldErrors.ContainsKey(nameof(data.acctno)) ? "is-invalid" : "")" DisplayText="Accouunt" ShowSearch></Select>
+                                    @if (FieldErrors.TryGetValue(nameof(data.acctno), out var acctError))
+                                    {
+                                        <div class="invalid-feedback d-block">@acctError</div>
+                                    }
                                     <BootstrapInput TValue="string" @bind-Value="data.picname" ShowLabel="true"></BootstrapInput>
                                     <BootstrapInput TValue="string" @bind-Value="data.phone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
                                     <BootstrapInput TValue="string" @bind-Value="data.email" DisplayText="Email"></BootstrapInput>
@@ -160,6 +164,8 @@
 
     private List<string> PickupTypes => ["Schedule", "On-Call", "Agent", "API", "Mobile", "WMS"];
     private List<string> TrasportTypes => ["Van", "Pickup", "Truck", "Motorcycle"];
+
+    private Dictionary<string, string> FieldErrors = new();
 
     private DateTime PikupDate
     {
@@ -217,35 +223,57 @@
         }
     }
 
+    private string GetFriendlyFieldName(string fieldName) => fieldName switch
+    {
+        "pickuptype" => "Pickup Type",
+        "acctno" => "Account Number",
+        "latitude" => "Latitude",
+        "longitude" => "Longitude",
+        "addr" => "Address",
+        "distid" => "District",
+        "branchid" => "Branch",
+        _ => fieldName
+    };
+
+
     private bool ValidateInput()
     {
-        var requiredFields = new List<(string Value, string FieldName)>
-        {
-            (data.pickuptype, "Pickup Type"),
-            (data.acctno, "Account"),
-            (data.latitude, "Latitude"),
-            (data.longitude, "Longitude"),
-            (data.addr, "Address"),
-            (data.distid, "District"),
-        };
+        FieldErrors.Clear();
 
-        foreach (var (value, name) in requiredFields)
+        // Daftar field string yang wajib diisi
+        var requiredFields = new List<(string Value, string FieldName)>
+    {
+        (data.pickuptype, nameof(data.pickuptype)),
+        (data.acctno, nameof(data.acctno)),
+        (data.latitude, nameof(data.latitude)),
+        (data.longitude, nameof(data.longitude)),
+        (data.addr, nameof(data.addr)),
+        (data.distid, nameof(data.distid)),
+    };
+
+        foreach (var (value, field) in requiredFields)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                _toastService.Error($"{name} is null.", "data cannot be empty.");
-                return false;
+                FieldErrors[field] = $"{GetFriendlyFieldName(field)} tidak boleh kosong.";
             }
         }
 
+        // Validasi branchid
         if (data.branchid == null)
         {
-            _toastService.Error("Branch harus dipilih.", "error");
+            FieldErrors[nameof(data.branchid)] = "Branch harus dipilih.";
+        }
+
+        if (FieldErrors.Count > 0)
+        {
+            StateHasChanged(); // Trigger re-render supaya UI berubah
             return false;
         }
 
         return true;
     }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -255,8 +283,8 @@
     private async void ShowEditModal(string pickupNoo)
     {
         var data1 = await _pickupService.GetPickupRequestByPickno(pickupNoo);
-        var distnew = await _service1.GetDistrictById(data1);
-        data1.distid = distnew;
+        var distnew = await _service1.GetDistrictByDistrictId(data1.distid);
+        data1.distid = distnew.distid;
         data = Mapper.Map<PickupRequest>(data1);
         ModalTitle = "Edit On-Call Request";
 
@@ -267,6 +295,7 @@
     private async Task ShowAddModal(IEnumerable<PickupRequest> items)
     {
         data = new PickupRequest();
+        data.pickuptype = "On-Call";
         ModalTitle = "Create New On-Call Request";
         IsTable = false;
         StateHasChanged();
@@ -316,6 +345,11 @@
 
     private async Task<bool> SavePickupRequest()
     {
+        if (!ValidateInput())
+        {
+            return false;
+        }
+
         bool result;
         if (pickupRequests.Any(c => c.pickupno == data.pickupno) && ValidateInput())
         {

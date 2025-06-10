@@ -1,0 +1,1967 @@
+﻿@page "/pickup/entrypickupschedule"
+@using iDss.X.Models
+@using AutoMapper;
+@inject ToastService _toastService;
+@inject MasterDataPart1Service _service1
+@inject MasterDataPart2Service _service2
+@inject MasterDataPart3Service _service3
+@inject PickupService _pickupService
+@inject IMapper Mapper;
+@attribute [TabItemOption(Text = "Create Pickup Schedule")]
+
+<PageTitle>Create Pickup Schedule</PageTitle>
+
+<Block OnQueryCondition="OnQueryCondition" Name="Table">
+@if (pickupRegulars != null)
+    {
+        <Row ItemsPerRow="ItemsPerRow.One">
+            <Row ItemsPerRow="ItemsPerRow.Two">
+                <span>
+                    <h5>Create Pickup Schedule</h5>
+                </span>
+            </Row>
+            <Table TItem="PickupRegular" IsPagination="true" PageItemsSource="@_pickupService.PageItemsSource" OnQueryAsync="@_pickupService.OnQueryPickupRegularAsync"
+            IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="false"
+            ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" IsAutoRefresh AutoRefreshInterval="1000"
+            OnDeleteAsync="@_pickupService.DeletePickupRegularByIDAsync" DeleteButtonText="">
+                <TableToolbarTemplate>
+                    <TableToolbarButton TItem="PickupRegular"
+                    Color="Color.Primary"
+                    Icon="fa-solid fa-plus"
+                    Text="Add"
+                    IsAsync OnClickCallback="@ShowAddModal" />
+                </TableToolbarTemplate>
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.acctname" Text="Pickup Regular Number" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.acctno" Text="Account" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.pickuptype" Text="Pickup Date" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.distid" Text="District" Searchable="true" Filterable="true" />
+                    <TableColumn @bind-Field="@context.pickuppoint" IsVisibleWhenAdd="false" IsVisibleWhenEdit="false" />
+                    <TableColumn @bind-Field="@context.id" Text="">
+                        <Template Context="item">
+                            <div class="d-grip gap-2 d-md-block">
+                                <Button Text="" OnClick="@(() => ShowEditModal(item.Row.id))" Color="Color.Success" Icon="fa-solid fa-pen"></Button>
+                                <PopConfirmButton Color="Color.Danger"
+                                Text="" Icon="fa-solid fa-trash"
+                                Content="Are you sure you want to delete the data?"
+                                ConfirmButtonColor="Color.Danger" Size="Size.None"
+                                ConfirmIcon="fa-solid fa-triangle-exclamation text-danger"
+                                OnConfirm="@(() => DeletePickupById(item.Row.id))" />
+                            </div>
+                        </Template>
+                    </TableColumn>
+                </TableColumns>
+            </Table>
+        </Row>
+    }
+    else
+    {
+        <h5>Loading . . .</h5>
+    }
+</Block>
+
+<Block OnQueryCondition="OnQueryCondition2">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>@Title</h5>
+            </StackItem>
+        </Stack>
+    </Row>
+    <ValidateForm Model="dataRegular">
+        <Card>
+            <BodyTemplate>
+                <div class="row">
+                    <div class="col-6">
+                        <Card>
+                            <HeaderTemplate>
+                                Detail Pickup
+                            </HeaderTemplate>
+                            <BodyTemplate>
+                                <Row RowType="RowType.Inline">
+                                    <BootstrapInput @bind-Value="dataRegular.pickuptype" IsDisabled="true" DisplayText="Pickup Type"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.pickuppoint" ShowLabel="true"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.latitude" ShowRequired="true" DisplayText="Latitude" ></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.longitude" ShowRequired="true" DisplayText="Longitude"></BootstrapInput>
+                                    <Select TValue="int?" Items="@BranchItems" @bind-Value="dataRegular.branchid" DisplayText="Branch" ShowSearch></Select>
+                                    <Select TValue="string" Items="@CourierItems" @bind-Value="dataRegular.couriercode" DisplayText="Courier" ShowSearch></Select>
+                                    <AutoComplete Items="@TrasportTypes" @bind-Value="dataRegular.transporttype" DisplayText="Transport Type"></AutoComplete>
+                                    <Textarea TValue="string" @bind-Value="dataRegular.notes" ShowLabel="true"></Textarea>
+                                </Row>
+                            </BodyTemplate>
+                        </Card>
+                    </div>
+                    <div class="col-6">
+                        <Card>
+                            <HeaderTemplate>
+                                From Account (Shipper)
+                            </HeaderTemplate>
+                            <BodyTemplate>
+                                <Row RowType="RowType.Inline">
+                                    <Select TValue="string" Items="@AccountItems" @bind-Value="dataRegular.acctno" DisplayText="Accouunt" ShowSearch></Select>
+                                    <Textarea @bind-Value="dataRegular.addr" ShowLabel="true"></Textarea>
+                                    <Select TValue="string" Items="@DistrictItems" @bind-Value="dataRegular.distid" DisplayText="District" ShowSearch></Select>
+                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.postcode" ShowLabel="true"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.picname" ShowLabel="true"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.picphone" DisplayText="Phone" ShowLabel="true"></BootstrapInput>
+                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.picemail" DisplayText="Email"></BootstrapInput>
+                                </Row>
+                            </BodyTemplate>
+                        </Card>
+                    </div>
+                </div>
+                <Divider />
+                <div class="container">
+                    <div class="row g-2">
+                        <Row ItemsPerRow="ItemsPerRow.Four">
+                            <h5>Day</h5>
+                            <h5>Morning Time</h5>
+                            <h5>Afternoon Time</h5>
+                            <h5>Evening Time</h5>
+                        </Row>
+
+                        <!-- ===================== MONDAY ===================== -->
+                        <div class="row align-items-center">
+                            <Row ItemsPerRow="ItemsPerRow.Four">
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <Checkbox TValue="bool" Value="isMondayChecked" ValueChanged="@(v => OnCheckboxChanged("Monday", v))" DisplayText="Monday" />
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="MondayFromStringToTimeOnlyShift1" DisplayText="" PlaceHolder="From" IsDisabled="!isMondayChecked" @onclick="ShowMondayTimeFromPickerShift1" />
+                                    <BootstrapInput TValue="string" @bind-Value="MondayToStringToTimeOnlyShift1" DisplayText="" PlaceHolder="To" IsDisabled="!isMondayChecked" @onclick="ShowMondayTimeToPickerShift1" />
+                                    @if (showMondayClockFromShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="MondayFromTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showMondayClockToShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="MondayToTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="MondayFromStringToTimeOnlyShift2" DisplayText="" PlaceHolder="From" IsDisabled="!isMondayChecked" @onclick="ShowMondayTimeFromPickerShift2" />
+                                    <BootstrapInput TValue="string" @bind-Value="MondayToStringToTimeOnlyShift2" DisplayText="" PlaceHolder="To" IsDisabled="!isMondayChecked" @onclick="ShowMondayTimeToPickerShift2" />
+                                    @if (showMondayClockFromShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="MondayFromTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showMondayClockToShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="MondayToTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="MondayFromStringToTimeOnlyShift3" DisplayText="" PlaceHolder="From" IsDisabled="!isMondayChecked" @onclick="ShowMondayTimeFromPickerShift3" />
+                                    <BootstrapInput TValue="string" @bind-Value="MondayToStringToTimeOnlyShift3" DisplayText="" PlaceHolder="To" IsDisabled="!isMondayChecked" @onclick="ShowMondayTimeToPickerShift3" />
+                                    @if (showMondayClockFromShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="MondayFromTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showMondayClockToShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="MondayToTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                            </Row>
+                        </div>
+
+                        <!-- ===================== TUESDAY ===================== -->
+                        <div class="row align-items-center">
+                            <Row ItemsPerRow="ItemsPerRow.Four">
+                                <Row ItemsPerRow="ItemsPerRow.One">
+                                    <Checkbox TValue="bool" Value="isTuesdayChecked" ValueChanged="@(v => OnCheckboxChanged("Tuesday", v))" DisplayText="Tuesday" />
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="TuesdayFromStringToTimeOnlyShift1" PlaceHolder="From" DisplayText="" IsDisabled="!isTuesdayChecked" @onclick="ShowTuesdayTimeFromPickerShift1" />
+                                    <BootstrapInput TValue="string" @bind-Value="TuesdayToStringToTimeOnlyShift1" PlaceHolder="To" DisplayText="" IsDisabled="!isTuesdayChecked" @onclick="ShowTuesdayTimeToPickerShift1" />
+                                    @if (showTuesdayClockFromShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="TuesdayFromTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showTuesdayClockToShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="TuesdayToTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="TuesdayFromStringToTimeOnlyShift2" PlaceHolder="From" DisplayText="" IsDisabled="!isTuesdayChecked" @onclick="ShowTuesdayTimeFromPickerShift2" />
+                                    <BootstrapInput TValue="string" @bind-Value="TuesdayToStringToTimeOnlyShift2" PlaceHolder="To" DisplayText="" IsDisabled="!isTuesdayChecked" @onclick="ShowTuesdayTimeToPickerShift2" />
+                                    @if (showTuesdayClockFromShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="TuesdayFromTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showTuesdayClockToShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="TuesdayToTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="TuesdayFromStringToTimeOnlyShift3" PlaceHolder="From" DisplayText="" IsDisabled="!isTuesdayChecked" @onclick="ShowTuesdayTimeFromPickerShift3" />
+                                    <BootstrapInput TValue="string" @bind-Value="TuesdayToStringToTimeOnlyShift3" PlaceHolder="To" DisplayText="" IsDisabled="!isTuesdayChecked" @onclick="ShowTuesdayTimeToPickerShift3" />
+                                    @if (showTuesdayClockFromShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="TuesdayFromTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showTuesdayClockToShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="TuesdayToTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                            </Row>
+                        </div>
+
+                        <!-- ===================== WEDNESDAY ===================== -->
+                        <div class="row align-items-center">
+                            <Row ItemsPerRow="ItemsPerRow.Four">
+                                <Row ItemsPerRow="ItemsPerRow.One">
+                                    <Checkbox TValue="bool" Value="isWednesdayChecked" ValueChanged="@(v => OnCheckboxChanged("Wednesday", v))" DisplayText="Rabu/Wednesday" />
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="WednesdayFromStringToTimeOnlyShift1" PlaceHolder="From" DisplayText="" IsDisabled="!isWednesdayChecked" @onclick="ShowWednesdayTimeFromPickerShift1" />
+                                    <BootstrapInput TValue="string" @bind-Value="WednesdayToStringToTimeOnlyShift1" PlaceHolder="To" DisplayText="" IsDisabled="!isWednesdayChecked" @onclick="ShowWednesdayTimeToPickerShift1" />
+                                    @if (showWednesdayClockFromShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="WednesdayFromTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showWednesdayClockToShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="WednesdayToTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="WednesdayFromStringToTimeOnlyShift2" PlaceHolder="From" DisplayText="" IsDisabled="!isWednesdayChecked" @onclick="ShowWednesdayTimeFromPickerShift2" />
+                                    <BootstrapInput TValue="string" @bind-Value="WednesdayToStringToTimeOnlyShift2" PlaceHolder="To" DisplayText="" IsDisabled="!isWednesdayChecked" @onclick="ShowWednesdayTimeToPickerShift2" />
+                                    @if (showWednesdayClockFromShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="WednesdayFromTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showWednesdayClockToShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="WednesdayToTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="WednesdayFromStringToTimeOnlyShift3" PlaceHolder="From" DisplayText="" IsDisabled="!isWednesdayChecked" @onclick="ShowWednesdayTimeFromPickerShift3" />
+                                    <BootstrapInput TValue="string" @bind-Value="WednesdayToStringToTimeOnlyShift3" PlaceHolder="To" DisplayText="" IsDisabled="!isWednesdayChecked" @onclick="ShowWednesdayTimeToPickerShift3" />
+                                    @if (showWednesdayClockFromShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="WednesdayFromTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showWednesdayClockToShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="WednesdayToTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                            </Row>
+                        </div>
+
+                        <!-- ===================== THURSDAY ===================== -->
+                        <div class="row align-items-center">
+                            <Row ItemsPerRow="ItemsPerRow.Four">
+                                <Row ItemsPerRow="ItemsPerRow.One">
+                                    <Checkbox TValue="bool" Value="isThursdayChecked" ValueChanged="@(v => OnCheckboxChanged("Thursday", v))" DisplayText="Kamis/Thursday" />
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="ThursdayFromStringToTimeOnlyShift1" PlaceHolder="From" DisplayText="" IsDisabled="!isThursdayChecked" @onclick="ShowThursdayTimeFromPickerShift1" />
+                                    <BootstrapInput TValue="string" @bind-Value="ThursdayToStringToTimeOnlyShift1" PlaceHolder="To" DisplayText="" IsDisabled="!isThursdayChecked" @onclick="ShowThursdayTimeToPickerShift1" />
+                                    @if (showThursdayClockFromShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="ThursdayFromTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showThursdayClockToShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="ThursdayToTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="ThursdayFromStringToTimeOnlyShift2" PlaceHolder="From" DisplayText="" IsDisabled="!isThursdayChecked" @onclick="ShowThursdayTimeFromPickerShift2" />
+                                    <BootstrapInput TValue="string" @bind-Value="ThursdayToStringToTimeOnlyShift2" PlaceHolder="To" DisplayText="" IsDisabled="!isThursdayChecked" @onclick="ShowThursdayTimeToPickerShift2" />
+                                    @if (showThursdayClockFromShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="ThursdayFromTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showThursdayClockToShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="ThursdayToTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="ThursdayFromStringToTimeOnlyShift3" PlaceHolder="From" DisplayText="" IsDisabled="!isThursdayChecked" @onclick="ShowThursdayTimeFromPickerShift3" />
+                                    <BootstrapInput TValue="string" @bind-Value="ThursdayToStringToTimeOnlyShift3" PlaceHolder="To" DisplayText="" IsDisabled="!isThursdayChecked" @onclick="ShowThursdayTimeToPickerShift3" />
+                                    @if (showThursdayClockFromShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="ThursdayFromTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showThursdayClockToShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="ThursdayToTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                            </Row>
+                        </div>
+
+                        <!-- ===================== FRIDAY ===================== -->
+                        <div class="row align-items-center">
+                            <Row ItemsPerRow="ItemsPerRow.Four">
+                                <Row ItemsPerRow="ItemsPerRow.One">
+                                    <Checkbox TValue="bool" Value="isFridayChecked" ValueChanged="@(v => OnCheckboxChanged("Friday", v))" DisplayText="Jumat/Friday" />
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="FridayFromStringToTimeOnlyShift1" PlaceHolder="From" DisplayText="" IsDisabled="!isFridayChecked" @onclick="ShowFridayTimeFromPickerShift1" />
+                                    <BootstrapInput TValue="string" @bind-Value="FridayToStringToTimeOnlyShift1" PlaceHolder="To" DisplayText="" IsDisabled="!isFridayChecked" @onclick="ShowFridayTimeToPickerShift1" />
+                                    @if (showFridayClockFromShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="FridayFromTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showFridayClockToShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="FridayToTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="FridayFromStringToTimeOnlyShift2" PlaceHolder="From" DisplayText="" IsDisabled="!isFridayChecked" @onclick="ShowFridayTimeFromPickerShift2" />
+                                    <BootstrapInput TValue="string" @bind-Value="FridayToStringToTimeOnlyShift2" PlaceHolder="To" DisplayText="" IsDisabled="!isFridayChecked" @onclick="ShowFridayTimeToPickerShift2" />
+                                    @if (showFridayClockFromShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="FridayFromTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showFridayClockToShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="FridayToTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="FridayFromStringToTimeOnlyShift3" PlaceHolder="From" DisplayText="" IsDisabled="!isFridayChecked" @onclick="ShowFridayTimeFromPickerShift3" />
+                                    <BootstrapInput TValue="string" @bind-Value="FridayToStringToTimeOnlyShift3" PlaceHolder="To" DisplayText="" IsDisabled="!isFridayChecked" @onclick="ShowFridayTimeToPickerShift3" />
+                                    @if (showFridayClockFromShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="FridayFromTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showFridayClockToShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="FridayToTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                            </Row>
+                        </div>
+
+                        <!-- ===================== SATURDAY ===================== -->
+                        <div class="row align-items-center">
+                            <Row ItemsPerRow="ItemsPerRow.Four">
+                                <Row ItemsPerRow="ItemsPerRow.One">
+                                    <Checkbox TValue="bool" Value="isSaturdayChecked" ValueChanged="@(v => OnCheckboxChanged("Saturday", v))" DisplayText="Sabtu/Saturday" />
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="SaturdayFromStringToTimeOnlyShift1" PlaceHolder="From" DisplayText="" IsDisabled="!isSaturdayChecked" @onclick="ShowSaturdayTimeFromPickerShift1" />
+                                    <BootstrapInput TValue="string" @bind-Value="SaturdayToStringToTimeOnlyShift1" PlaceHolder="To" DisplayText="" IsDisabled="!isSaturdayChecked" @onclick="ShowSaturdayTimeToPickerShift1" />
+                                    @if (showSaturdayClockFromShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SaturdayFromTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showSaturdayClockToShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SaturdayToTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="SaturdayFromStringToTimeOnlyShift2" PlaceHolder="From" DisplayText="" IsDisabled="!isSaturdayChecked" @onclick="ShowSaturdayTimeFromPickerShift2" />
+                                    <BootstrapInput TValue="string" @bind-Value="SaturdayToStringToTimeOnlyShift2" PlaceHolder="To" DisplayText="" IsDisabled="!isSaturdayChecked" @onclick="ShowSaturdayTimeToPickerShift2" />
+                                    @if (showSaturdayClockFromShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SaturdayFromTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showSaturdayClockToShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SaturdayToTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="SaturdayFromStringToTimeOnlyShift3" PlaceHolder="From" DisplayText="" IsDisabled="!isSaturdayChecked" @onclick="ShowSaturdayTimeFromPickerShift3" />
+                                    <BootstrapInput TValue="string" @bind-Value="SaturdayToStringToTimeOnlyShift3" PlaceHolder="To" DisplayText="" IsDisabled="!isSaturdayChecked" @onclick="ShowSaturdayTimeToPickerShift3" />
+                                    @if (showSaturdayClockFromShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SaturdayFromTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showSaturdayClockToShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SaturdayToTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                            </Row>
+                        </div>
+
+                        <!-- ===================== SUNDAY ===================== -->
+                        <div class="row align-items-center">
+                            <Row ItemsPerRow="ItemsPerRow.Four">
+                                <Row ItemsPerRow="ItemsPerRow.One">
+                                    <Checkbox TValue="bool" Value="isSundayChecked" ValueChanged="@(v => OnCheckboxChanged("Sunday", v))" DisplayText="Minggu/Sunday" />
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="SundayFromStringToTimeOnlyShift1" PlaceHolder="From" DisplayText="" IsDisabled="!isSundayChecked" @onclick="ShowSundayTimeFromPickerShift1" />
+                                    <BootstrapInput TValue="string" @bind-Value="SundayToStringToTimeOnlyShift1" PlaceHolder="To" DisplayText="" IsDisabled="!isSundayChecked" @onclick="ShowSundayTimeToPickerShift1" />
+                                    @if (showSundayClockFromShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SundayFromTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showSundayClockToShift1)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SundayToTimespanToStringShift1" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="SundayFromStringToTimeOnlyShift2" PlaceHolder="From" DisplayText="" IsDisabled="!isSundayChecked" @onclick="ShowSundayTimeFromPickerShift2" />
+                                    <BootstrapInput TValue="string" @bind-Value="SundayToStringToTimeOnlyShift2" PlaceHolder="To" DisplayText="" IsDisabled="!isSundayChecked" @onclick="ShowSundayTimeToPickerShift2" />
+                                    @if (showSundayClockFromShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SundayFromTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showSundayClockToShift2)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SundayToTimespanToStringShift2" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <BootstrapInput TValue="string" @bind-Value="SundayFromStringToTimeOnlyShift3" PlaceHolder="From" DisplayText="" IsDisabled="!isSundayChecked" @onclick="ShowSundayTimeFromPickerShift3" />
+                                    <BootstrapInput TValue="string" @bind-Value="SundayToStringToTimeOnlyShift3" PlaceHolder="To" DisplayText="" IsDisabled="!isSundayChecked" @onclick="ShowSundayTimeToPickerShift3" />
+                                    @if (showSundayClockFromShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-start; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SundayFromTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                    @if (showSundayClockToShift3)
+                                    {
+                                        <div style="display: flex; justify-content: flex-end; align-items: flex-start; width: 100%;">
+                                            <TimePicker @bind-Value="SundayToTimespanToStringShift3" ShowSecond="false" ShowClockScale="true"></TimePicker>
+                                        </div>
+                                    }
+                                </Row>
+                            </Row>
+                        </div>
+                        @* Repeat the same structure for remaining days... *@
+                    </div>
+                </div>
+            </BodyTemplate>
+        </Card>
+        <Divider />
+        <Stack IsRow="true" Justify="StackJustifyContent.Evenly" AlignItems="StackAlignItems.Center" IsWrap="true">
+            <StackItem>
+                <Button ButtonType="@ButtonType.Submit" Color="Color.Success" Icon="fa-solid fa-floppy-disk" IsAsync="true" Text="Save" OnClick="SavePickupRegular" />
+                <Divider IsVertical="true" />
+                <Button ButtonType="@ButtonType.Button" Color="Color.Secondary" Icon="fa-solid fa-xmark" IsAsync="true" Text="Cancel" OnClick="Cancel"  />
+            </StackItem>
+        </Stack>
+    </ValidateForm>
+</Block>
+
+@code {
+    private bool IsTable { get; set; } = true;
+    private Task<bool> OnQueryCondition(string name) => Task.FromResult(IsTable);
+    private Task<bool> OnQueryCondition2(string name) => Task.FromResult(!IsTable);
+    private string Title;
+
+    public List<PickupRegular> pickupRegulars = new();
+    private PickupRegular dataRegular = new();
+    public List<PickupSchedule> pickupSchedules = new();
+    private PickupSchedule dataSchedule = new();
+
+    private IEnumerable<SelectedItem>? DistrictItems;
+    private IEnumerable<SelectedItem>? BranchItems;
+    private IEnumerable<SelectedItem>? AccountItems;
+    private IEnumerable<SelectedItem>? CourierItems;
+
+    private bool isMondayChecked = false;
+    private bool isTuesdayChecked = false;
+    private bool isWednesdayChecked = false;
+    private bool isThursdayChecked = false;
+    private bool isFridayChecked = false;
+    private bool isSaturdayChecked = false;
+    private bool isSundayChecked = false;
+
+    //monday
+    private bool showMondayClockFromShift1 = false;
+    private bool showMondayClockToShift1 = false;
+    private bool showMondayClockFromShift2 = false;
+    private bool showMondayClockToShift2 = false;
+    private bool showMondayClockFromShift3 = false;
+    private bool showMondayClockToShift3 = false;
+
+    //tuesday
+    private bool showTuesdayClockFromShift1 = false;
+    private bool showTuesdayClockToShift1 = false;
+    private bool showTuesdayClockFromShift2 = false;
+    private bool showTuesdayClockToShift2 = false;
+    private bool showTuesdayClockFromShift3 = false;
+    private bool showTuesdayClockToShift3 = false;
+
+    // Wednesday
+    private bool showWednesdayClockFromShift1 = false;
+    private bool showWednesdayClockToShift1 = false;
+    private bool showWednesdayClockFromShift2 = false;
+    private bool showWednesdayClockToShift2 = false;
+    private bool showWednesdayClockFromShift3 = false;
+    private bool showWednesdayClockToShift3 = false;
+
+    // Thursday
+    private bool showThursdayClockFromShift1 = false;
+    private bool showThursdayClockToShift1 = false;
+    private bool showThursdayClockFromShift2 = false;
+    private bool showThursdayClockToShift2 = false;
+    private bool showThursdayClockFromShift3 = false;
+    private bool showThursdayClockToShift3 = false;
+
+    // Friday
+    private bool showFridayClockFromShift1 = false;
+    private bool showFridayClockToShift1 = false;
+    private bool showFridayClockFromShift2 = false;
+    private bool showFridayClockToShift2 = false;
+    private bool showFridayClockFromShift3 = false;
+    private bool showFridayClockToShift3 = false;
+
+    // Saturday
+    private bool showSaturdayClockFromShift1 = false;
+    private bool showSaturdayClockToShift1 = false;
+    private bool showSaturdayClockFromShift2 = false;
+    private bool showSaturdayClockToShift2 = false;
+    private bool showSaturdayClockFromShift3 = false;
+    private bool showSaturdayClockToShift3 = false;
+
+    // Sunday
+    private bool showSundayClockFromShift1 = false;
+    private bool showSundayClockToShift1 = false;
+    private bool showSundayClockFromShift2 = false;
+    private bool showSundayClockToShift2 = false;
+    private bool showSundayClockFromShift3 = false;
+    private bool showSundayClockToShift3 = false;
+
+
+    private List<string> selectedDays = new();
+
+    private List<string> PickupTypes => ["Schedule", "On-Call", "Agent", "API", "Mobile", "WMS"];
+    private List<string> TrasportTypes => ["Van", "Pickup", "Truck", "Motorcycle"];
+
+    private Dictionary<string, string> FieldErrors = new();
+
+    private string GetInputClass(string fieldName)
+    {
+        return FieldErrors.ContainsKey(fieldName) ? "form-control is-invalid" : "form-control";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        pickupRegulars = await _pickupService.GetPickupRegularAsync();
+
+        var districts = await _service1.LoadDistrictAsync();
+        DistrictItems = districts.Select(b => new SelectedItem(b.distid, b.distname));
+
+        var branches = await _service3.LoadBranchAsync();
+        BranchItems = branches.Select(b => new SelectedItem(b.branchid.ToString(), b.branchname));
+
+        var couriers = await _service2.GetCourierComboAsync();
+        CourierItems = couriers.Select(b => new SelectedItem(b.couriercode, b.couriername));
+
+        var accounts = await _service1.GetAllAccountAsync();
+        AccountItems = accounts.Select(b => new SelectedItem(b.acctno, b.acctname));
+
+        StateHasChanged();
+    }
+
+    private void OnCheckboxChanged(string hari, bool isChecked)
+    {
+        if (hari == "Monday")
+        {
+            isMondayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Tuesday")
+        {
+            isTuesdayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Wednesday")
+        {
+            isWednesdayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Thursday")
+        {
+            isThursdayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Friday")
+        {
+            isFridayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Saturday")
+        {
+            isSaturdayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Sunday")
+        {
+            isSundayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+
+        if (isChecked)
+        {
+            if (!selectedDays.Contains(hari))
+                selectedDays.Add(hari);
+        }
+        else
+        {
+            selectedDays.Remove(hari);
+        }
+
+        if (!isChecked){
+            pickupSchedules.RemoveAll(x => x.pickupday == hari);
+        }
+
+        dataSchedule.pickupday = string.Join(",", selectedDays);
+    }
+
+    private PickupSchedule? FindSchedule(string day, int shift)
+    {
+        return pickupSchedules.FirstOrDefault(x => x.pickupday == day && x.shift == shift);
+    }
+
+    private PickupSchedule GetOrCreateSchedule(string day, int shift)
+    {
+        var schedule = FindSchedule(day, shift);
+        if (schedule == null)
+        {
+            schedule = new PickupSchedule
+                {
+                    pickupday = day,
+                    shift = shift,
+                    timefrom = TimeOnly.MinValue,
+                    timeto = TimeOnly.MinValue
+                };
+            pickupSchedules.Add(schedule);
+        }
+        return schedule;
+    }
+
+    private string GetTimeFromString(string day, int shift, bool isFrom)
+    {
+        var s = FindSchedule(day, shift);
+        var time = isFrom ? s?.timefrom : s?.timeto;
+        return time == TimeOnly.MinValue ? null : time?.ToString("HH:mm");
+    }
+
+    private TimeOnly ValidateShiftTime(int shift, TimeOnly result, bool isFrom)
+    {
+        TimeOnly min, max;
+
+        switch (shift)
+        {
+            case 1:
+                min = isFrom ? new TimeOnly(8, 0) : new TimeOnly(9, 0);
+                max = isFrom ? new TimeOnly(11, 0) : new TimeOnly(12, 0);
+                break;
+            case 2:
+                min = isFrom ? new TimeOnly(12, 0) : new TimeOnly(13, 0);
+                max = isFrom ? new TimeOnly(16, 0) : new TimeOnly(17, 0);
+                break;
+            case 3:
+                min = isFrom ? new TimeOnly(17, 0) : new TimeOnly(18, 0);
+                max = isFrom ? new TimeOnly(22, 0) : new TimeOnly(23, 0);
+                break;
+            default:
+                min = TimeOnly.MinValue;
+                max = TimeOnly.MaxValue;
+                break;
+        }
+
+        if (result < min) result = min;
+        if (result > max) result = max;
+
+        return result;
+    }
+
+
+    private void ValidateTimeGap(string day, int shift)
+    {
+        var schedule = GetOrCreateSchedule(day, shift);
+        var minGap = TimeSpan.FromHours(1);
+
+        var timeFrom = schedule.timefrom;
+        var timeTo = schedule.timeto;
+
+        if (timeTo - timeFrom < minGap)
+        {
+            schedule.timeto = timeFrom.Add(minGap);
+
+            // Jaga agar tidak melebihi batas maksimal per shift (optional):
+            if (shift == 1 && schedule.timeto > new TimeOnly(12, 0))
+                schedule.timeto = new TimeOnly(12, 0);
+            else if (shift == 2 && schedule.timeto > new TimeOnly(17, 0))
+                schedule.timeto = new TimeOnly(17, 0);
+            else if (shift == 3 && schedule.timeto > new TimeOnly(23, 0))
+                schedule.timeto = new TimeOnly(23, 0);
+        }
+    }
+
+    private bool ValidateInput()
+    {
+        FieldErrors.Clear();
+
+        // Validasi wajib field, simpan error di dictionary
+        var requiredFields = new List<(string Value, string FieldName)>
+        {
+        (dataRegular.pickuptype, nameof(dataRegular.pickuptype)),
+        (dataRegular.acctno, nameof(dataRegular.acctno)),
+        (dataRegular.latitude, nameof(dataRegular.latitude)),
+        (dataRegular.longitude, nameof(dataRegular.longitude)),
+        (dataRegular.addr, nameof(dataRegular.addr)),
+        (dataRegular.distid, nameof(dataRegular.distid)),
+        };
+
+        foreach (var (value, field) in requiredFields)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                FieldErrors[field] = $"{field} tidak boleh kosong.";
+            }
+        }
+
+        if (dataRegular.branchid == null)
+        {
+            FieldErrors[nameof(dataRegular.branchid)] = "Branch harus dipilih.";
+        }
+
+        // Jika ada error di input field, return false (tidak show toast)
+        if (FieldErrors.Count > 0)
+        {
+            StateHasChanged(); // Refresh UI untuk menampilkan error
+            return false;
+        }
+
+        // Validasi minimal satu hari dipilih (pakai toast)
+        if (!isMondayChecked && !isTuesdayChecked && !isWednesdayChecked &&
+            !isThursdayChecked && !isFridayChecked && !isSaturdayChecked && !isSundayChecked)
+        {
+            _toastService.Error("Minimal satu hari (Senin - Minggu) harus dipilih.", "Schedule Error");
+            return false;
+        }
+
+        // Validasi jam shift harus lengkap jika hari dipilih (pakai toast)
+        bool ValidateDay(string day, bool isChecked)
+        {
+            if (!isChecked) return true;
+
+            for (int shift = 1; shift <= 3; shift++)
+            {
+                var from = GetTimeFromString(day, shift, true);
+                var to = GetTimeFromString(day, shift, false);
+
+                bool fromFilled = TimeOnly.TryParse(from, out _);
+                bool toFilled = TimeOnly.TryParse(to, out _);
+
+                if (fromFilled ^ toFilled) // hanya satu yang terisi
+                {
+                    _toastService.Error($"Jam shift {shift} pada {day} tidak lengkap (From/To).", "Schedule Error");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        if (!ValidateDay("Monday", isMondayChecked)) return false;
+        if (!ValidateDay("Tuesday", isTuesdayChecked)) return false;
+        if (!ValidateDay("Wednesday", isWednesdayChecked)) return false;
+        if (!ValidateDay("Thursday", isThursdayChecked)) return false;
+        if (!ValidateDay("Friday", isFridayChecked)) return false;
+        if (!ValidateDay("Saturday", isSaturdayChecked)) return false;
+        if (!ValidateDay("Sunday", isSundayChecked)) return false;
+
+        return true;
+    }
+
+    private void SetTimeFromString(string value, string day, int shift, bool isFrom, ref bool showClock)
+    {
+        if (!TimeOnly.TryParse(value, out var result))
+            return;
+
+        var schedule = GetOrCreateSchedule(day, shift);
+        var fromTime = schedule.timefrom;
+
+        result = ValidateShiftTime(shift, result, isFrom);
+
+        if (isFrom)
+            schedule.timefrom = result;
+        else
+            schedule.timeto = result;
+
+        ValidateTimeGap(day, shift);
+
+        showClock = false; // auto-hide clock
+    }
+
+    private TimeSpan GetTimeSpan(string timeString)
+    {
+        return TimeOnly.TryParse(timeString, out var t) ? t.ToTimeSpan() : TimeSpan.Zero;
+    }
+
+    private string FormatTimeSpan(TimeSpan ts)
+    {
+        return ts.ToString(@"hh\:mm");
+    }
+
+
+    // ===================== MONDAY =====================
+    private string MondayFromStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Monday", 1, true);
+        set => SetTimeFromString(value, "Monday", 1, true, ref showMondayClockFromShift1);
+    }
+
+    private string MondayFromStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Monday", 2, true);
+        set => SetTimeFromString(value, "Monday", 2, true, ref showMondayClockFromShift2);
+    }
+
+    private string MondayFromStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Monday", 3, true);
+        set => SetTimeFromString(value, "Monday", 3, true, ref showMondayClockFromShift3);
+    }
+
+    private TimeSpan MondayFromTimespanToStringShift1
+    {
+        get => GetTimeSpan(MondayFromStringToTimeOnlyShift1);
+        set => MondayFromStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan MondayFromTimespanToStringShift2
+    {
+        get => GetTimeSpan(MondayFromStringToTimeOnlyShift2);
+        set => MondayFromStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan MondayFromTimespanToStringShift3
+    {
+        get => GetTimeSpan(MondayFromStringToTimeOnlyShift3);
+        set => MondayFromStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    private string MondayToStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Monday", 1, false);
+        set => SetTimeFromString(value, "Monday", 1, false, ref showMondayClockToShift1);
+    }
+
+    private string MondayToStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Monday", 2, false);
+        set => SetTimeFromString(value, "Monday", 2, false, ref showMondayClockToShift2);
+    }
+
+    private string MondayToStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Monday", 3, false);
+        set => SetTimeFromString(value, "Monday", 3, false, ref showMondayClockToShift3);
+    }
+
+    private TimeSpan MondayToTimespanToStringShift1
+    {
+        get => GetTimeSpan(MondayToStringToTimeOnlyShift1);
+        set => MondayToStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan MondayToTimespanToStringShift2
+    {
+        get => GetTimeSpan(MondayToStringToTimeOnlyShift2);
+        set => MondayToStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan MondayToTimespanToStringShift3
+    {
+        get => GetTimeSpan(MondayToStringToTimeOnlyShift3);
+        set => MondayToStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    // ===================== TUESDAY =====================
+    private string TuesdayFromStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Tuesday", 1, true);
+        set => SetTimeFromString(value, "Tuesday", 1, true, ref showTuesdayClockFromShift1);
+    }
+
+    private string TuesdayFromStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Tuesday", 2, true);
+        set => SetTimeFromString(value, "Tuesday", 2, true, ref showTuesdayClockFromShift2);
+    }
+
+    private string TuesdayFromStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Tuesday", 3, true);
+        set => SetTimeFromString(value, "Tuesday", 3, true, ref showTuesdayClockFromShift3);
+    }
+
+    private TimeSpan TuesdayFromTimespanToStringShift1
+    {
+        get => GetTimeSpan(TuesdayFromStringToTimeOnlyShift1);
+        set => TuesdayFromStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan TuesdayFromTimespanToStringShift2
+    {
+        get => GetTimeSpan(TuesdayFromStringToTimeOnlyShift2);
+        set => TuesdayFromStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan TuesdayFromTimespanToStringShift3
+    {
+        get => GetTimeSpan(TuesdayFromStringToTimeOnlyShift3);
+        set => TuesdayFromStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    private string TuesdayToStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Tuesday", 1, false);
+        set => SetTimeFromString(value, "Tuesday", 1, false, ref showTuesdayClockToShift1);
+    }
+
+    private string TuesdayToStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Tuesday", 2, false);
+        set => SetTimeFromString(value, "Tuesday", 2, false, ref showTuesdayClockToShift2);
+    }
+
+    private string TuesdayToStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Tuesday", 3, false);
+        set => SetTimeFromString(value, "Tuesday", 3, false, ref showTuesdayClockToShift3);
+    }
+
+    private TimeSpan TuesdayToTimespanToStringShift1
+    {
+        get => GetTimeSpan(TuesdayToStringToTimeOnlyShift1);
+        set => TuesdayToStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan TuesdayToTimespanToStringShift2
+    {
+        get => GetTimeSpan(TuesdayToStringToTimeOnlyShift2);
+        set => TuesdayToStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan TuesdayToTimespanToStringShift3
+    {
+        get => GetTimeSpan(TuesdayToStringToTimeOnlyShift3);
+        set => TuesdayToStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    // ===================== WEDNESDAY =====================
+    private string WednesdayFromStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Wednesday", 1, true);
+        set => SetTimeFromString(value, "Wednesday", 1, true, ref showWednesdayClockFromShift1);
+    }
+
+    private string WednesdayFromStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Wednesday", 2, true);
+        set => SetTimeFromString(value, "Wednesday", 2, true, ref showWednesdayClockFromShift2);
+    }
+
+    private string WednesdayFromStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Wednesday", 3, true);
+        set => SetTimeFromString(value, "Wednesday", 3, true, ref showWednesdayClockFromShift3);
+    }
+
+    private TimeSpan WednesdayFromTimespanToStringShift1
+    {
+        get => GetTimeSpan(WednesdayFromStringToTimeOnlyShift1);
+        set => WednesdayFromStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan WednesdayFromTimespanToStringShift2
+    {
+        get => GetTimeSpan(WednesdayFromStringToTimeOnlyShift2);
+        set => WednesdayFromStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan WednesdayFromTimespanToStringShift3
+    {
+        get => GetTimeSpan(WednesdayFromStringToTimeOnlyShift3);
+        set => WednesdayFromStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    private string WednesdayToStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Wednesday", 1, false);
+        set => SetTimeFromString(value, "Wednesday", 1, false, ref showWednesdayClockToShift1);
+    }
+
+    private string WednesdayToStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Wednesday", 2, false);
+        set => SetTimeFromString(value, "Wednesday", 2, false, ref showWednesdayClockToShift2);
+    }
+
+    private string WednesdayToStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Wednesday", 3, false);
+        set => SetTimeFromString(value, "Wednesday", 3, false, ref showWednesdayClockToShift3);
+    }
+
+    private TimeSpan WednesdayToTimespanToStringShift1
+    {
+        get => GetTimeSpan(WednesdayToStringToTimeOnlyShift1);
+        set => WednesdayToStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan WednesdayToTimespanToStringShift2
+    {
+        get => GetTimeSpan(WednesdayToStringToTimeOnlyShift2);
+        set => WednesdayToStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan WednesdayToTimespanToStringShift3
+    {
+        get => GetTimeSpan(WednesdayToStringToTimeOnlyShift3);
+        set => WednesdayToStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    // ===================== THURSDAY =====================
+    private string ThursdayFromStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Thursday", 1, true);
+        set => SetTimeFromString(value, "Thursday", 1, true, ref showThursdayClockFromShift1);
+    }
+
+    private string ThursdayFromStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Thursday", 2, true);
+        set => SetTimeFromString(value, "Thursday", 2, true, ref showThursdayClockFromShift2);
+    }
+
+    private string ThursdayFromStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Thursday", 3, true);
+        set => SetTimeFromString(value, "Thursday", 3, true, ref showThursdayClockFromShift3);
+    }
+
+    private TimeSpan ThursdayFromTimespanToStringShift1
+    {
+        get => GetTimeSpan(ThursdayFromStringToTimeOnlyShift1);
+        set => ThursdayFromStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan ThursdayFromTimespanToStringShift2
+    {
+        get => GetTimeSpan(ThursdayFromStringToTimeOnlyShift2);
+        set => ThursdayFromStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan ThursdayFromTimespanToStringShift3
+    {
+        get => GetTimeSpan(ThursdayFromStringToTimeOnlyShift3);
+        set => ThursdayFromStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    private string ThursdayToStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Thursday", 1, false);
+        set => SetTimeFromString(value, "Thursday", 1, false, ref showThursdayClockToShift1);
+    }
+
+    private string ThursdayToStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Thursday", 2, false);
+        set => SetTimeFromString(value, "Thursday", 2, false, ref showThursdayClockToShift2);
+    }
+
+    private string ThursdayToStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Thursday", 3, false);
+        set => SetTimeFromString(value, "Thursday", 3, false, ref showThursdayClockToShift3);
+    }
+
+    private TimeSpan ThursdayToTimespanToStringShift1
+    {
+        get => GetTimeSpan(ThursdayToStringToTimeOnlyShift1);
+        set => ThursdayToStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan ThursdayToTimespanToStringShift2
+    {
+        get => GetTimeSpan(ThursdayToStringToTimeOnlyShift2);
+        set => ThursdayToStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan ThursdayToTimespanToStringShift3
+    {
+        get => GetTimeSpan(ThursdayToStringToTimeOnlyShift3);
+        set => ThursdayToStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    // ===================== FRIDAY =====================
+    private string FridayFromStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Friday", 1, true);
+        set => SetTimeFromString(value, "Friday", 1, true, ref showFridayClockFromShift1);
+    }
+
+    private string FridayFromStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Friday", 2, true);
+        set => SetTimeFromString(value, "Friday", 2, true, ref showFridayClockFromShift2);
+    }
+
+    private string FridayFromStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Friday", 3, true);
+        set => SetTimeFromString(value, "Friday", 3, true, ref showFridayClockFromShift3);
+    }
+
+    private TimeSpan FridayFromTimespanToStringShift1
+    {
+        get => GetTimeSpan(FridayFromStringToTimeOnlyShift1);
+        set => FridayFromStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan FridayFromTimespanToStringShift2
+    {
+        get => GetTimeSpan(FridayFromStringToTimeOnlyShift2);
+        set => FridayFromStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan FridayFromTimespanToStringShift3
+    {
+        get => GetTimeSpan(FridayFromStringToTimeOnlyShift3);
+        set => FridayFromStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    private string FridayToStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Friday", 1, false);
+        set => SetTimeFromString(value, "Friday", 1, false, ref showFridayClockToShift1);
+    }
+
+    private string FridayToStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Friday", 2, false);
+        set => SetTimeFromString(value, "Friday", 2, false, ref showFridayClockToShift2);
+    }
+
+    private string FridayToStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Friday", 3, false);
+        set => SetTimeFromString(value, "Friday", 3, false, ref showFridayClockToShift3);
+    }
+
+    private TimeSpan FridayToTimespanToStringShift1
+    {
+        get => GetTimeSpan(FridayToStringToTimeOnlyShift1);
+        set => FridayToStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan FridayToTimespanToStringShift2
+    {
+        get => GetTimeSpan(FridayToStringToTimeOnlyShift2);
+        set => FridayToStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan FridayToTimespanToStringShift3
+    {
+        get => GetTimeSpan(FridayToStringToTimeOnlyShift3);
+        set => FridayToStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    // ===================== SATURDAY =====================
+    private string SaturdayFromStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Saturday", 1, true);
+        set => SetTimeFromString(value, "Saturday", 1, true, ref showSaturdayClockFromShift1);
+    }
+
+    private string SaturdayFromStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Saturday", 2, true);
+        set => SetTimeFromString(value, "Saturday", 2, true, ref showSaturdayClockFromShift2);
+    }
+
+    private string SaturdayFromStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Saturday", 3, true);
+        set => SetTimeFromString(value, "Saturday", 3, true, ref showSaturdayClockFromShift3);
+    }
+
+    private TimeSpan SaturdayFromTimespanToStringShift1
+    {
+        get => GetTimeSpan(SaturdayFromStringToTimeOnlyShift1);
+        set => SaturdayFromStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan SaturdayFromTimespanToStringShift2
+    {
+        get => GetTimeSpan(SaturdayFromStringToTimeOnlyShift2);
+        set => SaturdayFromStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan SaturdayFromTimespanToStringShift3
+    {
+        get => GetTimeSpan(SaturdayFromStringToTimeOnlyShift3);
+        set => SaturdayFromStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    private string SaturdayToStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Saturday", 1, false);
+        set => SetTimeFromString(value, "Saturday", 1, false, ref showSaturdayClockToShift1);
+    }
+
+    private string SaturdayToStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Saturday", 2, false);
+        set => SetTimeFromString(value, "Saturday", 2, false, ref showSaturdayClockToShift2);
+    }
+
+    private string SaturdayToStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Saturday", 3, false);
+        set => SetTimeFromString(value, "Saturday", 3, false, ref showSaturdayClockToShift3);
+    }
+
+    private TimeSpan SaturdayToTimespanToStringShift1
+    {
+        get => GetTimeSpan(SaturdayToStringToTimeOnlyShift1);
+        set => SaturdayToStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan SaturdayToTimespanToStringShift2
+    {
+        get => GetTimeSpan(SaturdayToStringToTimeOnlyShift2);
+        set => SaturdayToStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan SaturdayToTimespanToStringShift3
+    {
+        get => GetTimeSpan(SaturdayToStringToTimeOnlyShift3);
+        set => SaturdayToStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    // ===================== SUNDAY =====================
+    private string SundayFromStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Sunday", 1, true);
+        set => SetTimeFromString(value, "Sunday", 1, true, ref showSundayClockFromShift1);
+    }
+
+    private string SundayFromStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Sunday", 2, true);
+        set => SetTimeFromString(value, "Sunday", 2, true, ref showSundayClockFromShift2);
+    }
+
+    private string SundayFromStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Sunday", 3, true);
+        set => SetTimeFromString(value, "Sunday", 3, true, ref showSundayClockFromShift3);
+    }
+
+    private TimeSpan SundayFromTimespanToStringShift1
+    {
+        get => GetTimeSpan(SundayFromStringToTimeOnlyShift1);
+        set => SundayFromStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan SundayFromTimespanToStringShift2
+    {
+        get => GetTimeSpan(SundayFromStringToTimeOnlyShift2);
+        set => SundayFromStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan SundayFromTimespanToStringShift3
+    {
+        get => GetTimeSpan(SundayFromStringToTimeOnlyShift3);
+        set => SundayFromStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    private string SundayToStringToTimeOnlyShift1
+    {
+        get => GetTimeFromString("Sunday", 1, false);
+        set => SetTimeFromString(value, "Sunday", 1, false, ref showSundayClockToShift1);
+    }
+
+    private string SundayToStringToTimeOnlyShift2
+    {
+        get => GetTimeFromString("Sunday", 2, false);
+        set => SetTimeFromString(value, "Sunday", 2, false, ref showSundayClockToShift2);
+    }
+
+    private string SundayToStringToTimeOnlyShift3
+    {
+        get => GetTimeFromString("Sunday", 3, false);
+        set => SetTimeFromString(value, "Sunday", 3, false, ref showSundayClockToShift3);
+    }
+
+    private TimeSpan SundayToTimespanToStringShift1
+    {
+        get => GetTimeSpan(SundayToStringToTimeOnlyShift1);
+        set => SundayToStringToTimeOnlyShift1 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan SundayToTimespanToStringShift2
+    {
+        get => GetTimeSpan(SundayToStringToTimeOnlyShift2);
+        set => SundayToStringToTimeOnlyShift2 = FormatTimeSpan(value);
+    }
+
+    private TimeSpan SundayToTimespanToStringShift3
+    {
+        get => GetTimeSpan(SundayToStringToTimeOnlyShift3);
+        set => SundayToStringToTimeOnlyShift3 = FormatTimeSpan(value);
+    }
+
+    // ===================== MONDAY =====================
+    private void ShowMondayTimeFromPickerShift1()
+    {
+        showMondayClockFromShift1 = true;
+        showMondayClockToShift1 = false;
+    }
+
+    private void ShowMondayTimeToPickerShift1()
+    {
+        showMondayClockToShift1 = true;
+        showMondayClockFromShift1 = false;
+    }
+
+    private void ShowMondayTimeFromPickerShift2()
+    {
+        showMondayClockFromShift2 = true;
+        showMondayClockToShift2 = false;
+    }
+
+    private void ShowMondayTimeToPickerShift2()
+    {
+        showMondayClockToShift2 = true;
+        showMondayClockFromShift2 = false;
+    }
+
+    private void ShowMondayTimeFromPickerShift3()
+    {
+        showMondayClockFromShift3 = true;
+        showMondayClockToShift3 = false;
+    }
+
+    private void ShowMondayTimeToPickerShift3()
+    {
+        showMondayClockToShift3 = true;
+        showMondayClockFromShift3 = false;
+    }
+
+    // ===================== TUESDAY =====================
+    private void ShowTuesdayTimeFromPickerShift1()
+    {
+        showTuesdayClockFromShift1 = true;
+        showTuesdayClockToShift1 = false;
+    }
+
+    private void ShowTuesdayTimeToPickerShift1()
+    {
+        showTuesdayClockToShift1 = true;
+        showTuesdayClockFromShift1 = false;
+    }
+
+    private void ShowTuesdayTimeFromPickerShift2()
+    {
+        showTuesdayClockFromShift2 = true;
+        showTuesdayClockToShift2 = false;
+    }
+
+    private void ShowTuesdayTimeToPickerShift2()
+    {
+        showTuesdayClockToShift2 = true;
+        showTuesdayClockFromShift2 = false;
+    }
+
+    private void ShowTuesdayTimeFromPickerShift3()
+    {
+        showTuesdayClockFromShift3 = true;
+        showTuesdayClockToShift3 = false;
+    }
+
+    private void ShowTuesdayTimeToPickerShift3()
+    {
+        showTuesdayClockToShift3 = true;
+        showTuesdayClockFromShift3 = false;
+    }
+
+    // ===================== WEDNESDAY =====================
+    private void ShowWednesdayTimeFromPickerShift1()
+    {
+        showWednesdayClockFromShift1 = true;
+        showWednesdayClockToShift1 = false;
+    }
+
+    private void ShowWednesdayTimeToPickerShift1()
+    {
+        showWednesdayClockToShift1 = true;
+        showWednesdayClockFromShift1 = false;
+    }
+
+    private void ShowWednesdayTimeFromPickerShift2()
+    {
+        showWednesdayClockFromShift2 = true;
+        showWednesdayClockToShift2 = false;
+    }
+
+    private void ShowWednesdayTimeToPickerShift2()
+    {
+        showWednesdayClockToShift2 = true;
+        showWednesdayClockFromShift2 = false;
+    }
+
+    private void ShowWednesdayTimeFromPickerShift3()
+    {
+        showWednesdayClockFromShift3 = true;
+        showWednesdayClockToShift3 = false;
+    }
+
+    private void ShowWednesdayTimeToPickerShift3()
+    {
+        showWednesdayClockToShift3 = true;
+        showWednesdayClockFromShift3 = false;
+    }
+
+    // ===================== THURSDAY =====================
+    private void ShowThursdayTimeFromPickerShift1()
+    {
+        showThursdayClockFromShift1 = true;
+        showThursdayClockToShift1 = false;
+    }
+
+    private void ShowThursdayTimeToPickerShift1()
+    {
+        showThursdayClockToShift1 = true;
+        showThursdayClockFromShift1 = false;
+    }
+
+    private void ShowThursdayTimeFromPickerShift2()
+    {
+        showThursdayClockFromShift2 = true;
+        showThursdayClockToShift2 = false;
+    }
+
+    private void ShowThursdayTimeToPickerShift2()
+    {
+        showThursdayClockToShift2 = true;
+        showThursdayClockFromShift2 = false;
+    }
+
+    private void ShowThursdayTimeFromPickerShift3()
+    {
+        showThursdayClockFromShift3 = true;
+        showThursdayClockToShift3 = false;
+    }
+
+    private void ShowThursdayTimeToPickerShift3()
+    {
+        showThursdayClockToShift3 = true;
+        showThursdayClockFromShift3 = false;
+    }
+
+    // ===================== FRIDAY =====================
+    private void ShowFridayTimeFromPickerShift1()
+    {
+        showFridayClockFromShift1 = true;
+        showFridayClockToShift1 = false;
+    }
+
+    private void ShowFridayTimeToPickerShift1()
+    {
+        showFridayClockToShift1 = true;
+        showFridayClockFromShift1 = false;
+    }
+
+    private void ShowFridayTimeFromPickerShift2()
+    {
+        showFridayClockFromShift2 = true;
+        showFridayClockToShift2 = false;
+    }
+
+    private void ShowFridayTimeToPickerShift2()
+    {
+        showFridayClockToShift2 = true;
+        showFridayClockFromShift2 = false;
+    }
+
+    private void ShowFridayTimeFromPickerShift3()
+    {
+        showFridayClockFromShift3 = true;
+        showFridayClockToShift3 = false;
+    }
+
+    private void ShowFridayTimeToPickerShift3()
+    {
+        showFridayClockToShift3 = true;
+        showFridayClockFromShift3 = false;
+    }
+
+    // ===================== SATURDAY =====================
+    private void ShowSaturdayTimeFromPickerShift1()
+    {
+        showSaturdayClockFromShift1 = true;
+        showSaturdayClockToShift1 = false;
+    }
+
+    private void ShowSaturdayTimeToPickerShift1()
+    {
+        showSaturdayClockToShift1 = true;
+        showSaturdayClockFromShift1 = false;
+    }
+
+    private void ShowSaturdayTimeFromPickerShift2()
+    {
+        showSaturdayClockFromShift2 = true;
+        showSaturdayClockToShift2 = false;
+    }
+
+    private void ShowSaturdayTimeToPickerShift2()
+    {
+        showSaturdayClockToShift2 = true;
+        showSaturdayClockFromShift2 = false;
+    }
+
+    private void ShowSaturdayTimeFromPickerShift3()
+    {
+        showSaturdayClockFromShift3 = true;
+        showSaturdayClockToShift3 = false;
+    }
+
+    private void ShowSaturdayTimeToPickerShift3()
+    {
+        showSaturdayClockToShift3 = true;
+        showSaturdayClockFromShift3 = false;
+    }
+
+    // ===================== SUNDAY =====================
+    private void ShowSundayTimeFromPickerShift1()
+    {
+        showSundayClockFromShift1 = true;
+        showSundayClockToShift1 = false;
+    }
+
+    private void ShowSundayTimeToPickerShift1()
+    {
+        showSundayClockToShift1 = true;
+        showSundayClockFromShift1 = false;
+    }
+
+    private void ShowSundayTimeFromPickerShift2()
+    {
+        showSundayClockFromShift2 = true;
+        showSundayClockToShift2 = false;
+    }
+
+    private void ShowSundayTimeToPickerShift2()
+    {
+        showSundayClockToShift2 = true;
+        showSundayClockFromShift2 = false;
+    }
+
+    private void ShowSundayTimeFromPickerShift3()
+    {
+        showSundayClockFromShift3 = true;
+        showSundayClockToShift3 = false;
+    }
+
+    private void ShowSundayTimeToPickerShift3()
+    {
+        showSundayClockToShift3 = true;
+        showSundayClockFromShift3 = false;
+    }
+
+    private async void ShowEditModal(int id)
+    {
+        var data1 = await _pickupService.GetPickupRegularByIDAsync(id);
+        var distnew = await _service1.GetDistrictByDistrictId(data1.distid);
+        data1.distid = distnew.distid;
+        dataRegular = Mapper.Map<PickupRegular>(data1);
+
+        pickupSchedules = await _pickupService.GetPickupSchedulesByiD(id);
+
+        // Helper lokal untuk set waktu berdasarkan hari dan shift
+        void SetTimeFields(string day, int shift, TimeOnly timefrom, TimeOnly timeto)
+        {
+            string fromStr = timefrom.ToString("HH:mm");
+            string toStr = timeto.ToString("HH:mm");
+
+            switch (day)
+            {
+                case "Monday":
+                    if (shift == 1) { MondayFromStringToTimeOnlyShift1 = fromStr; MondayToStringToTimeOnlyShift1 = toStr; }
+                    if (shift == 2) { MondayFromStringToTimeOnlyShift2 = fromStr; MondayToStringToTimeOnlyShift2 = toStr; }
+                    if (shift == 3) { MondayFromStringToTimeOnlyShift3 = fromStr; MondayToStringToTimeOnlyShift3 = toStr; }
+                    break;
+                case "Tuesday":
+                    if (shift == 1) { TuesdayFromStringToTimeOnlyShift1 = fromStr; TuesdayToStringToTimeOnlyShift1 = toStr; }
+                    if (shift == 2) { TuesdayFromStringToTimeOnlyShift2 = fromStr; TuesdayToStringToTimeOnlyShift2 = toStr; }
+                    if (shift == 3) { TuesdayFromStringToTimeOnlyShift3 = fromStr; TuesdayToStringToTimeOnlyShift3 = toStr; }
+                    break;
+                case "Wednesday":
+                    if (shift == 1) { WednesdayFromStringToTimeOnlyShift1 = fromStr; WednesdayToStringToTimeOnlyShift1 = toStr; }
+                    if (shift == 2) { WednesdayFromStringToTimeOnlyShift2 = fromStr; WednesdayToStringToTimeOnlyShift2 = toStr; }
+                    if (shift == 3) { WednesdayFromStringToTimeOnlyShift3 = fromStr; WednesdayToStringToTimeOnlyShift3 = toStr; }
+                    break;
+                case "Thursday":
+                    if (shift == 1) { ThursdayFromStringToTimeOnlyShift1 = fromStr; ThursdayToStringToTimeOnlyShift1 = toStr; }
+                    if (shift == 2) { ThursdayFromStringToTimeOnlyShift2 = fromStr; ThursdayToStringToTimeOnlyShift2 = toStr; }
+                    if (shift == 3) { ThursdayFromStringToTimeOnlyShift3 = fromStr; ThursdayToStringToTimeOnlyShift3 = toStr; }
+                    break;
+                case "Friday":
+                    if (shift == 1) { FridayFromStringToTimeOnlyShift1 = fromStr; FridayToStringToTimeOnlyShift1 = toStr; }
+                    if (shift == 2) { FridayFromStringToTimeOnlyShift2 = fromStr; FridayToStringToTimeOnlyShift2 = toStr; }
+                    if (shift == 3) { FridayFromStringToTimeOnlyShift3 = fromStr; FridayToStringToTimeOnlyShift3 = toStr; }
+                    break;
+                case "Saturday":
+                    if (shift == 1) { SaturdayFromStringToTimeOnlyShift1 = fromStr; SaturdayToStringToTimeOnlyShift1 = toStr; }
+                    if (shift == 2) { SaturdayFromStringToTimeOnlyShift2 = fromStr; SaturdayToStringToTimeOnlyShift2 = toStr; }
+                    if (shift == 3) { SaturdayFromStringToTimeOnlyShift3 = fromStr; SaturdayToStringToTimeOnlyShift3 = toStr; }
+                    break;
+                case "Sunday":
+                    if (shift == 1) { SundayFromStringToTimeOnlyShift1 = fromStr; SundayToStringToTimeOnlyShift1 = toStr; }
+                    if (shift == 2) { SundayFromStringToTimeOnlyShift2 = fromStr; SundayToStringToTimeOnlyShift2 = toStr; }
+                    if (shift == 3) { SundayFromStringToTimeOnlyShift3 = fromStr; SundayToStringToTimeOnlyShift3 = toStr; }
+                    break;
+            }
+        }
+
+        // Proses semua jadwal dan isi ke binding properties
+        foreach (var sched in pickupSchedules)
+        {
+            SetTimeFields(sched.pickupday, sched.shift, sched.timefrom, sched.timeto);
+        }
+
+        // Set checkbox aktif per hari
+        isMondayChecked = pickupSchedules.Any(s => s.pickupday == "Monday");
+        isTuesdayChecked = pickupSchedules.Any(s => s.pickupday == "Tuesday");
+        isWednesdayChecked = pickupSchedules.Any(s => s.pickupday == "Wednesday");
+        isThursdayChecked = pickupSchedules.Any(s => s.pickupday == "Thursday");
+        isFridayChecked = pickupSchedules.Any(s => s.pickupday == "Friday");
+        isSaturdayChecked = pickupSchedules.Any(s => s.pickupday == "Saturday");
+        isSundayChecked = pickupSchedules.Any(s => s.pickupday == "Sunday");
+
+        Title = "Edit Pickup Schedule";
+        IsTable = false;
+        StateHasChanged();
+    }
+
+    private async Task ShowAddModal(IEnumerable<PickupRegular> items)
+    {
+        dataRegular = new PickupRegular();
+        dataRegular.pickuptype = "Schedule";
+        Title = "Create Pickup Schedule";
+
+        isMondayChecked = false;
+        isTuesdayChecked = false;
+        isWednesdayChecked = false;
+        isThursdayChecked = false;
+        isFridayChecked = false;
+        isSaturdayChecked = false;
+        isSundayChecked = false;
+
+        MondayFromStringToTimeOnlyShift1 = MondayToStringToTimeOnlyShift1 = "";
+        MondayFromStringToTimeOnlyShift2 = MondayToStringToTimeOnlyShift2 = "";
+        MondayFromStringToTimeOnlyShift3 = MondayToStringToTimeOnlyShift3 = "";
+
+        TuesdayFromStringToTimeOnlyShift1 = TuesdayToStringToTimeOnlyShift1 = "";
+        TuesdayFromStringToTimeOnlyShift2 = TuesdayToStringToTimeOnlyShift2 = "";
+        TuesdayFromStringToTimeOnlyShift3 = TuesdayToStringToTimeOnlyShift3 = "";
+
+        WednesdayFromStringToTimeOnlyShift1 = WednesdayToStringToTimeOnlyShift1 = "";
+        WednesdayFromStringToTimeOnlyShift2 = WednesdayToStringToTimeOnlyShift2 = "";
+        WednesdayFromStringToTimeOnlyShift3 = WednesdayToStringToTimeOnlyShift3 = "";
+
+        ThursdayFromStringToTimeOnlyShift1 = ThursdayToStringToTimeOnlyShift1 = "";
+        ThursdayFromStringToTimeOnlyShift2 = ThursdayToStringToTimeOnlyShift2 = "";
+        ThursdayFromStringToTimeOnlyShift3 = ThursdayToStringToTimeOnlyShift3 = "";
+
+        FridayFromStringToTimeOnlyShift1 = FridayToStringToTimeOnlyShift1 = "";
+        FridayFromStringToTimeOnlyShift2 = FridayToStringToTimeOnlyShift2 = "";
+        FridayFromStringToTimeOnlyShift3 = FridayToStringToTimeOnlyShift3 = "";
+
+        SaturdayFromStringToTimeOnlyShift1 = SaturdayToStringToTimeOnlyShift1 = "";
+        SaturdayFromStringToTimeOnlyShift2 = SaturdayToStringToTimeOnlyShift2 = "";
+        SaturdayFromStringToTimeOnlyShift3 = SaturdayToStringToTimeOnlyShift3 = "";
+
+        SundayFromStringToTimeOnlyShift1 = SundayToStringToTimeOnlyShift1 = "";
+        SundayFromStringToTimeOnlyShift2 = SundayToStringToTimeOnlyShift2 = "";
+        SundayFromStringToTimeOnlyShift3 = SundayToStringToTimeOnlyShift3 = "";
+
+
+        IsTable = false;
+        StateHasChanged();
+    }
+
+    private async Task Cancel()
+    {
+        IsTable = true;
+    }
+
+    private async Task<string> DeletePickupById(int id)
+    {
+        if (id == 0)
+        {
+            return "id not found";
+        }
+
+        var searchDataById = await _pickupService.GetPickupRegularByIDAsync(id);
+
+        var result = await _pickupService.DeletePickupRegularByIDAsync(new List<PickupRegular> {searchDataById});
+        //await LoadData();
+        await _toastService.Show(new ToastOption()
+            {
+                Category = ToastCategory.Success,
+                Title = "Success",
+                Content = "Delete Data"
+            });
+        StateHasChanged();
+        return "succes";
+    }
+
+    private async Task<string> DeletePickupRegularById(int id)
+    {
+        if (id == null)
+        {
+            return "pickno not found";
+        }
+        var result = await _pickupService.DeleteRegularAsync(id);
+        await LoadData();
+        await _toastService.Show(new ToastOption()
+            {
+                Category = ToastCategory.Success,
+                Title = "Success",
+                Content = "Delete Data"
+            });
+        StateHasChanged();
+        return result;
+    }
+
+    private async Task<string> SavePickupRegular()
+    {
+        if (!ValidateInput())
+        {    
+            return "validation_failed";
+        }
+
+        string result = "success";
+
+        if (pickupRegulars.Any(c => c.id == dataRegular.id) && ValidateInput())
+        {
+            // ✅ Jika dataRegular sudah ada → mode UPDATE
+            var existingSchedules = await _pickupService.GetPickupSchedulesByiD(dataRegular.id);
+            var updatedSchedules = new List<PickupSchedule>();
+
+            async Task ProcessDay(string day, bool isChecked, Func<int, (string from, string to)> getTimes)
+            {
+                for (int shift = 1; shift <= 3; shift++)
+                {
+                    var (fromStr, toStr) = getTimes(shift);
+                    var existing = existingSchedules.FirstOrDefault(s => s.pickupday == day && s.shift == shift);
+
+                    if (isChecked && !string.IsNullOrEmpty(fromStr) && !string.IsNullOrEmpty(toStr))
+                    {
+                        var from = TimeOnly.Parse(fromStr);
+                        var to = TimeOnly.Parse(toStr);
+
+                        if (existing != null)
+                        {
+                            // Update existing
+                            existing.timefrom = from;
+                            existing.timeto = to;
+                            updatedSchedules.Add(existing);
+                        }
+                        else
+                        {
+                            // Insert new
+                            updatedSchedules.Add(new PickupSchedule
+                                {
+                                    puregid = dataRegular.id,
+                                    pickupday = day,
+                                    shift = shift,
+                                    timefrom = from,
+                                    timeto = to
+                                });
+                        }
+                    }
+                    else if (existing != null)
+                    {
+                        // Delete unselected or cleared schedule
+                        _ = await _pickupService.DeleteScheduleAsync(existing.id);
+                    }
+                }
+            }
+
+            // Helper lokal untuk ambil waktu per hari
+            (string, string) GetTime(string day, int shift) => (day, shift) switch
+            {
+                ("Monday", 1) => (MondayFromStringToTimeOnlyShift1, MondayToStringToTimeOnlyShift1),
+                ("Monday", 2) => (MondayFromStringToTimeOnlyShift2, MondayToStringToTimeOnlyShift2),
+                ("Monday", 3) => (MondayFromStringToTimeOnlyShift3, MondayToStringToTimeOnlyShift3),
+
+                ("Tuesday", 1) => (TuesdayFromStringToTimeOnlyShift1, TuesdayToStringToTimeOnlyShift1),
+                ("Tuesday", 2) => (TuesdayFromStringToTimeOnlyShift2, TuesdayToStringToTimeOnlyShift2),
+                ("Tuesday", 3) => (TuesdayFromStringToTimeOnlyShift3, TuesdayToStringToTimeOnlyShift3),
+
+                ("Wednesday", 1) => (WednesdayFromStringToTimeOnlyShift1, WednesdayToStringToTimeOnlyShift1),
+                ("Wednesday", 2) => (WednesdayFromStringToTimeOnlyShift2, WednesdayToStringToTimeOnlyShift2),
+                ("Wednesday", 3) => (WednesdayFromStringToTimeOnlyShift3, WednesdayToStringToTimeOnlyShift3),
+
+                ("Thursday", 1) => (ThursdayFromStringToTimeOnlyShift1, ThursdayToStringToTimeOnlyShift1),
+                ("Thursday", 2) => (ThursdayFromStringToTimeOnlyShift2, ThursdayToStringToTimeOnlyShift2),
+                ("Thursday", 3) => (ThursdayFromStringToTimeOnlyShift3, ThursdayToStringToTimeOnlyShift3),
+
+                ("Friday", 1) => (FridayFromStringToTimeOnlyShift1, FridayToStringToTimeOnlyShift1),
+                ("Friday", 2) => (FridayFromStringToTimeOnlyShift2, FridayToStringToTimeOnlyShift2),
+                ("Friday", 3) => (FridayFromStringToTimeOnlyShift3, FridayToStringToTimeOnlyShift3),
+
+                ("Saturday", 1) => (SaturdayFromStringToTimeOnlyShift1, SaturdayToStringToTimeOnlyShift1),
+                ("Saturday", 2) => (SaturdayFromStringToTimeOnlyShift2, SaturdayToStringToTimeOnlyShift2),
+                ("Saturday", 3) => (SaturdayFromStringToTimeOnlyShift3, SaturdayToStringToTimeOnlyShift3),
+
+                ("Sunday", 1) => (SundayFromStringToTimeOnlyShift1, SundayToStringToTimeOnlyShift1),
+                ("Sunday", 2) => (SundayFromStringToTimeOnlyShift2, SundayToStringToTimeOnlyShift2),
+                ("Sunday", 3) => (SundayFromStringToTimeOnlyShift3, SundayToStringToTimeOnlyShift3),
+
+                _ => ("", "")
+            };
+
+            var scheduleProcessors = new List<(string day, bool isChecked)>
+            {
+                ("Monday", isMondayChecked),
+                ("Tuesday", isTuesdayChecked),
+                ("Wednesday", isWednesdayChecked),
+                ("Thursday", isThursdayChecked),
+                ("Friday", isFridayChecked),
+                ("Saturday", isSaturdayChecked),
+                ("Sunday", isSundayChecked),
+            };
+
+            foreach (var (day, isChecked) in scheduleProcessors)
+            {
+                await ProcessDay(day, isChecked, shift => GetTime(day, shift));
+            }
+
+            foreach (var sched in updatedSchedules)
+            {
+                if (sched.id > 0)
+                    await _pickupService.UpdateScheduleAsync(sched);
+                else
+                    await _pickupService.CreateScheduleAsync(sched);
+            }
+
+            await _toastService.Success("Success", "Schedule Updated");
+        }
+        else if (ValidateInput())
+        {
+            var acctNamee = await _service1.GetAccountByAcctNoAsync(dataRegular.acctno);
+            var courierNamee = await _service2.GetCourierByCodeAsync(dataRegular.couriercode);
+
+            dataRegular.acctname = acctNamee.acctname;
+            dataRegular.couriername = courierNamee.couriername;
+
+            result = await _pickupService.SavePickupRegularAsync(dataRegular, pickupSchedules, ItemChangedType.Add);
+            await _toastService.Success("Success", "Data Saved");
+        }
+        
+        IsTable = true;
+        StateHasChanged();
+        await LoadData();
+        return result;
+    }
+}
