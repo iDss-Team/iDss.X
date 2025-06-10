@@ -5,9 +5,12 @@ using BootstrapBlazor.Components;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Concurrent;
+using iDss.X.Models.Dto;
+using Humanizer;
 
 namespace iDss.X.Services
 {
+    // awb inventory service
     public class OutboundService
     {
         private readonly AppDbContext _db;
@@ -115,6 +118,74 @@ namespace iDss.X.Services
             return await _db.mdt_awbinventory
                 .Where(a => a.branchid == branchId)
                 .CountAsync();
+        }
+    }
+
+    // entry data primary service
+    public class EntryDataPrimaryService
+    {
+        private readonly AppDbContext _db;
+
+        public EntryDataPrimaryService(AppDbContext context)
+        {
+            _db = context;
+        }
+
+        public async Task<List<City>> GetAllCityAsync()
+        {
+            return await _db.mdt_city
+                .OrderBy(c => c.cityname)
+                .ToListAsync();
+        }
+        
+        public async Task<List<District>> GetAllDistricAsync()
+        {
+            return await _db.mdt_district
+                .OrderBy(d => d.distname)
+                .ToListAsync();
+        }
+        
+        public async Task<List<PackingType>> PackingTypeAsync()
+        {
+            return await _db.mdt_packingtype
+                .OrderBy(p => p.packingname)
+                .ToListAsync();
+        }
+        public async Task<bool> SaveEntryDataPrimaryASync(EntryDataPrimaryDto edp)
+        {
+            using var entryData = await _db.Database.BeginTransactionAsync();
+
+            try
+            {
+                if (edp.Shipment != null)
+                {
+                    // Tambahkan ShipmentDetail
+                    _db.trx_shipmentdetail.Add(edp.Shipment);
+                }
+
+                if (edp.Shipper != null)
+                {
+                    // Pastikan awb Shipper sesuai dengan Shipment (jika diperlukan)
+                    edp.Shipper.awb = edp.Shipment?.awb;
+                    _db.trx_shipper.Add(edp.Shipper);
+                }
+
+                if (edp.Consignee != null)
+                {
+                    // Pastikan awb Consignee sesuai dengan Shipment (jika diperlukan)
+                    edp.Consignee.awb = edp.Shipment?.awb;
+                    _db.trx_consignee.Add(edp.Consignee);
+                }
+
+                await _db.SaveChangesAsync();
+                await entryData.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await entryData.RollbackAsync(); // Penting: rollback kalau gagal
+                return false;
+            }
         }
     }
 }

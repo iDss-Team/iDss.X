@@ -49,6 +49,7 @@ namespace iDss.X.Models
         [StringLength(15)]
         [Display(Name = "Pickup No")]
         public String? pickupno { get; set; }
+
         [ForeignKey("pickupno")]
         [ValidateNever]
         public PickupRequest PickupRequest { get; set; }
@@ -153,7 +154,6 @@ namespace iDss.X.Models
 
         [NotMapped]
         public VoidTransaction VoidTransaction { get; set; }
-
     }
 
     [Index(nameof(awb), IsUnique = true)]
@@ -172,6 +172,7 @@ namespace iDss.X.Models
         [Required]
         [Display(Name = "Branch")]
         public int branchori { get; set; }
+
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
@@ -180,6 +181,7 @@ namespace iDss.X.Models
         [ValidateNever]
         [Display(Name = "Account")]
         public String? acctno { get; set; }
+
         [ForeignKey("acctno")]
         [ValidateNever]
         public Account Account { get; set; }
@@ -213,6 +215,7 @@ namespace iDss.X.Models
         [Required]
         [Display(Name = "District")]
         public string distid { get; set; }
+
         [ForeignKey("distid")]
         [ValidateNever]
         public District District { get; set; }
@@ -272,6 +275,7 @@ namespace iDss.X.Models
         [ValidateNever]
         [Display(Name = "Branch")]
         public int? branchcne { get; set; }
+
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
@@ -280,6 +284,7 @@ namespace iDss.X.Models
         [ValidateNever]
         [Display(Name = "Account")]
         public String? acctno { get; set; }
+
         [ForeignKey("acctno")]
         [ValidateNever]
         public Account Account { get; set; }
@@ -313,6 +318,7 @@ namespace iDss.X.Models
         [Required]
         [Display(Name = "District")]
         public string distid { get; set; }
+
         [ForeignKey("distid")]
         [ValidateNever]
         public District District { get; set; }
@@ -392,6 +398,7 @@ namespace iDss.X.Models
         [Required]
         [Display(Name = "District")]
         public string distid { get; set; }
+
         [ForeignKey("distid")]
         [ValidateNever]
         public District District { get; set; }
@@ -563,6 +570,7 @@ namespace iDss.X.Models
         [Required]
         [Display(Name = "Branch")]
         public int branchid { get; set; }
+
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
@@ -575,6 +583,7 @@ namespace iDss.X.Models
         [ValidateNever]
         [Display(Name = "Courier")]
         public String? couriercode { get; set; }
+
         [ForeignKey("couriercode")]
         [ValidateNever]
         public Courier Courier { get; set; }
@@ -586,6 +595,7 @@ namespace iDss.X.Models
         [ValidateNever]
         [Display(Name = "Relation")]
         public int? relationid { get; set; }
+
         [ForeignKey("relationid")]
         [ValidateNever]
         public Relation Relation { get; set; }
@@ -593,6 +603,7 @@ namespace iDss.X.Models
         [ValidateNever]
         [Display(Name = "Reason")]
         public int? reasonid { get; set; }
+
         [ForeignKey("reasonid")]
         [ValidateNever]
         public ReasonUN ReasonUN { get; set; }
@@ -660,6 +671,7 @@ namespace iDss.X.Models
         [Required]
         [Display(Name = "Branch")]
         public int branchid { get; set; }
+
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
@@ -686,5 +698,4 @@ namespace iDss.X.Models
         [NotMapped]
         public ShipmentDetail ShipmentDetail { get; set; }
     }
-
 }
