@@ -88,7 +88,7 @@
                     <BodyTemplate>
                         <Row ItemsPerRow="ItemsPerRow.Two">
                             <Row RowType="RowType.Normal">
-                                @* <DateTimePicker TValue="DateOnly" @bind-Value="entryData.Shipment.pickupdate" DisplayText="Pick Up Date" ShowLabel="true" /> *@
+                                <DateTimePicker @bind-Value="PickupDate" DisplayText="Pick Up Date" ShowLabel="true" />
                                 <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.awb" DisplayText="AWB" ShowLabel="true"/>
                                 <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.refno" DisplayText="ReffNo" ShowLabel="true"/>
                                 <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.donumber" DisplayText="DO Number" ShowLabel="true"/>
@@ -173,10 +173,6 @@
                             <Row RowType="RowType.Inline">
                                 <BootstrapInput TValue="int" IsAutoFocus="true" Readonly="true" IsSelectAllTextOnFocus="true" ShowLabel="true" DisplayText="Available AWB" />
                             </Row>
-                            
-                           
-                            
-                            
                         </Row>
 
                        
@@ -213,6 +209,19 @@
         Shipment = new(),
         Consignee = new()
     };
+
+    private DateTime PickupDate
+    {
+        get => entryData.Shipment?.pickupdate.ToDateTime(TimeOnly.MinValue) ?? DateTime.MinValue;
+        set
+        {
+            if (entryData.Shipment is not null)
+            {
+                entryData.Shipment.pickupdate = DateOnly.FromDateTime(value);
+            }
+        }
+    }
+
     private List<SelectedItem> districtItems = new();
     private List<District> districtList = new();
     private List<SelectedItem> cityItems = new();
@@ -273,7 +282,6 @@
     try
     {
         entryData.Shipper.branchori = 1;
-        entryData.Shipment.pickupdate = DateOnly.FromDateTime(DateTime.Today);
         entryData.Shipment.trxtype = "REG"; // regular
         entryData.Consignee.statecode = "ID";
         entryData.Consignee.distid = "317307"; // pastikan valid
