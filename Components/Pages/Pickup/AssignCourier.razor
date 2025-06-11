@@ -1,0 +1,35 @@
+﻿@page "/pickup/assigncourier"
+@using iDss.X.Models
+@using AutoMapper;
+@inject ToastService _toastService;
+@inject MasterDataPart1Service _service1
+@inject MasterDataPart2Service _service2
+@inject MasterDataPart3Service _service3
+@inject PickupService _pickupService
+@inject IMapper Mapper;
+@attribute [TabItemOption(Text = "Create Assign Courier")]
+
+<PageTitle>Create Assign Courier</PageTitle>
+
+<Block>
+    <Row>
+        <Table TItem="PickupStatusPool" IsPagination="true" PageItemsSource="@_pickupService.PageItemsSource" 
+               IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="false"
+               ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" IsAutoRefresh AutoRefreshInterval="1000"
+               DeleteButtonText="">
+            <TableToolbarTemplate>
+                <TableToolbarButton TItem="PickupRegular"
+                                    Color="Color.Primary"
+                                    Icon="fa-solid fa-plus"
+                                    Text="Add" />
+            </TableToolbarTemplate>
+
+
+        </Table>
+    </Row>
+</Block>
+
+
+@code {
+
+}

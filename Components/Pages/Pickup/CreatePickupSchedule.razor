@@ -80,7 +80,6 @@
                             <BodyTemplate>
                                 <Row RowType="RowType.Inline">
                                     <BootstrapInput @bind-Value="dataRegular.pickuptype" IsDisabled="true" DisplayText="Pickup Type"></BootstrapInput>
-                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.pickuppoint" ShowLabel="true"></BootstrapInput>
                                     <BootstrapInput TValue="string" @bind-Value="dataRegular.latitude" ShowRequired="true" DisplayText="Latitude" ></BootstrapInput>
                                     <BootstrapInput TValue="string" @bind-Value="dataRegular.longitude" ShowRequired="true" DisplayText="Longitude"></BootstrapInput>
                                     <Select TValue="int?" Items="@BranchItems" @bind-Value="dataRegular.branchid" DisplayText="Branch" ShowSearch></Select>
@@ -100,6 +99,7 @@
                                 <Row RowType="RowType.Inline">
                                     <Select TValue="string" Items="@AccountItems" @bind-Value="dataRegular.acctno" DisplayText="Accouunt" ShowSearch></Select>
                                     <Textarea @bind-Value="dataRegular.addr" ShowLabel="true"></Textarea>
+                                    <BootstrapInput TValue="string" @bind-Value="dataRegular.pickuppoint" ShowLabel="true"></BootstrapInput>
                                     <Select TValue="string" Items="@DistrictItems" @bind-Value="dataRegular.distid" DisplayText="District" ShowSearch></Select>
                                     <BootstrapInput TValue="string" @bind-Value="dataRegular.postcode" ShowLabel="true"></BootstrapInput>
                                     <BootstrapInput TValue="string" @bind-Value="dataRegular.picname" ShowLabel="true"></BootstrapInput>
@@ -621,6 +621,9 @@
     private List<string> TrasportTypes => ["Van", "Pickup", "Truck", "Motorcycle"];
 
     private Dictionary<string, string> FieldErrors = new();
+    private string? referenceDay = null;
+    private readonly Dictionary<(string day, int shift), PickupSchedule> _schedules = new();
+    private HashSet<string> filledDays = new();
 
     private string GetInputClass(string fieldName)
     {
@@ -651,143 +654,6 @@
         StateHasChanged();
     }
 
-    private void OnCheckboxChanged(string hari, bool isChecked)
-    {
-        if (hari == "Monday")
-        {
-            isMondayChecked = isChecked;
-            dataSchedule.pickupday = hari;
-        }
-        if (hari == "Tuesday")
-        {
-            isTuesdayChecked = isChecked;
-            dataSchedule.pickupday = hari;
-        }
-        if (hari == "Wednesday")
-        {
-            isWednesdayChecked = isChecked;
-            dataSchedule.pickupday = hari;
-        }
-        if (hari == "Thursday")
-        {
-            isThursdayChecked = isChecked;
-            dataSchedule.pickupday = hari;
-        }
-        if (hari == "Friday")
-        {
-            isFridayChecked = isChecked;
-            dataSchedule.pickupday = hari;
-        }
-        if (hari == "Saturday")
-        {
-            isSaturdayChecked = isChecked;
-            dataSchedule.pickupday = hari;
-        }
-        if (hari == "Sunday")
-        {
-            isSundayChecked = isChecked;
-            dataSchedule.pickupday = hari;
-        }
-
-        if (isChecked)
-        {
-            if (!selectedDays.Contains(hari))
-                selectedDays.Add(hari);
-        }
-        else
-        {
-            selectedDays.Remove(hari);
-        }
-
-        if (!isChecked){
-            pickupSchedules.RemoveAll(x => x.pickupday == hari);
-        }
-
-        dataSchedule.pickupday = string.Join(",", selectedDays);
-    }
-
-    private PickupSchedule? FindSchedule(string day, int shift)
-    {
-        return pickupSchedules.FirstOrDefault(x => x.pickupday == day && x.shift == shift);
-    }
-
-    private PickupSchedule GetOrCreateSchedule(string day, int shift)
-    {
-        var schedule = FindSchedule(day, shift);
-        if (schedule == null)
-        {
-            schedule = new PickupSchedule
-                {
-                    pickupday = day,
-                    shift = shift,
-                    timefrom = TimeOnly.MinValue,
-                    timeto = TimeOnly.MinValue
-                };
-            pickupSchedules.Add(schedule);
-        }
-        return schedule;
-    }
-
-    private string GetTimeFromString(string day, int shift, bool isFrom)
-    {
-        var s = FindSchedule(day, shift);
-        var time = isFrom ? s?.timefrom : s?.timeto;
-        return time == TimeOnly.MinValue ? null : time?.ToString("HH:mm");
-    }
-
-    private TimeOnly ValidateShiftTime(int shift, TimeOnly result, bool isFrom)
-    {
-        TimeOnly min, max;
-
-        switch (shift)
-        {
-            case 1:
-                min = isFrom ? new TimeOnly(8, 0) : new TimeOnly(9, 0);
-                max = isFrom ? new TimeOnly(11, 0) : new TimeOnly(12, 0);
-                break;
-            case 2:
-                min = isFrom ? new TimeOnly(12, 0) : new TimeOnly(13, 0);
-                max = isFrom ? new TimeOnly(16, 0) : new TimeOnly(17, 0);
-                break;
-            case 3:
-                min = isFrom ? new TimeOnly(17, 0) : new TimeOnly(18, 0);
-                max = isFrom ? new TimeOnly(22, 0) : new TimeOnly(23, 0);
-                break;
-            default:
-                min = TimeOnly.MinValue;
-                max = TimeOnly.MaxValue;
-                break;
-        }
-
-        if (result < min) result = min;
-        if (result > max) result = max;
-
-        return result;
-    }
-
-
-    private void ValidateTimeGap(string day, int shift)
-    {
-        var schedule = GetOrCreateSchedule(day, shift);
-        var minGap = TimeSpan.FromHours(1);
-
-        var timeFrom = schedule.timefrom;
-        var timeTo = schedule.timeto;
-
-        if (timeTo - timeFrom < minGap)
-        {
-            schedule.timeto = timeFrom.Add(minGap);
-
-            // Jaga agar tidak melebihi batas maksimal per shift (optional):
-            if (shift == 1 && schedule.timeto > new TimeOnly(12, 0))
-                schedule.timeto = new TimeOnly(12, 0);
-            else if (shift == 2 && schedule.timeto > new TimeOnly(17, 0))
-                schedule.timeto = new TimeOnly(17, 0);
-            else if (shift == 3 && schedule.timeto > new TimeOnly(23, 0))
-                schedule.timeto = new TimeOnly(23, 0);
-        }
-    }
-
     private bool ValidateInput()
     {
         FieldErrors.Clear();
@@ -795,12 +661,12 @@
         // Validasi wajib field, simpan error di dictionary
         var requiredFields = new List<(string Value, string FieldName)>
         {
-        (dataRegular.pickuptype, nameof(dataRegular.pickuptype)),
-        (dataRegular.acctno, nameof(dataRegular.acctno)),
-        (dataRegular.latitude, nameof(dataRegular.latitude)),
-        (dataRegular.longitude, nameof(dataRegular.longitude)),
-        (dataRegular.addr, nameof(dataRegular.addr)),
-        (dataRegular.distid, nameof(dataRegular.distid)),
+            (dataRegular.pickuptype, nameof(dataRegular.pickuptype)),
+            (dataRegular.acctno, nameof(dataRegular.acctno)),
+            (dataRegular.latitude, nameof(dataRegular.latitude)),
+            (dataRegular.longitude, nameof(dataRegular.longitude)),
+            (dataRegular.addr, nameof(dataRegular.addr)),
+            (dataRegular.distid, nameof(dataRegular.distid)),
         };
 
         foreach (var (value, field) in requiredFields)
@@ -865,15 +731,211 @@
         return true;
     }
 
+    private void ClearDaySchedule(string day)
+    {
+        // Hapus semua shift untuk hari itu dari dictionary
+        for (int shift = 1; shift <= 3; shift++)
+            _schedules.Remove((day, shift));
+
+        // Hapus dari daftar hari yang pernah diisi
+        filledDays.Remove(day);
+
+        // Kalau itu hari acuan, cari hari lain yang sudah terisi
+        if (referenceDay == day)
+            referenceDay = filledDays.FirstOrDefault(); // bisa null kalau semua kosong
+    }
+
+
+    private void OnCheckboxChanged(string hari, bool isChecked)
+    {
+        if (hari == "Monday")
+        {
+            isMondayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Tuesday")
+        {
+            isTuesdayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Wednesday")
+        {
+            isWednesdayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Thursday")
+        {
+            isThursdayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Friday")
+        {
+            isFridayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Saturday")
+        {
+            isSaturdayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+        if (hari == "Sunday")
+        {
+            isSundayChecked = isChecked;
+            dataSchedule.pickupday = hari;
+        }
+
+        if (isChecked)
+        {
+            if (!selectedDays.Contains(hari))
+                selectedDays.Add(hari);
+        }
+        else
+        {
+            selectedDays.Remove(hari);
+        }
+
+        if (!isChecked){
+            selectedDays.Remove(hari);
+            pickupSchedules.RemoveAll(x => x.pickupday == hari);
+            ClearDaySchedule(hari);
+        }
+
+        dataSchedule.pickupday = string.Join(",", selectedDays);
+    }
+
+    private PickupSchedule? FindSchedule(string day, int shift)
+    {
+        return pickupSchedules.FirstOrDefault(x => x.pickupday == day && x.shift == shift);
+    }
+
+    private PickupSchedule GetOrCreateSchedule(string day, int shift)
+    {
+        if (string.IsNullOrWhiteSpace(day))
+            throw new ArgumentException("Hari tidak boleh kosong.", nameof(day));
+
+        if (shift < 1 || shift > 3)
+            throw new ArgumentOutOfRangeException(nameof(shift), "Shift harus antara 1 sampai 3.");
+
+        if (_schedules.TryGetValue((day, shift), out var schedule))
+            return schedule;
+
+        //var schedule = FindSchedule(day, shift);
+        if (schedule == null)
+        {
+            schedule = new PickupSchedule
+                {
+                    pickupday = day,
+                    shift = shift,
+                    timefrom = TimeOnly.MinValue,
+                    timeto = TimeOnly.MinValue
+                };
+            _schedules[(day, shift)] = schedule;
+            pickupSchedules.Add(schedule);
+        }
+        return schedule;
+    }
+
+    private string GetTimeFromString(string day, int shift, bool isFrom)
+    {
+        var s = FindSchedule(day, shift);
+        var time = isFrom ? s?.timefrom : s?.timeto;
+        return time == TimeOnly.MinValue ? null : time?.ToString("HH:mm");
+    }
+
+    private TimeOnly ValidateShiftTime(int shift, TimeOnly result,TimeOnly fromTime, bool isFrom)
+    {
+        TimeOnly min, max;
+
+        switch (shift)
+        {
+            case 1:
+                min = new TimeOnly(8, 0);
+                max = new TimeOnly(11, 0);
+                if (!isFrom)
+                {
+                    min = fromTime.AddHours(1);
+                    max = max.AddHours(1);
+                }
+                break;
+            case 2:
+                min = new TimeOnly(12, 0);
+                max = new TimeOnly(16, 0);
+                if (!isFrom)
+                {
+                    min = fromTime.AddHours(1);
+                    max = max.AddHours(1);
+                }
+                break;
+            case 3:
+                min = new TimeOnly(17, 0);
+                max = new TimeOnly(22, 0);
+                if (!isFrom)
+                {
+                    min = fromTime.AddHours(1);
+                    max = max.AddHours(1);
+                }
+                break;
+            default:
+                min = TimeOnly.MinValue;
+                max = TimeOnly.MaxValue;
+                break;
+        }
+
+        if (result < min) result = min;
+        if (result > max) result = max;
+
+        return result;
+    }
+
+
+    private void ValidateTimeGap(string day, int shift)
+    {
+        var schedule = GetOrCreateSchedule(day, shift);
+        var minGap = TimeSpan.FromHours(1);
+
+        var timeFrom = schedule.timefrom;
+        var timeTo = schedule.timeto;
+
+        if (timeTo - timeFrom < minGap)
+        {
+            schedule.timeto = timeFrom.Add(minGap);
+
+            // Jaga agar tidak melebihi batas maksimal per shift (optional):
+            if (shift == 1 && schedule.timeto > new TimeOnly(12, 0))
+                schedule.timeto = new TimeOnly(12, 0);
+            else if (shift == 2 && schedule.timeto > new TimeOnly(17, 0))
+                schedule.timeto = new TimeOnly(17, 0);
+            else if (shift == 3 && schedule.timeto > new TimeOnly(23, 0))
+                schedule.timeto = new TimeOnly(23, 0);
+        }
+    }
+
     private void SetTimeFromString(string value, string day, int shift, bool isFrom, ref bool showClock)
     {
         if (!TimeOnly.TryParse(value, out var result))
             return;
 
+        // Kalau hari ini belum pernah diisi sebelumnya
+        if (!filledDays.Contains(day))
+        {
+            filledDays.Add(day);
+
+            // Jika belum ada referenceDay ⇒ hari ini jadi acuan baru
+            if (referenceDay == null)
+                referenceDay = day;
+        }
+
+        // Jika hari bukan acuan, ambil dari acuan
+        if (!day.Equals(referenceDay, StringComparison.OrdinalIgnoreCase) &&
+            _schedules.TryGetValue((referenceDay, shift), out var refSchedule))
+        {
+            result = isFrom ? refSchedule.timefrom : refSchedule.timeto;
+        }
+
         var schedule = GetOrCreateSchedule(day, shift);
         var fromTime = schedule.timefrom;
 
-        result = ValidateShiftTime(shift, result, isFrom);
+        result = ValidateShiftTime(shift, result,fromTime , isFrom);
 
         if (isFrom)
             schedule.timefrom = result;
