@@ -89,7 +89,7 @@ namespace iDss.X.Models
         [StringLength(10)]
         [Display(Name = "Service")]
         [Required]
-        public string service { get; set; } = "kg";
+        public string service { get; set; }
 
         [StringLength(30)]
         [Display(Name = "Packing Type")]
@@ -697,5 +697,58 @@ namespace iDss.X.Models
 
         [NotMapped]
         public ShipmentDetail ShipmentDetail { get; set; }
+    }
+
+    public class GeneralPrice : CommonField2
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long priceid { get; set; }
+
+        [StringLength(10)]
+        [Display(Name = "Origin Type")]
+        [Required]
+        public string oritype { get; set; }
+
+        [StringLength(15)]
+        [Display(Name = "Origin ID")]
+        [Required]
+        public string oricode { get; set; }
+
+        [StringLength(10)]
+        [Display(Name = "Destination Type")]
+        [Required]
+        public string destype { get; set; }
+
+        [StringLength(15)]
+        [Display(Name = "Destination ID")]
+        [Required]
+        public string descode { get; set; }
+
+        [StringLength(10)]
+        [Display(Name = "Service")]
+        public string? service { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Min Weight")]
+        public decimal? minweight { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Min Weight")]
+        public decimal? maxweight { get; set; }
+
+        [Display(Name = "Min Pieces")]
+        public int? minpiece { get; set; }
+
+        [Display(Name = "Min Pieces")]
+        public int? maxpiece { get; set; }
+
+        [Column(TypeName = "decimal(18,0)")]
+        [Display(Name = "Price")]
+        public decimal price { get; set; }
+
+        [Column(TypeName = "decimal(18,0)")]
+        [Display(Name = "Additional Price")]
+        public decimal? addprice { get; set; } = 0;
     }
 }
