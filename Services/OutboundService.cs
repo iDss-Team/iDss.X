@@ -119,38 +119,9 @@ namespace iDss.X.Services
                 .Where(a => a.branchid == branchId)
                 .CountAsync();
         }
-    }
 
-    // entry data primary service
-    public class EntryDataPrimaryService
-    {
-        private readonly AppDbContext _db;
+        #region "Entry Data Primarry"
 
-        public EntryDataPrimaryService(AppDbContext context)
-        {
-            _db = context;
-        }
-
-        public async Task<List<City>> GetAllCityAsync()
-        {
-            return await _db.mdt_city
-                .OrderBy(c => c.cityname)
-                .ToListAsync();
-        }
-        
-        public async Task<List<District>> GetAllDistricAsync()
-        {
-            return await _db.mdt_district
-                .OrderBy(d => d.distname)
-                .ToListAsync();
-        }
-        
-        public async Task<List<PackingType>> PackingTypeAsync()
-        {
-            return await _db.mdt_packingtype
-                .OrderBy(p => p.packingname)
-                .ToListAsync();
-        }
         public async Task<bool> SaveEntryDataPrimaryASync(EntryDataPrimaryDto edp)
         {
             using var entryData = await _db.Database.BeginTransactionAsync();
@@ -160,6 +131,7 @@ namespace iDss.X.Services
                 if (edp.Shipment != null)
                 {
                     // Tambahkan ShipmentDetail
+                    System.Console.WriteLine($"pickupno: '{edp.Shipment.pickupno}'"); // Tambahkan ini
                     _db.trx_shipmentdetail.Add(edp.Shipment);
                 }
 
@@ -167,25 +139,46 @@ namespace iDss.X.Services
                 {
                     // Pastikan awb Shipper sesuai dengan Shipment (jika diperlukan)
                     edp.Shipper.awb = edp.Shipment?.awb;
+
+                    if (edp.Shipper.branchid == 0)
+                    {
+                        edp.Shipper.branchid = 1; // Default branch ID
+                    }
+
                     _db.trx_shipper.Add(edp.Shipper);
                 }
 
                 if (edp.Consignee != null)
                 {
+                    System.Console.WriteLine("BranchId: " + edp.Consignee.branchid);
+
                     // Pastikan awb Consignee sesuai dengan Shipment (jika diperlukan)
                     edp.Consignee.awb = edp.Shipment?.awb;
                     _db.trx_consignee.Add(edp.Consignee);
                 }
 
-                await _db.SaveChangesAsync();
+                System.Console.WriteLine($"Sebelum simpan - AWB: {edp.Shipper.awb}, BranchOri: {edp.Shipper.branchid}");
+                System.Console.WriteLine($"Object state: {_db.Entry(edp.Shipper).State}");
+
+                //await _db.SaveChangesAsync();
+                var affectedRows = await _db.SaveChangesAsync();
+                System.Console.WriteLine($"Jumlah record tersimpan: {affectedRows}");
+
                 await entryData.CommitAsync();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 await entryData.RollbackAsync(); // Penting: rollback kalau gagal
+                System.Console.WriteLine("Gagal simpan: " + ex.Message);
+                if (ex.InnerException != null)
+                {
+                    System.Console.WriteLine("Inner Exception: " + ex.InnerException.Message);
+                }
                 return false;
             }
         }
+
+        #endregion "Entry Data Primarry"
     }
 }
