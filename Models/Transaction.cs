@@ -170,8 +170,8 @@ namespace iDss.X.Models
 
         [ValidateNever]
         [Required]
-        [Display(Name = "Branch")]
-        public int branchori { get; set; }
+        [Display(Name = "Branch Ori")]
+        public int branchid { get; set; }
 
         [ForeignKey("branchid")]
         [ValidateNever]
@@ -206,9 +206,9 @@ namespace iDss.X.Models
         [StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
         public string? addr3 { get; set; }
 
-        [StringLength(10)]
+        [StringLength(3)]
         [Required]
-        public string statecode { get; set; } = "ID";
+        public string countrycode { get; set; } = "ID";
 
         [StringLength(6)]
         [ValidateNever]
@@ -273,8 +273,8 @@ namespace iDss.X.Models
         public string awb { get; set; }
 
         [ValidateNever]
-        [Display(Name = "Branch")]
-        public int? branchcne { get; set; }
+        [Display(Name = "Branch Cnee")]
+        public int? branchid { get; set; }
 
         [ForeignKey("branchid")]
         [ValidateNever]
@@ -309,9 +309,9 @@ namespace iDss.X.Models
         [StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
         public string? addr3 { get; set; }
 
-        [StringLength(10)]
+        [StringLength(3)]
         [Required]
-        public string statecode { get; set; } = "ID";
+        public string countrycode { get; set; } = "ID";
 
         [StringLength(6)]
         [ValidateNever]
@@ -389,9 +389,9 @@ namespace iDss.X.Models
         [StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
         public string? addr3 { get; set; }
 
-        [StringLength(10)]
+        [StringLength(3)]
         [Required]
-        public string statecode { get; set; } = "ID";
+        public string countrycode { get; set; } = "ID";
 
         [StringLength(6)]
         [ValidateNever]

@@ -45,6 +45,8 @@ namespace iDss.X.Data
         public DbSet<Country> mdt_country { get; set; }
         public DbSet<CityIntl> mdt_cityintl { get; set; }
         public DbSet<PostCode> mdt_postcode { get; set; }
+        public DbSet<Bank> mdt_bank { get; set; }
+        public DbSet<NCSBankAccount> mdt_ncsbankaccount { get; set; }
 
 
         //Pickup
