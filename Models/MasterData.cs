@@ -341,6 +341,27 @@ namespace iDss.X.Models
         [Display(Name = "Trace in Apps")]
         public int? istrace { get; set; } = 0;
 
+        [Display(Name = "VAT")]
+        public int? isvat{ get; set; } = 0;
+
+        //option : exclude & include
+        [StringLength(10)]
+        [Display(Name = "VAT Type")]
+        public String? vattype { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "PPN")]
+        public decimal? ppn { get; set; }
+
+        //option : ncs & customer
+        [StringLength(10)]
+        [Display(Name = "VAT Type")]
+        public String? stampcosttype { get; set; }
+
+        [Column(TypeName = "decimal(10,2)")]
+        [Display(Name = "Management Fee")]
+        public decimal? mgmtfee{ get; set; }
+
         [NotMapped]
         public virtual ICollection<AccountAddr> AccountAddrs { get; set; } = new List<AccountAddr>();
 
@@ -1089,4 +1110,63 @@ namespace iDss.X.Models
         [ValidateNever]
         public Village Village { get; set; }
     }
+
+    public class Bank : CommonField3
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+
+        [StringLength(50, ErrorMessage = "Bank Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Bank Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 6, Searchable = true, Filterable = true)]
+        public string bankname { get; set; }
+
+        [StringLength(5, ErrorMessage = "Bank Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Bank Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 6, Searchable = true, Filterable = true)]
+        public string bankcode { get; set; }
+
+        [StringLength(20, ErrorMessage = "Swift Code cannot be longer than 20 characters.")]
+        [Required]
+        [Display(Name = "Swift Code")]
+        [AutoGenerateColumn(Order = 30, Cols = 6, Searchable = true, Filterable = true)]
+        public string? swiftcode { get; set; }
+
+    }
+
+    public class NCSBankAccount : CommonField3
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+
+        [StringLength(5, ErrorMessage = "Bank Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Bank Code")]
+        [AutoGenerateColumn(Order = 10, Cols = 6, Searchable = true, Filterable = true)]
+        public string bankcode { get; set; }
+
+        [StringLength(50, ErrorMessage = "Bank Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Bank Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 6, Searchable = true, Filterable = true)]
+        public string bankname { get; set; }
+
+        [StringLength(20, ErrorMessage = "Account Number cannot be longer than 20 characters.")]
+        [Required]
+        [Display(Name = "Account Number")]
+        [AutoGenerateColumn(Order = 30, Cols = 6, Searchable = true, Filterable = true)]
+        public string accountno { get; set; }
+
+        [StringLength(50, ErrorMessage = "Account Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Account Name")]
+        [AutoGenerateColumn(Order = 20, Cols = 6, Searchable = true, Filterable = true)]
+        public string accountname { get; set; }
+
+    }
+
 }

@@ -101,8 +101,7 @@ namespace iDss.X.Models
         public Courier Courier { get; set; }
 
         [StringLength(50, ErrorMessage = "Courier Name cannot be longer than 50 characters.")]
-        [Required]
-        public string couriername { get; set; }
+        public string? couriername { get; set; }
 
         [StringLength(20)]
         [Display(Name = "Transport Type")]
@@ -247,6 +246,8 @@ namespace iDss.X.Models
         [StringLength(200, ErrorMessage = "notes cannot be longer than 50 characters.")]
         [Display(Name = "Notes")]
         public string? notes { get; set; }
+
+        public int isautodispatch { get; set; } = 0;
 
         [NotMapped]
         public virtual ICollection<PickupSchedule> PickupSchedules { get; set; } = new List<PickupSchedule>();
