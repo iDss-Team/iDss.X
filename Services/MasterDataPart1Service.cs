@@ -256,12 +256,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
-
-
-
-
-
         #region "Province"
         public async Task<List<Province>> GetProvinceAsync()
         {
@@ -428,7 +422,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
         #region "City"
         public async Task<List<City>> GetCityAsync()
         {
@@ -672,7 +665,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
         #region "District"
         public async Task<List<District>> GetDistrictAsync()
         {
@@ -873,7 +865,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
         #region "Village"
         public async Task<List<Village>> GetVillageAsync()
         {
@@ -1061,7 +1052,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
         #region "CIF"
         public async Task<List<CIF>> GetCifAsync()
         {
@@ -1163,14 +1153,21 @@ namespace iDss.X.Services
                 return false;
             }
 
+            _cif.cifname = updatedCIF.cifname;
+            _cif.industryid = updatedCIF.industryid;
+            _cif.branchid = updatedCIF.branchid;
+
+            _context.Entry(_cif).State = EntityState.Modified;
+
             try
             {
-                await _context.SaveChangesAsync();
-                return true;
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error in UpdateCifAsync: {ex.Message}");
+                System.Console.WriteLine("Error saving changes: " + ex.Message);
                 return false;
             }
         }
@@ -1178,10 +1175,54 @@ namespace iDss.X.Services
         public async Task<CIF> CreateCIFAsync(CIF cif)
         {
             using var _context = _contextFactory.CreateDbContext();
+            string prefix = "CIF";
+            string generatedCif = await GenerateUniqueCifAsync(prefix);
+            cif.cif = generatedCif;
             _context.mdt_cif.Add(cif);
             await _context.SaveChangesAsync();
             return cif;
         }
+
+        public async Task<string> GenerateUniqueCifAsync(string prefix)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            int retryCount = 0;
+            const int maxRetries = 5;
+            while (retryCount < maxRetries)
+            {
+                var lastCif = await _context.mdt_cif.AsNoTracking()
+                    .Where(c => c.cif.StartsWith(prefix))
+                    .OrderByDescending(c => c.cif)
+                    .FirstOrDefaultAsync();
+                string newCif;
+                if (lastCif == null)
+                {
+                    newCif = $"{prefix}001";
+                }
+                else
+                {
+                    string lastNumberId = lastCif.cif.Substring(prefix.Length);
+                    if (!int.TryParse(lastNumberId, out int lastNumber))
+                    {
+                        throw new InvalidOperationException("Invalid CIF format in database");
+                    }
+                    if (lastNumber >= 999)
+                    {
+                        throw new InvalidOperationException("CIF number overflow. Cannot generate a new number");
+                    }
+                    newCif = $"{prefix}{(lastNumber + 1):D3}";
+                }
+                bool cifExists = await _context.mdt_cif.AsNoTracking()
+                    .AnyAsync(c => c.cif == newCif);
+                if (!cifExists)
+                {
+                    return newCif;
+                }
+                retryCount++;
+            }
+            throw new InvalidOperationException("Unable to generate a unique CIF after multiple attempts");
+        }
+
 
         public async Task<bool> DeleteCIFAsync(string cif)
         {
@@ -1202,7 +1243,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
         #region "Account"
 
 
@@ -1211,6 +1251,7 @@ namespace iDss.X.Services
             using var _context = _contextFactory.CreateDbContext();
             return await _context.mdt_account
                 .Include(a => a.Branch)
+                .Include(a => a.CIF)
                 .ToListAsync();
         }
 
@@ -1380,8 +1421,13 @@ namespace iDss.X.Services
             account.isintl = updatedAccount.isintl;
             account.isnl = updatedAccount.isnl;
             account.discrates = updatedAccount.discrates;
+            account.ppn = updatedAccount.ppn;
+            account.mgmtfee = updatedAccount.mgmtfee;
             account.isrev = updatedAccount.isrev;
             account.istrace = updatedAccount.istrace;
+            account.isvat = updatedAccount.isvat;
+            account.vattype = updatedAccount.vattype;
+            account.stampcosttype = updatedAccount.stampcosttype;
             //account.status = updatedAccount.status;
             account.modifieddate = System.DateTime.Now;
             account.modifier = updatedAccount.modifier;
@@ -1419,7 +1465,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
         #region "Industry"
         public async Task<List<Industry>> GetIndustryAsync()
         {
@@ -1510,6 +1555,13 @@ namespace iDss.X.Services
 
         public async Task<bool> UpdateIndustryAsync(int _id, Industry updatedIndustry)
         {
+
+            if (string.IsNullOrWhiteSpace(updatedIndustry.industryname))
+            {
+                return false;
+            }
+
+
             using var _context = _contextFactory.CreateDbContext();
             var industry = await _context.mdt_industry.FirstOrDefaultAsync(a => a.id == _id);
             if (industry == null)
@@ -1519,8 +1571,19 @@ namespace iDss.X.Services
             industry.industryname = updatedIndustry.industryname;
             industry.description = updatedIndustry.description;
             industry.flag = updatedIndustry.flag;
-            await _context.SaveChangesAsync();
-            return true;
+
+
+            _context.Entry(industry).State = EntityState.Modified;
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                return false;
+            }
 
 
         }
@@ -1551,11 +1614,6 @@ namespace iDss.X.Services
             return true;
         }
         #endregion
-
-
-
-
-
         #region "Relation Code"
 
         public async Task<List<Relation>> GetRelationAsync()
@@ -1700,8 +1758,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
-
         #region "Reason UN"
 
         public async Task<List<ReasonUN>> GetReasonAsync()
@@ -1846,8 +1902,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
-
         #region "Cost Component"
         public async Task<List<CostComponent>> GetCostComponentAsync()
         {
@@ -2033,12 +2087,6 @@ namespace iDss.X.Services
         }
 
         #endregion
-
-
-
-
-
-
         #region "Service Code"
         public async Task<List<Service>> GetServiceAsync()
         {
@@ -2180,7 +2228,6 @@ namespace iDss.X.Services
         }
 
         #endregion
-
         #region "Packing Type"
         public async Task<List<PackingType>> GetPackingTypeAsync()
         {
@@ -2324,8 +2371,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
-
         #region "CityINTL"
         public async Task<List<CityIntl>> GetCityIntlAsync()
         {
@@ -2512,9 +2557,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
-
-
         #region "Packing Size"
         public async Task<List<PackingSize>> GetPackingSizeAsync()
         {
@@ -2657,8 +2699,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
-
         #region "Packing Price"
 
         public async Task<List<PackingPrice>> GetPackingPriceAsync()
@@ -2829,9 +2869,151 @@ namespace iDss.X.Services
         #endregion
 
 
+        #region "Bank"
 
-        
+        public async Task<List<Bank>> GetBankAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_bank
+                .OrderBy(c => c.id)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
 
+        public Task<QueryData<Bank>> OnQueryBankAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_bank.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is Bank model)
+            {
+                if (!string.IsNullOrEmpty(model.bankname))
+                {
+                    items = items.Where(item => item.bankname?.Contains(model.bankname, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.bankcode))
+                {
+                    items = items.Where(item => item.bankcode?.Contains(model.bankcode, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.bankname) || !string.IsNullOrEmpty(model.bankcode);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<Bank>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Bank>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    //items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    items = invoker(items, options.SortName, options.SortOrder).ToList();
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<Bank>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<Bank>> GetBankComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_bank
+                                .Select(p => new Bank()
+                                {
+                                    id = p.id,
+                                    bankname = p.bankname,
+                                    bankcode = p.bankcode,
+                                    swiftcode = p.swiftcode,
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> SaveBankAsync(Bank data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_bank.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_reasonun.FindAsync(data.id);
+
+                    if (existingEntity != null)
+                    {
+                        
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                   
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true; 
+            }
+            catch (Exception)
+            {
+                return false; 
+            }
+        }
+
+        public async Task<bool> DeleteBankByIDAsync(IEnumerable<Bank> banks)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                foreach (var bank in banks)
+                {
+                    var existing = await _context.mdt_bank.FindAsync(bank.id);
+                    if (existing != null)
+                    {
+                        _context.mdt_bank.Remove(existing);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+
+        #endregion
 
 
 
