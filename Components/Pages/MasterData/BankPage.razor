@@ -1,0 +1,25 @@
+﻿@page "/master/bank"
+@using iDss.X.Models
+@inject MasterDataPart1Service _services
+@attribute [TabItemOption(Text = "Bank")]
+
+<PageTitle>Bank</PageTitle>
+
+<Row ItemsPerRow="ItemsPerRow.One">
+    <Row ItemsPerRow="ItemsPerRow.Two">
+        <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+            <StackItem>
+                <h5>Bank Data</h5>
+            </StackItem>
+        </Stack>
+    </Row>
+    <Table TItem="Bank" OnQueryAsync="@_services.OnQueryBankAsync" IsPagination="true" PageItemsSource="@_services.PageItemsSource" IsFixedHeader="true" DeleteButtonText="" EditButtonText=""
+           IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="true" ShowSearch="true" ShowExtendButtons="true"
+           EditMode="EditMode.Popup" EditDialogSize="Size.Large" ShowEditButton="false" OnSaveAsync="@_services.SaveBankAsync" ShowDeleteButton="false" OnDeleteAsync="@_services.DeleteBankByIDAsync">
+    </Table>
+</Row>
+
+@code {
+
+
+}

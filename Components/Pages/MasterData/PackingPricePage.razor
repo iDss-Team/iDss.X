@@ -1,6 +1,7 @@
 ﻿@page "/master/packingprice"
 @using iDss.X.Models
 @using BootstrapBlazor.Components
+@using System.Globalization
 @inject ToastService _toastService
 @inject MasterDataPart1Service _services
 @attribute [TabItemOption(Text = "Packing Price")]
@@ -34,7 +35,7 @@
                     </Template>
                 </TableColumn>
                 <TableColumn @bind-Field="@context.sizecode" Searchable="true" Filterable="true" />
-                <TableColumn @bind-Field="@context.price" Searchable="true" Filterable="true" />
+                <TableColumn @bind-Field="@context.price" Searchable="true" Filterable="true"  />
             </TableColumns>
         </Table>
     </Row>
@@ -72,7 +73,7 @@ else
                                                             Value="@priceData[(size, packing.packingCode)]"
                                                             ValueChanged="@(val => SetPrice(size, packing.packingCode, val))"
                                                             ShowLabel="false"
-                                                            Placeholder="0.00" />
+                                                            Placeholder="0" Formatter="@(val => ((decimal)val).ToString("C0", new CultureInfo("id-ID")))" />
                                         </td>
                                     }
                                 </tr>

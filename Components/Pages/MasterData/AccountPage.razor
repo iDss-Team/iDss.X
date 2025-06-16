@@ -1,6 +1,7 @@
 ﻿@page "/master/account"
 @using iDss.X.Models
 @using BootstrapBlazor.Components
+@using System.Globalization
 @inject ToastService _toastService
 @inject MasterDataPart1Service _services
 @inject MasterDataPart3Service _services3
@@ -144,17 +145,27 @@
                     <DateTimePicker @bind-Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" />
                     <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" />
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
-                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Period" ShowLabel="true" />
+                    <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Limit" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)"/>
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" Placeholder="Input Credit Period" ShowLabel="true" />
-                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" />
-                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.ppn" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
+                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.mgmtfee" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
                     <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Two" >
-                    <Checkbox @bind-Value="IsCODChecked" DisplayText="CoD" Size="Size.Medium" />
-                    <Checkbox @bind-Value="IsINTLChecked" DisplayText="International" Size="Size.Medium"/>
-                    <Checkbox @bind-Value="IsNLChecked" DisplayText="National" Size="Size.Medium" />
-                    <Checkbox @bind-Value="IsRev" DisplayText="Rev" Size="Size.Medium"/>
-                    <Checkbox @bind-Value="IsTrace" DisplayText="Trace" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsCODChecked" DisplayText="CoD" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsINTLChecked" DisplayText="International" Size="Size.Medium"/>
+                        <Checkbox @bind-Value="IsNLChecked" DisplayText="National" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsRev" DisplayText="Rev" Size="Size.Medium"/>
+                        <Checkbox @bind-Value="IsTrace" DisplayText="Trace" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsVAT" DisplayText="VAT" Size="Size.Medium" />
+                        @if (IsVAT){
+                            <AutoComplete Items="@VatTypeOptions" @bind-Value="selectedAccount.vattype" DisplayText="VAT Type"></AutoComplete>
+                            <AutoComplete Items="@StampCostTypeOptions" @bind-Value="selectedAccount.stampcosttype" DisplayText="Stamp Cost Type"></AutoComplete>
+                        }
                     </Row>
+             @*        <Row>
+                        <Table />        
+                    </Row> *@
                 </Row>
             </BodyTemplate>
         </Card>
@@ -206,8 +217,10 @@
     private List<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
     private bool IsEditMode => modalTitle == "Edit Account";
 
+    private List<string> VatTypeOptions => ["Exclude", "Include"];
+    private List<string> StampCostTypeOptions => ["NCS", "Customer"];
 
-
+    private bool showAccountAddrTable;
 
 
     private string selectedIndustryId;
@@ -247,6 +260,13 @@
     {
         get => selectedAccount.istrace == 1;
         set => selectedAccount.istrace = value ? 1 : 0;
+    }
+
+
+    private bool IsVAT
+    {
+        get => selectedAccount.isvat == 1;
+		set => selectedAccount.isvat = value ? 1 : 0;
     }
 
 
@@ -301,7 +321,7 @@
         BranchItems.Insert(0, new SelectedItem { Text = "Please Select....", Value = "0" });
 
         var cifs = await _services.GetCifListAsync();
-        CifItems = cifs.Select(x => x.cif).ToList(); // Ensure CifItems is a list if needed
+        CifItems = cifs.Select(x => x.cif).ToList(); 
 
         StateHasChanged();
     }
@@ -397,6 +417,10 @@
                 discrates = data.discrates,
                 isrev = data.isrev,
                 istrace = data.istrace,
+                isvat = data.isvat,
+                vattype = data.vattype,
+				ppn = data.ppn,
+				stampcosttype = data.stampcosttype,
                 flag    = data.flag,
 				modifieddate = DateTime.Now,
 				modifier = "System",

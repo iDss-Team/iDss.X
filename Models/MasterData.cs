@@ -1115,6 +1115,7 @@ namespace iDss.X.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [AutoGenerateColumn(Ignore = true)]
         public int id { get; set; }
 
         [StringLength(50, ErrorMessage = "Bank Name cannot be longer than 50 characters.")]
