@@ -13,11 +13,11 @@ namespace iDss.X.Services
 {
     public class PickupService
     {
-        private readonly AppDbContext _db;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public PickupService(AppDbContext context)
+        public PickupService(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _db = context;
+            _contextFactory = contextFactory;
         }
 
         public IEnumerable<int> PageItemsSource => new int[] { 10, 20, 40 };
@@ -25,7 +25,8 @@ namespace iDss.X.Services
         #region "Entry Data Pickup"
         public async Task<List<PickupRequest>> GetPickupRequestAsync()
         {
-            var result = _db.pum_pickuprequest
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.pum_pickuprequest
                 .Include(c => c.Branch)
                 .Include(c => c.District)
                 .AsNoTracking()
@@ -34,9 +35,20 @@ namespace iDss.X.Services
             return await result;
         }
 
+        public async Task<List<PickupStatusPool>> GetPickupStatusPoolAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.pum_pickupstatuspool
+                .AsNoTracking()
+                .OrderByDescending(c => c.createddate)
+                .ToListAsync();
+            return await result;
+        }
+
         public async Task<List<PickupRegular>> GetPickupRegularAsync()
         {
-            var result = _db.pum_pickupregular
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.pum_pickupregular
                 .Include(c => c.Branch)
                 .Include(c => c.District)
                 .AsNoTracking()
@@ -141,7 +153,8 @@ namespace iDss.X.Services
 
         public async Task<List<PickupRequest>> LoadPickupRequestAsync()
         {
-            var result = _db.pum_pickuprequest
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.pum_pickuprequest
                                 .Select(p => new PickupRequest()
                                 {
                                     pickupno = p.pickupno,
@@ -153,20 +166,23 @@ namespace iDss.X.Services
 
         public async Task<PickupRequest> GetPickupRequestByIDAsync(Guid id)
         {
-            var result = _db.pum_pickuprequest.FindAsync(id);
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.pum_pickuprequest.FindAsync(id);
             return await result;
         }
 
         public async Task<PickupRegular> GetPickupRegularByIDAsync(int id)
         {
-            var result = _db.pum_pickupregular.FindAsync(id);
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.pum_pickupregular.FindAsync(id);
             return await result;
         }
 
         public async Task<string?> GeneratePickupNoAsync()
         {
+            using var _context = _contextFactory.CreateDbContext();
             var today = DateTime.UtcNow.Date;
-            int countToday = await _db.pum_pickuprequest
+            int countToday = await _context.pum_pickuprequest
                 .CountAsync(p => p.createddate >= today && p.createddate < today.AddDays(1));
 
             if (countToday >= 9999)
@@ -180,42 +196,44 @@ namespace iDss.X.Services
 
         public async Task<PickupRequest> GetPickupRequestByPickno(string pickno)
         {
-            return await _db.pum_pickuprequest.FirstOrDefaultAsync(p => p.pickupno == pickno);
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.pum_pickuprequest.FirstOrDefaultAsync(p => p.pickupno == pickno);
         }
 
         public async Task<bool> SavePickupRequestAsync(PickupRequest data, ItemChangedType changedType)
         {
             try
             {
+                using var _context = _contextFactory.CreateDbContext();
                 if (changedType == ItemChangedType.Add)
                 {
                     data.createdby = "user.login"; //ganti dengan username by session login
                     data.createddate = DateTime.Now.ToUniversalTime();
-                    _db.pum_pickuprequest.Add(data);
+                    _context.pum_pickuprequest.Add(data);
                 }
                 else
                 {
-                    var existingEntity = await _db.pum_pickuprequest.FindAsync(data.id);
+                    var existingEntity = await _context.pum_pickuprequest.FindAsync(data.id);
 
                     if (existingEntity != null)
                     {
                         // Pastikan instance lama tidak menyebabkan error
-                        _db.Entry(existingEntity).State = EntityState.Detached;
+                        _context.Entry(existingEntity).State = EntityState.Detached;
                     }
 
                     // Attach ulang data yang baru dan update
-                    _db.Attach(data);
-                    _db.Entry(data).State = EntityState.Modified;
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
                 }
-                await _db.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
                 var status = new PickupStatusPool
                 {
                     pickupno = data.pickupno,
-                    pickupstatus = "request pickup"
+                    pickupstatus = "open"
                 };
-                _db.pum_pickupstatuspool.Add(status);
-                await _db.SaveChangesAsync();
+                _context.pum_pickupstatuspool.Add(status);
+                await _context.SaveChangesAsync();
 
                 return true; // Jika berhasil
             }
@@ -225,30 +243,188 @@ namespace iDss.X.Services
             }
         }
 
+        public async Task<bool> AssignCourierAsync(PickupRequest data, ItemChangedType changedType)
+        {
+            try
+            {
+                using var _context = _contextFactory.CreateDbContext();
+                if (changedType == ItemChangedType.Add)
+                {
+                    var status = new PickupStatusPool
+                    {
+                        pickupno = data.pickupno,
+                        pickupstatus = "assign"
+                    };
+                    status.createdby = "user.login"; //ganti dengan username by session login
+                    status.createddate = DateTime.Now.ToUniversalTime();
+                    _context.pum_pickupstatuspool.Add(status);
+                }
+                else
+                {
+                    var existingEntity = await _context.pum_pickupstatuspool.FindAsync(data.id);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+                await _context.SaveChangesAsync();
+
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> ReassignPickupStatusAsync(PickupRequest data,string pickupNoo, ItemChangedType changedType)
+        {
+            try
+            {
+                using var _context = _contextFactory.CreateDbContext();
+                if (changedType == ItemChangedType.Update)
+                {
+                    var status = await _context.pum_pickupstatuspool
+                        .Where(x => x.pickupno == pickupNoo)
+                        .OrderByDescending(x => x.createddate)
+                        .FirstOrDefaultAsync();
+                    if (status != null)
+                    {
+                        status.flag = 0;
+                        _context.pum_pickupstatuspool.Update(status);
+
+                        var newStatus = new PickupStatusPool
+                        {
+                            pickupno = status.pickupno,
+                            pickupstatus = "reassign",
+                            createdby = "user.login",
+                            createddate = DateTime.UtcNow,
+                        };
+                        _context.pum_pickupstatuspool.Add(newStatus);
+                    }
+                }
+                else
+                {
+                    var existingEntity = await _context.pum_pickupstatuspool.FindAsync(data.id);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                var dataCourier = await _context.pum_pickuprequest
+                        .FirstOrDefaultAsync(x => x.pickupno == pickupNoo);
+                if (dataCourier != null)
+                {
+                    dataCourier.couriercode = null;
+                    dataCourier.couriername = null;
+                    dataCourier.modifier = "user.login";
+                    dataCourier.modifieddate = DateTime.UtcNow;
+
+                    _context.pum_pickuprequest.Update(dataCourier);
+                    await _context.SaveChangesAsync();
+                }
+
+                return true; // Jika berhasil
+            }
+            catch (Exception)
+            {
+                return false; // Jika gagal
+            }
+        }
+
+        public async Task<bool> UpdatePickupStatusAsync(PickupRequest data, ItemChangedType changedType)
+        {
+            try
+            {
+                using var _context = _contextFactory.CreateDbContext();
+                if (changedType == ItemChangedType.Update)
+                {
+                    var status = await _context.pum_pickupstatuspool
+                        .Where(x => x.pickupno == data.pickupno)
+                        .OrderByDescending(x => x.createddate)
+                        .FirstOrDefaultAsync();
+                    if (status != null)
+                    {
+                        status.flag = 0;
+                        _context.pum_pickupstatuspool.Update(status);
+                    }
+                }
+                else
+                {
+                    var existingEntity = await _context.pum_pickupstatuspool.FindAsync(data.pickupno);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+             
+
+                var dataCourier = await _context.pum_pickuprequest
+                        .FirstOrDefaultAsync(x => x.pickupno == data.pickupno);
+                if (dataCourier != null)
+                {
+                    dataCourier.couriercode = data.couriercode;
+                    dataCourier.couriername = data.couriername;
+                    dataCourier.modifier = "user.login"; //ganti dengan username by session login
+                    dataCourier.modifieddate = DateTime.Now.ToUniversalTime();
+                    _context.pum_pickuprequest.Update(dataCourier);
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> UpdatePickupRequestAsync(PickupRequest data, ItemChangedType changedType)
         {
             try
             {
+                using var _context = _contextFactory.CreateDbContext();
                 if (changedType == ItemChangedType.Update)
                 {
                     data.modifier = "user.login"; //ganti dengan username by session login
                     data.modifieddate = DateTime.Now.ToUniversalTime();
-                    _db.pum_pickuprequest.Update(data);
+                    _context.pum_pickuprequest.Update(data);
                 }
                 else
                 {
-                    var existingEntity = await _db.pum_pickuprequest.FindAsync(data.pickupno);
+                    var existingEntity = await _context.pum_pickuprequest.FindAsync(data.pickupno);
 
                     if (existingEntity != null )
                     {
                         // Pastikan instance lama tidak menyebabkan error
-                        _db.Entry(existingEntity).State = EntityState.Detached;
+                        _context.Entry(existingEntity).State = EntityState.Detached;
                     }
                     // Attach ulang data yang baru dan update
-                    _db.Attach(data);
-                    _db.Entry(data).State = EntityState.Modified;
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
                 }
-                await _db.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -261,16 +437,17 @@ namespace iDss.X.Services
         {
             try
             {
+                using var _context = _contextFactory.CreateDbContext();
                 foreach (var pickupRequest in pickupRequests)
                 {
-                    var existing = await _db.pum_pickuprequest.FindAsync(pickupRequest.pickupno);
+                    var existing = await _context.pum_pickuprequest.FindAsync(pickupRequest.pickupno);
                     if (existing != null)
                     {
-                        _db.pum_pickuprequest.Remove(existing);
+                        _context.pum_pickuprequest.Remove(existing);
                     }
                 }
 
-                await _db.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch
@@ -282,25 +459,26 @@ namespace iDss.X.Services
         {
             try
             {
+                using var _context = _contextFactory.CreateDbContext();
                 foreach (var item in pickupRegulars)
                 {
-                    var existingSchedulers = await _db.pum_pickupschedule.Where(p => p.puregid == item.id).ToListAsync();
+                    var existingSchedulers = await _context.pum_pickupschedule.Where(p => p.puregid == item.id).ToListAsync();
                     if (existingSchedulers.Any())
                     {
-                        _db.pum_pickupschedule.RemoveRange(existingSchedulers);
+                        _context.pum_pickupschedule.RemoveRange(existingSchedulers);
                     }
                 }
 
                 foreach (var pickupRegular in pickupRegulars)
                 {
-                    var existingRegular = await _db.pum_pickupregular.FindAsync(pickupRegular.id);
+                    var existingRegular = await _context.pum_pickupregular.FindAsync(pickupRegular.id);
                     if (existingRegular != null)
                     {
-                        _db.pum_pickupregular.Remove(existingRegular);
+                        _context.pum_pickupregular.Remove(existingRegular);
                     }
                 }
 
-                await _db.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch
@@ -314,14 +492,15 @@ namespace iDss.X.Services
         {
             try
             {
-                var deletePickup = await _db.pum_pickuprequest.FirstOrDefaultAsync(p => p.pickupno == picknoo);
+                using var _context = _contextFactory.CreateDbContext();
+                var deletePickup = await _context.pum_pickuprequest.FirstOrDefaultAsync(p => p.pickupno == picknoo);
                 if (deletePickup == null)
                 {
                     return "not found";
                 }
 
-                _db.pum_pickuprequest.Remove(deletePickup);
-                await _db.SaveChangesAsync();
+                _context.pum_pickuprequest.Remove(deletePickup);
+                await _context.SaveChangesAsync();
 
                 return "Delete Success";
             }
@@ -343,27 +522,28 @@ namespace iDss.X.Services
         {
             try
             {
+                using var _context = _contextFactory.CreateDbContext();
                 if (changedType == ItemChangedType.Add)
                 {
                     dataRegular.createdby = "user.login"; //ganti dengan username by session login
                     dataRegular.createddate = DateTime.Now.ToUniversalTime();
-                    _db.pum_pickupregular.Add(dataRegular);
+                    _context.pum_pickupregular.Add(dataRegular);
                 }
                 else
                 {
-                    var existingEntity = await _db.pum_pickupregular.FindAsync(dataRegular.id);
+                    var existingEntity = await _context.pum_pickupregular.FindAsync(dataRegular.id);
 
                     if (existingEntity != null)
                     {
                         // Pastikan instance lama tidak menyebabkan error
-                        _db.Entry(existingEntity).State = EntityState.Detached;
+                        _context.Entry(existingEntity).State = EntityState.Detached;
                     }
 
                     // Attach ulang data yang baru dan update
-                    _db.Attach(dataRegular);
-                    _db.Entry(dataRegular).State = EntityState.Modified;
+                    _context.Attach(dataRegular);
+                    _context.Entry(dataRegular).State = EntityState.Modified;
                 }
-                await _db.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
                 int regularId = dataRegular.id;
 
@@ -375,8 +555,8 @@ namespace iDss.X.Services
                     timefrom = d.timefrom,
                     timeto = d.timeto
                 }).ToList();
-                _db.pum_pickupschedule.AddRange(newSchedules);
-                await _db.SaveChangesAsync();
+                _context.pum_pickupschedule.AddRange(newSchedules);
+                await _context.SaveChangesAsync();
                 return "success"; // Jika berhasil
             }
             catch (DbUpdateException dbEx)
@@ -393,23 +573,24 @@ namespace iDss.X.Services
         {
             try
             {
-                var deletePickupScheduler = await _db.pum_pickupschedule.FirstOrDefaultAsync(p => p.id == id);
+                using var _context = _contextFactory.CreateDbContext();
+                var deletePickupScheduler = await _context.pum_pickupschedule.FirstOrDefaultAsync(p => p.id == id);
                 if (deletePickupScheduler == null)
                 {
                     return "not found";
                 }
 
-                _db.pum_pickupschedule.Remove(deletePickupScheduler);
-                await _db.SaveChangesAsync();
+                _context.pum_pickupschedule.Remove(deletePickupScheduler);
+                await _context.SaveChangesAsync();
 
-                var deletePickupRegular = await _db.pum_pickupregular.FirstOrDefaultAsync(p => p.id == id);
+                var deletePickupRegular = await _context.pum_pickupregular.FirstOrDefaultAsync(p => p.id == id);
                 if (deletePickupRegular == null)
                 {
                     return "not found";
                 }
 
-                _db.pum_pickupregular.Remove(deletePickupRegular);
-                await _db.SaveChangesAsync();
+                _context.pum_pickupregular.Remove(deletePickupRegular);
+                await _context.SaveChangesAsync();
 
                 return "Delete Success";
             }
@@ -425,18 +606,21 @@ namespace iDss.X.Services
 
         public async Task<List<PickupSchedule>> GetPickupSchedulesByiD(int id)
         {
-            return await _db.pum_pickupschedule.Where(p => p.puregid == id).ToListAsync();
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.pum_pickupschedule.Where(p => p.puregid == id).ToListAsync();
         }
 
         public async Task CreateScheduleAsync(PickupSchedule schedule)
         {
-            _db.pum_pickupschedule.Add(schedule);
-            await _db.SaveChangesAsync();
+            using var _context = _contextFactory.CreateDbContext();
+            _context.pum_pickupschedule.Add(schedule);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateScheduleAsync(PickupSchedule schedule)
         {
-            var existing = await _db.pum_pickupschedule.FindAsync(schedule.id);
+            using var _context = _contextFactory.CreateDbContext();
+            var existing = await _context.pum_pickupschedule.FindAsync(schedule.id);
             if (existing != null)
             {
                 existing.timefrom = schedule.timefrom;
@@ -444,8 +628,8 @@ namespace iDss.X.Services
                 existing.pickupday = schedule.pickupday;
                 existing.shift = schedule.shift;
 
-                _db.pum_pickupschedule.Update(existing);
-                await _db.SaveChangesAsync();
+                _context.pum_pickupschedule.Update(existing);
+                await _context.SaveChangesAsync();
             }
         }
 
@@ -453,14 +637,15 @@ namespace iDss.X.Services
         {
             try
             {
-                var deletePickup = await _db.pum_pickupschedule.FirstOrDefaultAsync(p => p.id == id);
+                using var _context = _contextFactory.CreateDbContext();
+                var deletePickup = await _context.pum_pickupschedule.FirstOrDefaultAsync(p => p.id == id);
                 if (deletePickup == null)
                 {
                     return "not found";
                 }
 
-                _db.pum_pickupschedule.Remove(deletePickup);
-                await _db.SaveChangesAsync();
+                _context.pum_pickupschedule.Remove(deletePickup);
+                await _context.SaveChangesAsync();
 
                 return "Delete Success";
             }
