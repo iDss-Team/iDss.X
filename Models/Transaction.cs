@@ -703,7 +703,7 @@ namespace iDss.X.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long priceid { get; set; }
+        public long id { get; set; }
 
         [StringLength(10)]
         [Display(Name = "Origin Type")]
@@ -750,5 +750,9 @@ namespace iDss.X.Models
         [Column(TypeName = "decimal(18,0)")]
         [Display(Name = "Additional Price")]
         public decimal? addprice { get; set; } = 0;
+
+        public int? slafrom { get; set; }
+
+        public int? slato { get; set; }
     }
 }
