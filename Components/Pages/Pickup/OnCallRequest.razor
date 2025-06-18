@@ -317,7 +317,10 @@
         BranchItems = branches.Select(b => new SelectedItem(b.branchid.ToString(), b.branchname));
 
         var couriers = await _service2.GetCourierComboAsync();
-        CourierItems = couriers.Select(b => new SelectedItem(b.couriercode, b.couriername));
+        CourierItems = new List<SelectedItem>
+        {
+            new SelectedItem(string.Empty, "Please select")
+        }.Concat(couriers.Select(b => new SelectedItem(b.couriercode, b.couriername)));
 
         var accounts = await _service1.GetAllAccountAsync();
         AccountItems = accounts.Select(b => new SelectedItem(b.acctno, b.acctname));
@@ -373,7 +376,10 @@
 
             data.pickupno = pickupNo;
             data.acctname = acctNamee.acctname;
-            data.couriername = courierNamee.couriername;
+            if (courierNamee != null)
+            {
+                data.couriername = courierNamee.couriername;
+            }
             data.branchname = branchNamee.branchname;
             result = await _pickupService.SavePickupRequestAsync(data, ItemChangedType.Add);
             await _toastService.Success("Success", "Data Saved");
