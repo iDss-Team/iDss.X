@@ -104,6 +104,154 @@ namespace iDss.X.Services
             });
         }
 
+        public async Task<QueryData<PickupRequest>> OnQueryDispatchCourierAsync(QueryPageOptions options)
+        {
+            // Ambil semua pickup request
+            var items = await GetPickupRequestAsync();
+
+            // Ambil status pool
+            var statusPool = await GetPickupStatusPoolAsync();
+
+            // Buat dictionary pickupno => status (flag = 1)
+            var statuses = statusPool
+                .Where(x => x.flag == 1)
+                .GroupBy(x => x.pickupno)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.FirstOrDefault()?.pickupstatus?.Trim().ToLowerInvariant() ?? "unknown"
+                );
+
+            // Daftar status yang diperbolehkan
+            var allowedStatuses = new[] { "assign", "dispatched" };
+
+            // Filter hanya pickup dengan status sesuai allowedStatuses
+            items = items
+                .Where(x => statuses.TryGetValue(x.pickupno, out var status) && allowedStatuses.Contains(status))
+                .ToList();
+
+            var isSearched = false;
+
+            // Pencarian manual (by model)
+            if (options.SearchModel is PickupRequest model)
+            {
+                if (!string.IsNullOrEmpty(model.pickupno))
+                {
+                    items = items.Where(item => item.pickupno?.Contains(model.pickupno, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.pickuptype))
+                {
+                    items = items.Where(item => item.pickuptype?.Contains(model.pickuptype, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.pickupno) || !string.IsNullOrEmpty(model.pickuptype);
+            }
+
+            // Pencarian umum (fuzzy search)
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<PickupRequest>(FilterLogic.Or)).ToList();
+            }
+
+            // Filtering by column
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<PickupRequest>()).ToList();
+                isFiltered = true;
+            }
+
+            // Pagination
+            var total = items.Count();
+            var pagedItems = items
+                .Skip((options.PageIndex - 1) * options.PageItems)
+                .Take(options.PageItems)
+                .ToList();
+
+            return await Task.FromResult(new QueryData<PickupRequest>()
+            {
+                Items = pagedItems,
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<QueryData<PickupRequest>> OnQueryAssignAsync(QueryPageOptions options)
+        {
+            // Ambil semua pickup request
+            var items = await GetPickupRequestAsync();
+
+            // Ambil status pool
+            var statusPool = await GetPickupStatusPoolAsync();
+
+            // Buat dictionary pickupno => status (flag = 1)
+            var statuses = statusPool
+                .Where(x => x.flag == 1)
+                .GroupBy(x => x.pickupno)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.FirstOrDefault()?.pickupstatus?.Trim().ToLowerInvariant() ?? "unknown"
+                );
+
+            // Daftar status yang diperbolehkan
+            var allowedStatuses = new[] { "assign", "open", "reassign" };
+
+            // Filter hanya pickup dengan status sesuai allowedStatuses
+            items = items
+                .Where(x => statuses.TryGetValue(x.pickupno, out var status) && allowedStatuses.Contains(status))
+                .ToList();
+
+            var isSearched = false;
+
+            // Pencarian manual (by model)
+            if (options.SearchModel is PickupRequest model)
+            {
+                if (!string.IsNullOrEmpty(model.pickupno))
+                {
+                    items = items.Where(item => item.pickupno?.Contains(model.pickupno, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.pickuptype))
+                {
+                    items = items.Where(item => item.pickuptype?.Contains(model.pickuptype, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.pickupno) || !string.IsNullOrEmpty(model.pickuptype);
+            }
+
+            // Pencarian umum (fuzzy search)
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<PickupRequest>(FilterLogic.Or)).ToList();
+            }
+
+            // Filtering by column
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<PickupRequest>()).ToList();
+                isFiltered = true;
+            }
+
+            // Pagination
+            var total = items.Count();
+            var pagedItems = items
+                .Skip((options.PageIndex - 1) * options.PageItems)
+                .Take(options.PageItems)
+                .ToList();
+
+            return await Task.FromResult(new QueryData<PickupRequest>()
+            {
+                Items = pagedItems,
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                IsSearch = isSearched
+            });
+        }
+
+
+
         public async Task<QueryData<PickupRegular>> OnQueryPickupRegularAsync(QueryPageOptions options)
         {
             var items = await GetPickupRegularAsync();
@@ -386,6 +534,58 @@ namespace iDss.X.Services
                     dataCourier.modifier = "user.login"; //ganti dengan username by session login
                     dataCourier.modifieddate = DateTime.Now.ToUniversalTime();
                     _context.pum_pickuprequest.Update(dataCourier);
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DispatchAsync(PickupRequest data,string pickupNoo , ItemChangedType changedType)
+        {
+            try
+            {
+                using var _context = _contextFactory.CreateDbContext();
+                if (changedType == ItemChangedType.Update)
+                {
+                    var status = await _context.pum_pickupstatuspool
+                        .Where(x => x.pickupno == pickupNoo)
+                        .OrderByDescending(x => x.createddate)
+                        .FirstOrDefaultAsync();
+                    if (status != null)
+                    {
+                        status.flag = 0;
+                        _context.pum_pickupstatuspool.Update(status);
+
+                        var newStatus = new PickupStatusPool
+                        {
+                            pickupno = status.pickupno,
+                            pickupstatus = "dispatched",
+                            createdby = "user.login",
+                            createddate = DateTime.UtcNow,
+                        };
+                        _context.pum_pickupstatuspool.Add(newStatus);
+                    }
+                }
+                else
+                {
+                    var existingEntity = await _context.pum_pickupstatuspool.FindAsync(data.pickupno);
+
+                    if (existingEntity != null)
+                    {
+                        // Pastikan instance lama tidak menyebabkan error
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+                    // Attach ulang data yang baru dan update
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
                 }
                 await _context.SaveChangesAsync();
                 return true;
