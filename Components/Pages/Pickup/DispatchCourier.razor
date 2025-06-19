@@ -1,4 +1,4 @@
-﻿@page "/pickup/assigncourier"
+﻿@page "/pickup/dispatchtocourier"
 @using iDss.X.Models
 @using AutoMapper;
 @inject ToastService _toastService;
@@ -7,7 +7,7 @@
 @inject MasterDataPart3Service _service3
 @inject PickupService _pickupService
 @inject IMapper Mapper;
-@attribute [TabItemOption(Text = "Create Assign Courier")]
+@attribute [TabItemOption(Text = "Create Dispatch Courier")]
 
 <PageTitle>Create Assign Courier</PageTitle>
 
@@ -15,7 +15,7 @@
     @if (pickupRequests != null)
     {
         <Row ItemsPerRow="ItemsPerRow.One">
-            <Table TItem="PickupRequest" IsPagination="true" PageItemsSource="@_pickupService.PageItemsSource" OnQueryAsync="@_pickupService.OnQueryAssignAsync"
+            <Table TItem="PickupRequest" IsPagination="true" PageItemsSource="@_pickupService.PageItemsSource" OnQueryAsync="@_pickupService.OnQueryDispatchCourierAsync"
             IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true" ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true" ShowExtendButtons="false"
             ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false" IsAutoRefresh AutoRefreshInterval="1000"
             OnDeleteAsync="@_pickupService.DeletePickupRequestByIDAsync" DeleteButtonText="">
@@ -23,29 +23,15 @@
                     <TableToolbarButton TItem="PickupRequest"
                     Color="Color.Success"
                     Icon="fa-solid fa-plus"
-                    Text="Assign All" />
-                    <TableToolbarButton TItem="PickupRequest"
-                    Color="Color.Danger"
-                    Icon="fa-solid fa-plus"
-                    Text="Reassign All" />
+                    Text="Dispatch All" />
                 </TableToolbarTemplate>
                 <TableColumns>
-                    <TableColumn @bind-Field="@context.pickupno" Width="80" Fixed="true" Text="Assign">
+                    <TableColumn @bind-Field="@context.pickupno" Width="80" Fixed="true" Text="Dispatch">
                         <Template Context="item">
                             <div class="d-grip gap-2 d-md-block">
-                                <Button Text="" OnClick="@(() => AssignModal(item.Row.pickupno))" 
-                                IsDisabled="@IsAssigned(item.Row.pickupno)" 
-                                Color="Color.Success" >AGN</Button>
-                            </div>
-                        </Template>
-                    </TableColumn>
-                    <TableColumn @bind-Field="@context.pickupno" Width="80" Fixed="true" Text="Reassign">
-                        <Template Context="item">
-                            <div class="d-grip gap-2 d-md-block">
-                                <PopConfirmButton Content="Are you sure you want to Reassign the data?"
-                                IsDisabled="@IsReAssigned(item.Row.pickupno)"
-                                Text="" OnConfirm="@(() => ReAssign(item.Row.pickupno))" 
-                                Color="Color.Danger" >RGN</PopConfirmButton>
+                                <Button Text="" IsDisabled="@IsDispatched(item.Row.pickupno)"
+                                OnClick="@(() => SaveDispatched(item.Row.pickupno))"
+                                Color="Color.Primary">DIS</Button>
                             </div>
                         </Template>
                     </TableColumn>
@@ -70,10 +56,10 @@
                         <Template Context="item">
                             @{
                                 string waktu = pickupTimeRanges.ContainsKey(item.Row.pickupno)
-                            ? pickupTimeRanges[item.Row.pickupno]
-                            : "Unknown";
-                            }
-                            @waktu
+                             ? pickupTimeRanges[item.Row.pickupno]
+                             : "Unknown";
+                            } 
+                            @waktu 
                         </Template>
                     </TableColumn>
                     <TableColumn @bind-Field="@context.branchname" Width="150" Text="Branch" />
@@ -90,25 +76,11 @@
     }
 </Block>
 
-<Modal @ref="ModalAssign">
-    <ValidateForm Model="dataRequest">
-        <ModalDialog Title="@modalTitle" Size="Size.Medium" ShowSaveButton="true" OnSaveAsync="@Assign">
-            <BodyTemplate>
-                <Row RowType="RowType.Inline">
-                    <Display TValue="string" Value="@dataRequest.pickupno" DisplayText="Pickup Number" ShowLabel="true" />
-                    <Display TValue="string" Value="@dataRequest.branchname" DisplayText="Branch" ShowLabel="true" />
-                    <Select TValue="string" Items="@CourierItems" @bind-Value="@dataRequest.couriercode"  DisplayText="Courier" ShowLabel="true" />
-                </Row>
-            </BodyTemplate>
-        </ModalDialog>
-    </ValidateForm>
-</Modal>
-
 <Modal @ref="DetailModal">
     <ValidateForm Model="dataRequest">
-        <ModalDialog Title="@modalTitle" >
+        <ModalDialog Title="@modalTitle">
             <BodyTemplate>
-                <Row >
+                <Row>
                     <div class="row">
                         <div class="col-6">
                             <Card>
@@ -216,10 +188,10 @@
 </Modal>
 
 @code {
-    Modal ModalAssign;
     Modal DetailModal;
     private string modalTitle;
     private bool IsTable { get; set; } = true;
+    private Task<bool> OnQueryCondition(string name) => Task.FromResult(IsTable);
     public List<PickupRequest> pickupRequests = new();
     public List<PickupStatusPool> pickupStatusPools = new();
     public PickupRequest dataRequest = new();
@@ -233,8 +205,6 @@
     {
         return $"{from:HH\\:mm} - {to:HH\\:mm}";
     }
-
-    private Task<bool> OnQueryCondition(string name) => Task.FromResult(IsTable);
 
     protected override async Task OnInitializedAsync()
     {
@@ -261,46 +231,20 @@
 
         pickupStatuses = pickupStatusPools
             .GroupBy(x => x.pickupno)
-            .ToDictionary(g => g.Key, 
-                          g => g.Where(x => x.flag == 1).FirstOrDefault()?.pickupstatus ?? "Unknown");
+            .ToDictionary(g => g.Key,
+                          g => g.Where(x => x.flag == 1 && (x.pickupstatus == "assign" || x.pickupstatus == "dispatched")).FirstOrDefault()?.pickupstatus ?? "Unknown");
+
+
         StateHasChanged();
     }
 
-    private bool IsAssigned(string pickupno)
+    private bool IsDispatched(string pickupno)
     {
         if (pickupStatuses.TryGetValue(pickupno, out var status))
         {
-            return status?.Trim().ToLower() == "assign";
+            return status?.Trim().ToLower() == "dispatched";
         }
         return false;
-    }
-
-    private bool IsReAssigned(string pickupno)
-    {
-        if (pickupStatuses.TryGetValue(pickupno, out var status))
-        {
-            var normalizedStatus = status?.Trim().ToLower();
-            if (normalizedStatus == "reassign")
-            {
-                return normalizedStatus == "reassign";
-            }
-            else if (normalizedStatus == "open")
-            {
-                return normalizedStatus == "open";
-            }
-        }
-        return false;
-    }
-
-    private async void AssignModal(string pickupNoo)
-    {
-        dataRequest = new PickupRequest();
-        var dataRequests = await _pickupService.GetPickupRequestByPickno(pickupNoo);
-        modalTitle = "Assign Courier";
-        dataRequest.pickupno = dataRequests.pickupno;
-        dataRequest.branchname = dataRequests.branchname;
-        ModalAssign.Show();
-        StateHasChanged();
     }
 
     private async void DetailModalShow(string pickupNoo)
@@ -315,60 +259,20 @@
         StateHasChanged();
     }
 
-    private async Task<bool> Assign()
-    {
-        bool result;
-        if (pickupRequests.Any(c => c.pickupno == dataRequest.pickupno))
-        {
-            var courierNamee = await _service2.GetCourierByCodeAsync(dataRequest.couriercode);
-            
-            if (courierNamee == null)
-            {
-                await _toastService.Error("Error", "Please Select Courier");
-                return false;
-            }
-            else
-            {
-                dataRequest.couriername = courierNamee.couriername;
-                var updateStatus = await _pickupService.UpdatePickupStatusAsync(dataRequest, ItemChangedType.Update);
-                if (updateStatus == true)
-                {
-                    result = await _pickupService.AssignCourierAsync(dataRequest, ItemChangedType.Add);
-                    if (result != true)
-                    {
-                        await _toastService.Error("Error", "Failed assign");
-                        return false;
-                    }
-                    else
-                    {
-                        await _toastService.Success("Success", "Assign Courier");
-                        await ModalAssign.Close();
-                        await LoadData();
-                        await InvokeAsync(StateHasChanged);
-                        return true;
-                    }
-                }
-            }
-            
-        }
-        return false;
-    }
-
-    private async Task ReAssign(string pickupNoo)
+    private async void SaveDispatched(string pickupNoo)
     {
         bool result;
         if (pickupRequests.Any(c => c.pickupno == pickupNoo))
         {
-            result = await _pickupService.ReassignPickupStatusAsync(dataRequest,pickupNoo, ItemChangedType.Update);
+            result = await _pickupService.DispatchAsync(dataRequest, pickupNoo, ItemChangedType.Update);
             if (result != true)
             {
-                await _toastService.Error("Error", "Failed Reassign");
+                await _toastService.Error("Error", "Failed Dispatch");
                 return;
             }
             else
             {
-                await _toastService.Success("Success", "Reassign Courier");
-                ModalAssign.Close();
+                await _toastService.Success("Success", "Dispatch Courier");
                 await LoadData();
                 await InvokeAsync(StateHasChanged);
             }
