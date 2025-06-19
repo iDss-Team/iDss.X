@@ -74,7 +74,7 @@ else
                     <Select TValue="int" @bind-Value="selectedCif.industryid"
                     Items="IndustryItems" ShowLabel="true" DisplayText="Industry"
                     ValueField="Value" TextField="Text" PlaceHolder="Select Industry"/>
-					<Select TValue="string" @bind-Value="branchidStr" Items="BranchItems" ShowLabel="true" PlaceHolder="Select Branch" />
+                    <Select TValue="int" @bind-Value="selectedCif.branchid" Items="BranchItems" ShowLabel="true" DisplayText="Branch" PlaceHolder="Select Branch" ShowSearch="true" />
                 </Row>
             </ValidateForm>
         </BodyTemplate>
@@ -116,7 +116,7 @@ else
     private CIF selectedCif = new();
     string modalTitle = "Add CIF";
 
-    private IEnumerable<SelectedItem> IndustryItems { get; set; } = new List<SelectedItem>();
+    private List<SelectedItem> IndustryItems { get; set; } = new List<SelectedItem>();
     private List<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
     private bool IsEditMode => modalTitle == "Edit CIF";
     private Guid formKey = Guid.NewGuid();
@@ -167,6 +167,8 @@ else
             Text = x.industryname,
             Value = x.id.ToString()
         }).ToList();
+		IndustryItems.Insert(0, new SelectedItem { Text = "Please Select Industry", Value = "0" });
+
 
         var branches = await _services3.LoadBranchAsync();
         BranchItems = branches
@@ -178,7 +180,7 @@ else
                     Value = x.branchid.ToString()
                 }).ToList();
 
-        BranchItems.Insert(0, new SelectedItem { Text= "Please Select....", Value = "0" });
+        BranchItems.Insert(0, new SelectedItem { Text= "Please Select Branch", Value = "0" });
 
 
 
@@ -222,6 +224,20 @@ else
             await _toastService.Error("Validation Failed", "CIF Name is required.");
             return false;
         }
+
+        if (selectedCif.industryid <= 0)
+        {
+            await _toastService.Error("Validation Failed", "Please select a valid Industry.");
+            return false;
+        }
+
+        if (selectedCif.branchid <= 0)
+        {
+            await _toastService.Error("Validation Failed", "Please select a valid Branch.");
+            return false;
+        }
+
+
 
         bool result;
         if (IsEditMode)

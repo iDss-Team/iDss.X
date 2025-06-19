@@ -10,16 +10,20 @@ using Microsoft.Extensions.Options;
 using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using System.Net.NetworkInformation;
+using AutoMapper;
 
 namespace iDss.X.Services
 {
     public class MasterDataPart1Service
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IMapper _mapper;
 
-        public MasterDataPart1Service(IDbContextFactory<AppDbContext> contextFactory)
+
+        public MasterDataPart1Service(IDbContextFactory<AppDbContext> contextFactory, IMapper mapper)
         {
             _contextFactory = contextFactory;
+            _mapper = mapper;
         }
 
         public IEnumerable<int> PageItemsSource => new int[] { 10, 20, 40 };
@@ -214,12 +218,7 @@ namespace iDss.X.Services
             {
                 return false;
             }
-            data.countryname = updatedCountry.countryname;
-            data.isoalpha3 = updatedCountry.isoalpha3;
-            data.phonecode = updatedCountry.phonecode;
-            data.flag = updatedCountry.flag;
-
-
+            _mapper.Map(updatedCountry, data);
             _context.Entry(data).State = EntityState.Modified;
 
             try
@@ -1153,9 +1152,9 @@ namespace iDss.X.Services
                 return false;
             }
 
-            _cif.cifname = updatedCIF.cifname;
-            _cif.industryid = updatedCIF.industryid;
-            _cif.branchid = updatedCIF.branchid;
+           _mapper.Map(updatedCIF, _cif);
+            _cif.modifieddate = System.DateTime.Now;
+            _cif.modifier = updatedCIF.modifier;
 
             _context.Entry(_cif).State = EntityState.Modified;
 
@@ -1402,33 +1401,7 @@ namespace iDss.X.Services
             {
                 return false;
             }
-            account.acctname = updatedAccount.acctname;
-            account.cif = updatedAccount.cif;
-            account.branchid = updatedAccount.branchid;
-            account.lob = updatedAccount.lob;
-            account.costcenter = updatedAccount.costcenter;
-            account.bankacctno = updatedAccount.bankacctno;
-            account.bankacctname = updatedAccount.bankacctname;
-            account.bankcode = updatedAccount.bankcode;
-            account.frp = updatedAccount.frp;
-            account.agreedate = updatedAccount.agreedate;
-            account.agreeexpire = updatedAccount.agreeexpire;
-            account.termofpayment = updatedAccount.termofpayment;
-            account.creditlimit = updatedAccount.creditlimit;
-            account.creditperiod = updatedAccount.creditperiod;
-            account.iscod = updatedAccount.iscod;
-            account.feecod = updatedAccount.feecod;
-            account.isintl = updatedAccount.isintl;
-            account.isnl = updatedAccount.isnl;
-            account.discrates = updatedAccount.discrates;
-            account.ppn = updatedAccount.ppn;
-            account.mgmtfee = updatedAccount.mgmtfee;
-            account.isrev = updatedAccount.isrev;
-            account.istrace = updatedAccount.istrace;
-            account.isvat = updatedAccount.isvat;
-            account.vattype = updatedAccount.vattype;
-            account.stampcosttype = updatedAccount.stampcosttype;
-            //account.status = updatedAccount.status;
+            _mapper.Map(updatedAccount, account);
             account.modifieddate = System.DateTime.Now;
             account.modifier = updatedAccount.modifier;
 
@@ -1568,10 +1541,7 @@ namespace iDss.X.Services
             {
                 return false;
             }
-            industry.industryname = updatedIndustry.industryname;
-            industry.description = updatedIndustry.description;
-            industry.flag = updatedIndustry.flag;
-
+            _mapper.Map(updatedIndustry, industry);
 
             _context.Entry(industry).State = EntityState.Modified;
             try
@@ -2867,8 +2837,6 @@ namespace iDss.X.Services
 
 
         #endregion
-
-
         #region "Bank"
 
         public async Task<List<Bank>> GetBankAsync()

@@ -71,45 +71,6 @@
     }
 </Block>
 
-@* 
-<Block OnQueryCondition="OnQueryCondition2" Name="detail">
-    <Modal @ref="addModals" IsBackdrop="true" IsFade="true" >
-        <ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveAccount">
-            <BodyTemplate>
-                <ValidateForm @ref="addForm" Model="selectedAccount" @key="@formKey">
-                    <Row ItemsPerRow="ItemsPerRow.Two">
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" PlaceHolder="Input Account Name"/>
-                        <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Select CIF">
-
-                        </AutoComplete>
-                        <Select TValue="string" @bind-Value="branchidStr"
-                        Items="BranchItems" ShowLabel="true" DisplayText="Branch"
-                        PlaceHolder="Select Branch" ShowSearch="true"/>
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="LoB" ShowLabel="true" PlaceHolder="Input LoB"/>
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" PlaceHolder="Input Cost Center"/>
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank AcctNo" ShowLabel="true" PlaceHolder="Input Bank Account Number"/>
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Account Name" ShowLabel="true" PlaceHolder="Input Bank Account Name"/>
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" PlaceHolder="Input Bank Code"/>
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true"  PlaceHolder="Input FRP"/>
-                        <DateTimePicker @bind-Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date"/>
-                        <DateTimePicker @bind-Value="selectedAccount.agreeexpire"  Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date"/>
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
-                        <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Period" ShowLabel="true" />
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" Placeholder="Input Credit Period" ShowLabel="true" />
-                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.iscod" DisplayText="CoD" ShowLabel="true"  Max="1" Min="0"/>
-                        <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" />
-                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isintl" DisplayText="INTL" ShowLabel="true" Max="1" Min="0" Placeholder="Input INTL" />
-                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isnl" DisplayText="NL" ShowLabel="true" Max="1" Min="0" Placeholder="Input NL"/>
-                        <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" />
-                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.isrev" DisplayText="Rev"  ShowLabel="true" Max="1" Min="0" Placeholder="Input Rev"/>
-                        <BootstrapInputNumber TValue="int?" @bind-Value="selectedAccount.istrace" DisplayText="Trace" ShowLabel="true" Max="1" Min="0" PlaceHolder="Input Trace"/>
-
-                    </Row>
-                </ValidateForm>
-            </BodyTemplate>
-        </ModalDialog>
-    </Modal>
-</Block> *@
 
 
 <Block OnQueryCondition="OnQueryCondition2">
@@ -126,22 +87,34 @@
 
                 <Row ItemsPerRow="ItemsPerRow.Two">
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" PlaceHolder="Input Account Name" />
-                    <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Select CIF" >
+                    <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Please Select CIF" >
 
                     </AutoComplete>
-                    <Select TValue="string" @bind-Value="branchidStr"
-                    Items="BranchItems" ShowLabel="true" DisplayText="Branch"
-                    PlaceHolder="Select Branch" ShowSearch="true" />
+                    <Select TValue="int" @bind-Value="selectedAccount.branchid" Items="BranchItems" ShowLabel="true" DisplayText="Branch" PlaceHolder="Select Branch" ShowSearch="true" />
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="LoB" ShowLabel="true" PlaceHolder="Input LoB" />
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" PlaceHolder="Input Cost Center" />
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank AcctNo" ShowLabel="true" PlaceHolder="Input Bank Account Number" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Account Name" ShowLabel="true" PlaceHolder="Input Bank Account Name" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" PlaceHolder="Input Bank Code" />
+                    <Row ItemsPerRow="ItemsPerRow.Two">
+                        <Select TValue="string"
+                        Items="BankItems"
+                        ShowLabel="true"
+                        DisplayText="Bank Code"
+                        PlaceHolder="Select Bank Code"
+                        @bind-Value="selectedAccount.bankcode"
+                        OnValueChanged="OnBankCodeChanged" />
+
+                        <BootstrapInput TValue="string"
+                        @bind-Value="selectedAccount.bankacctname"
+                        DisplayText="Bank Name"
+                        ShowLabel="true"
+                        PlaceHolder="Bank Name"
+                        Readonly="true" />
+                    </Row>
+                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" PlaceHolder="Input FRP" />
                 </Row>
                 <Divider />
 
                 <Row ItemsPerRow="ItemsPerRow.Two">
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" PlaceHolder="Input FRP" />
                     <DateTimePicker @bind-Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" />
                     <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" />
                     <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
@@ -151,6 +124,7 @@
                     <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
                     <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.ppn" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
                     <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.mgmtfee" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
+                    <AutoComplete Items="@StampCostTypeOptions" @bind-Value="selectedAccount.stampcosttype" DisplayText="Stamp Cost Type"></AutoComplete>
                     <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Two" >
                         <Checkbox @bind-Value="IsCODChecked" DisplayText="CoD" Size="Size.Medium" />
                         <Checkbox @bind-Value="IsINTLChecked" DisplayText="International" Size="Size.Medium"/>
@@ -160,10 +134,9 @@
                         <Checkbox @bind-Value="IsVAT" DisplayText="VAT" Size="Size.Medium" />
                         @if (IsVAT){
                             <AutoComplete Items="@VatTypeOptions" @bind-Value="selectedAccount.vattype" DisplayText="VAT Type"></AutoComplete>
-                            <AutoComplete Items="@StampCostTypeOptions" @bind-Value="selectedAccount.stampcosttype" DisplayText="Stamp Cost Type"></AutoComplete>
                         }
                     </Row>
-             @*        <Row>
+                    @*        <Row>
                         <Table />        
                     </Row> *@
                 </Row>
@@ -213,6 +186,9 @@
     private Task<bool> OnQueryCondition3(string name) => Task.FromResult(!isTable);
 
     private DateTime AllowValue = DateTime.Today;
+    private List<SelectedItem> BankItems { get; set; } = new();
+    private Dictionary<string, string> BankCodeNameMap { get; set; } = new();
+
     private IEnumerable<string>? CifItems { get; set; } 
     private List<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
     private bool IsEditMode => modalTitle == "Edit Account";
@@ -231,49 +207,54 @@
         get => selectedAccount.iscod == 1;
         set => selectedAccount.iscod = value ? 1 : 0;
     }
-
     private bool IsINTLChecked
     {
         get => selectedAccount.isintl == 1;
         set => selectedAccount.isintl = value ? 1 : 0;
     }
-
-
-
     private bool IsNLChecked
     {
         get => selectedAccount.isnl == 1;
         set => selectedAccount.isnl = value ? 1 : 0;
     }
-
-
-
     private bool IsRev
     {
         get => selectedAccount.isrev == 1;
         set => selectedAccount.isrev = value ? 1 : 0;
     }
-
-
-
     private bool IsTrace
     {
         get => selectedAccount.istrace == 1;
         set => selectedAccount.istrace = value ? 1 : 0;
     }
-
-
     private bool IsVAT
     {
         get => selectedAccount.isvat == 1;
-		set => selectedAccount.isvat = value ? 1 : 0;
+        set => selectedAccount.isvat = value ? 1 : 0;
+    }
+    private Guid formKey = Guid.NewGuid();
+
+    private Task OnBankCodeChanged(string? code)
+    {
+        selectedAccount.bankcode = code;
+
+        if (!string.IsNullOrEmpty(code) && BankCodeNameMap.TryGetValue(code, out var name))
+        {
+            selectedAccount.bankacctname = name;
+        }
+        else
+        {
+            selectedAccount.bankacctname = null;
+        }
+
+        return Task.CompletedTask;
     }
 
 
 
 
 
-    private Guid formKey = Guid.NewGuid();
+
 
     private string branchidStr
     {
@@ -290,20 +271,14 @@
             }
         }
     }
-
-
     private async Task Cancel()
     {
         isTable = true;
     }
-
-
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
     }
-
-
     private async Task LoadData()
     {
         accounts = (await _services.GetAllAccountAsync()).ToList();
@@ -318,39 +293,26 @@
                     Value = x.branchid.ToString()
                 }).ToList();
 
-        BranchItems.Insert(0, new SelectedItem { Text = "Please Select....", Value = "0" });
+        BranchItems.Insert(0, new SelectedItem { Text = "Please Select Branch", Value = "0" });
 
         var cifs = await _services.GetCifListAsync();
         CifItems = cifs.Select(x => x.cif).ToList(); 
 
+        var banks = await _services.GetBankAsync(); 
+        BankItems = banks.
+        Select(x => new SelectedItem
+        {
+            Text = $"{x.bankname} ({x.bankcode})",
+		    Value = x.bankcode   
+        }).ToList(); 
+
+        BankItems.Insert(0, new SelectedItem { Text = "Please Select Bank", Value = "0" });
+
+        BankCodeNameMap = banks.ToDictionary(x => x.bankcode, x => x.bankname);
+
         StateHasChanged();
     }
 
-
-
-    // private async Task LoadBranch()
-    // {
-    //     var dataBranch = await _services3.LoadBranchAsync();
-
-    //     BranchItems = dataBranch.Select(c => new SelectedItem
-    //         {
-    //             Value = c.branchid,
-    //             Text = $"{c.branchid} | {c.branchname}"
-    //         }).ToList();
-
-    //     diItems.Insert(0, new SelectedItem { Text = "Please Select...", Value="0" });
-    // }
-
-
-
-    // private async Task LoadPagedAccounts()
-    // {
-    //     var result = await _services.GetAccountsPagedAsync(currentPage, pageSize);
-    //     accounts = result.Accounts;
-    //     totalCount = result.TotalCount;
-
-    //     StateHasChanged();
-    // }
 
 
 
@@ -369,9 +331,6 @@
         var cifs = await _services.GetCifAsync();
         CifItems = cifs.Select(x => x.cif);
     }
-
-
-
     private async Task ShowAddModal()
     {
         isTable = false;
@@ -384,10 +343,6 @@
         await Task.Delay(10);
         await InvokeAsync(StateHasChanged);
     }
-
-
-
-
     private async Task ShowEditModal(string acct)
     {
         var data = await _services.GetAccountByAcctNoAsync(acct);
@@ -428,14 +383,6 @@
         isEditMode = true;
         modalTitle = "Edit Account";
     }
-
-
-
-
-
-
-
-
     private async Task SaveAccount(EditContext context)
     {
         bool isExisting = !string.IsNullOrWhiteSpace(selectedAccount.acctno)
@@ -469,8 +416,6 @@
         }
      
     }
-
-
     private async Task<bool> DeleteAccount(string acctno)
     {
         var result = await _services.DeleteAccountAsync(acctno);
