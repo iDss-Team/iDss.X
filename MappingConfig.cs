@@ -21,6 +21,29 @@ namespace iDss.X
 
                 config.CreateMap<AppMenu, AppMenuDto>()
                     .ForMember(dest => dest.isactive, opt => opt.MapFrom(src => src.flag == 1));
+
+
+                config.CreateMap<Country, Country>()
+                    .ForMember(dest => dest.countrycode, opt => opt.Ignore())
+                    .ForMember(dest => dest.createddate, opt => opt.Ignore())
+                    .ForMember(dest => dest.createdby, opt => opt.Ignore());
+
+                config.CreateMap<Account, Account>()
+                    .ForMember(dest => dest.acctno, opt => opt.Ignore())
+                    .ForMember(dest => dest.createddate, opt => opt.Ignore())
+                    .ForMember(dest => dest.createdby, opt => opt.Ignore())
+                    .ForMember(dest => dest.CIF, opt => opt.Ignore());
+
+                config.CreateMap<CIF, CIF>()
+                    .ForMember(dest => dest.cif, opt => opt.Ignore())
+                    .ForMember(dest => dest.createddate, opt => opt.Ignore())
+                    .ForMember(dest => dest.createdby, opt => opt.Ignore());
+
+                config.CreateMap<Industry, Industry>()
+                    .ForMember(dest => dest.id, opt => opt.Ignore())
+                    .ForMember(dest => dest.createddate, opt => opt.Ignore())
+                    .ForMember(dest => dest.createdby, opt => opt.Ignore());
+
             });
             return mappingconfig;
         }

@@ -225,7 +225,7 @@ namespace iDss.X.Models
         [Display(Name = "CIF Name" )]
         public String? cifname { get; set; }
 
-        [ValidateNever]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a industry")]
         [Required]
         [Display(Name = "Industry")]
         public int industryid { get; set; }
@@ -233,7 +233,7 @@ namespace iDss.X.Models
         [ValidateNever]
         public Industry Industry { get; set; }
 
-        [ValidateNever]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a branch")]
         [Required]
         [Display(Name = "Branch")]
         public int branchid { get; set; }
@@ -268,7 +268,7 @@ namespace iDss.X.Models
         [ValidateNever]
         public CIF CIF { get; set; }
 
-        [ValidateNever]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a branch")]
         [Required]
         [Display(Name = "Branch")]
         public int branchid { get; set; }
@@ -509,9 +509,12 @@ namespace iDss.X.Models
         [Key]
         [StringLength(2)]
         [Required]
+        [AutoGenerateColumn(Order = 1)]
+        [Display(Name = "Province ID")]
         public String provid { get; set; }
 
         [StringLength(50)]
+        [AutoGenerateColumn(Order = 2)]
         [Display(Name = "Province")]
         [Required]
         public String provname { get; set; }

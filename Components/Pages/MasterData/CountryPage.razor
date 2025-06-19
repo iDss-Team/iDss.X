@@ -155,7 +155,7 @@ else
 			};
 		modalTitle = "Edit Country";
 		isEditMode = true;
-		editModals.Show();
+		await editModals.Show();
 		StateHasChanged();
 	}
 
@@ -183,9 +183,10 @@ else
 
 		if (result)
 		{
-			addModals.Close();
-			editModals.Close();
+			await addModals.Close();
+			await editModals.Close();
 			await countryTable.QueryAsync();
+			StateHasChanged();
 		}
 
 		return result;
