@@ -10,17 +10,131 @@ using Humanizer;
 
 namespace iDss.X.Services
 {
-    // awb inventory service
     public class OutboundService
     {
         private readonly AppDbContext _db;
+        private readonly MasterDataPart1Service _service1;
+        private readonly MasterDataPart2Service _service2;
+        private readonly MasterDataPart3Service _service3;
 
-        public OutboundService(AppDbContext context)
+        public OutboundService(AppDbContext context, MasterDataPart1Service service1, MasterDataPart2Service service2, MasterDataPart3Service service3)
         {
             _db = context;
+            _service1 = service1;
+            _service2 = service2;
+            _service3 = service3;
         }
 
         public IEnumerable<int> PageItemsSource => new int[] { 10, 20, 40 };
+
+        #region "Dropdown Data Loaders"
+
+        public async Task<List<SelectedItem>> GetCityDropdownItemsAsync()
+        {
+            var city = await _service1.LoadCityAsync();
+
+            return city
+            .Select(c => new SelectedItem(c.cityname, c.cityname))
+            .ToList();
+        }
+
+        public async Task<List<SelectedItem>> GetDistrictDropdownItemsAsync()
+        {
+            var district = await _service1.LoadDistrictAsync();
+
+            return district
+            .Select(d => new SelectedItem(d.distid, d.distname))
+            .ToList();
+        }
+
+        public async Task<List<SelectedItem>> GetProvinceDropdownItemsAsync()
+        {
+            var province = await _service1.LoadProvinceAsync();
+
+            return province
+            .Select(p => new SelectedItem(p.provname, p.provname))
+            .ToList();
+        }
+
+        public async Task<List<SelectedItem>> GetBranchDropdownItemsAsync()
+        {
+            var branch = await _service3.LoadBranchAsync();
+
+            return branch
+            .Select(b => new SelectedItem(b.branchid.ToString(), b.branchname))
+            .ToList();
+        }
+
+        public async Task<List<SelectedItem>> GetPackingTypeDropdownItemsAsync()
+        {
+            var packingTypes = await _service1.GetPackingTypeComboAsync();
+
+            var items = packingTypes
+             .Select(p => new SelectedItem(p.packingname, p.packingname))
+             .ToList();
+
+            // Tambahkan item awal sebagai placeholder
+            items.Insert(0, new SelectedItem("", "Type") { Active = true });
+
+            return items;
+        }
+
+        public async Task<List<SelectedItem>> GetPackingSizeDropdownItemsAsync()
+        {
+            var packingSize = await _service1.GetPackingSizeComboAsync();
+
+            var items = packingSize
+             .Select(s => new SelectedItem(s.sizename, s.sizename))
+             .ToList();
+
+            // Tambahkan item awal sebagai placeholder
+            items.Insert(0, new SelectedItem("", "Size") { Active = true });
+
+            return items;
+        }
+
+        public List<SelectedItem> GetDeliveryTypeOptions()
+        {
+            return new List<SelectedItem>
+            {
+                new("PAKET", "PAKET"),
+                new("POLIS", "POLIS"),
+                new("DOCUMENT", "DOCUMENT"),
+                new("FOOD", "FOOD"),
+                new("MAJALAH", "MAJALAH"),
+                new("VOUCHER", "VOUCHER"),
+                new("BULETIN", "BULETIN"),
+                new("VALUABLE GOODS", "VALUABLE GOODS"),
+                new("HEAVY CARGO", "HEAVY CARGO"),
+                new("OBAT", "OBAT"),
+                new("OTHERS", "OTHERS")
+            };
+        }
+
+        public List<SelectedItem> GetServiceTypeOptions()
+        {
+            return new List<SelectedItem>
+            {
+                new("OVERNIGHT", "OVERNIGHT SERVICE"),
+                new("REGULAR", "REGULAR SERVICE"),
+                new("SAME DAY", "SAME DAY SERVICE"),
+                new("TRUCK", "TRUCK SERVICE")
+            };
+        }
+
+        public List<SelectedItem> GetLinehaulOptions()
+        {
+            return new List<SelectedItem>
+            {
+                new("UDARA", "UDARA"),
+                new("DARAT", "DARAT"),
+                new("LAUT", "LAUT")
+            };
+        }
+
+        #endregion "Dropdown Data Loaders"
+
+        #region "AWB Inventory"
 
         public async Task<List<Province>> GetAllProvinceAsync()
         {
@@ -120,6 +234,35 @@ namespace iDss.X.Services
                 .CountAsync();
         }
 
+        public async Task<AWBInventory?> GetAndLockAvailableAwbAsync(int branchId, string currentUser)
+        {
+            try
+            {
+                var awbEntity = await _db.mdt_awbinventory
+                    .AsNoTracking()
+                    .Where(x => x.branchid == branchId
+                     && x.userlock == "admin"
+                     && !_db.trx_shipmentdetail.Any(s => s.awb == x.awb))
+                    .OrderBy(x => x.id)
+                    .FirstOrDefaultAsync();
+
+                if (awbEntity == null)
+                    return null;
+
+                _db.Attach(awbEntity);
+                awbEntity.userlock = currentUser;
+                _db.Entry(awbEntity).Property(x => x.userlock).IsModified = true;
+
+                return awbEntity;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        #endregion "AWB Inventory"
+
         #region "Entry Data Primarry"
 
         public async Task<bool> SaveEntryDataPrimaryASync(EntryDataPrimaryDto edp)
@@ -128,40 +271,43 @@ namespace iDss.X.Services
 
             try
             {
+                var awbEntity = await GetAndLockAvailableAwbAsync(edp.Shipper.branchid, "system");
+                if (awbEntity == null)
+                {
+                    throw new Exception("AWB tidak tersedia.");
+                }
+
+                var awb = awbEntity.awb; // ambil awb string-nya
+
+                if (edp.Shipment != null) edp.Shipment.awb = awb;
+                if (edp.Shipper != null) edp.Shipper.awb = awb;
+                if (edp.Consignee != null) edp.Consignee.awb = awb;
+
                 if (edp.Shipment != null)
                 {
-                    // Tambahkan ShipmentDetail
-                    System.Console.WriteLine($"pickupno: '{edp.Shipment.pickupno}'"); // Tambahkan ini
                     _db.trx_shipmentdetail.Add(edp.Shipment);
                 }
 
                 if (edp.Shipper != null)
                 {
-                    // Pastikan awb Shipper sesuai dengan Shipment (jika diperlukan)
-                    edp.Shipper.awb = edp.Shipment?.awb;
-
-                    if (edp.Shipper.branchid == 0)
-                    {
-                        edp.Shipper.branchid = 1; // Default branch ID
-                    }
-
                     _db.trx_shipper.Add(edp.Shipper);
                 }
 
                 if (edp.Consignee != null)
                 {
                     System.Console.WriteLine("BranchId: " + edp.Consignee.branchid);
-
-                    // Pastikan awb Consignee sesuai dengan Shipment (jika diperlukan)
-                    edp.Consignee.awb = edp.Shipment?.awb;
                     _db.trx_consignee.Add(edp.Consignee);
                 }
 
-                System.Console.WriteLine($"Sebelum simpan - AWB: {edp.Shipper.awb}, BranchOri: {edp.Shipper.branchid}");
-                System.Console.WriteLine($"Object state: {_db.Entry(edp.Shipper).State}");
-
                 //await _db.SaveChangesAsync();
+                // 🔍 Tambahkan debug Id di sini sebelum SaveChangesAsync
+                System.Console.WriteLine($"DEBUG: Shipment.Id = {edp.Shipment?.id}");
+                System.Console.WriteLine($"DEBUG: Shipper.Id = {edp.Shipper?.id}");
+                System.Console.WriteLine($"DEBUG: Consignee.Id = {edp.Consignee?.id}");
+
                 var affectedRows = await _db.SaveChangesAsync();
+
+                //var affectedRows = await _db.SaveChangesAsync();
                 System.Console.WriteLine($"Jumlah record tersimpan: {affectedRows}");
 
                 await entryData.CommitAsync();

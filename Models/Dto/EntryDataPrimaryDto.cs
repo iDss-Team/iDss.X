@@ -6,29 +6,41 @@ namespace iDss.X.Models.Dto
     {
         public EntryDataPrimaryDto()
         {
-            Shipment = new ShipmentDetail();
-            //Shipper = new ShipperDetail();
-            Shipper = new ShipperDetail
+            Shipment = new ShipmentDetail
             {
-                branchid = 1
+                packingtype = "" // ← inisialisasi di sini!
             };
+            Shipper = new ShipperDetail();
+
             Consignee = new ConsigneeDetail();
         }
 
+        public string? awb { get; set; }
         public ShipmentDetail Shipment { get; set; }
         public ShipperDetail Shipper { get; set; }
         public ConsigneeDetail Consignee { get; set; }
     }
 
-    //public class EntryDataPrimaryDto
-    //{
-    //    [Required(ErrorMessage = "Data shipment wajib diisi")]
-    //    public ShipmentDetail Shipment { get; set; }
+    public class CombinedTransactionDto
+    {
+        // Data Shipper
+        public string? ShipperName { get; set; }
+        public string? ShipperAddress { get; set; }
 
-    //    [Required(ErrorMessage = "Data shipper wajib diisi")]
-    //    public ShipperDetail Shipper { get; set; }
+        // Data Consignee
+        public string? ConsigneeName { get; set; }
+        public string? ConsigneeAddress { get; set; }
+        public string? Destination { get; set; }
 
-    //    [Required(ErrorMessage = "Data consignee wajib diisi")]
-    //    public ConsigneeDetail Consignee { get; set; }
-    //}
+        // Data Shipment
+        public string? AWB { get; set; }
+        public string? PickupDate { get; set; }
+        public string? ServiceType { get; set; }
+        public int? Pieces { get; set; }
+        public decimal? ActualWeight { get; set; }
+        public decimal? ChargeWeight { get; set; }
+        public string? PackingType { get; set; }
+        //public string? ReffNo { get; set; }
+        //public string? Branch { get; set; }
+    }
 }
