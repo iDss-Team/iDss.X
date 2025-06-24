@@ -31,6 +31,7 @@ Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 
 builder.Services.AddDbContextFactory<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 builder.Services.AddDbContext<AuthDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("AuthDbConnection")));
+builder.Services.AddDbContext<PriceDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("PriceDbConnection")));
 
 IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);

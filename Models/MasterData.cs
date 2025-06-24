@@ -1169,4 +1169,46 @@ namespace iDss.X.Models
 
     }
 
+    public class Zone : CommonField2
+    {
+        [Key]
+        [StringLength(5)]
+        [Required]
+        public string zoneid { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "Zone Name")]
+        [Required]
+        public string zonename { get; set; }
+
+        [StringLength(50)]
+        [Display(Name = "Zone Group")]
+        [Required]
+        public string zonegroup { get; set; }
+
+    }
+
+    public class CityZone : CommonField1
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
+
+        [StringLength(5)]
+        [Required]
+        [Display(Name = "Zone")]
+        public String zoneid { get; set; }
+        [ForeignKey("zoneid")]
+        [ValidateNever]
+        public Zone Zone { get; set; }
+
+        [StringLength(4)]
+        [Required]
+        [Display(Name = "City")]
+        public String cityid { get; set; }
+        [ForeignKey("cityid")]
+        [ValidateNever]
+        public City City { get; set; }
+
+    }
 }
