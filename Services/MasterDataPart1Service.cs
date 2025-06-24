@@ -1981,9 +1981,7 @@ namespace iDss.X.Services
             {
                 return false;
             }
-            costcomponent.componentname = updatedCostComponent.componentname;
-            costcomponent.type = updatedCostComponent.type;
-            costcomponent.description = updatedCostComponent.description;
+            _mapper.Map(updatedCostComponent, costcomponent);
 
             _context.Entry(costcomponent).State = EntityState.Modified;
             try
@@ -2982,8 +2980,197 @@ namespace iDss.X.Services
 
 
         #endregion
+        #region "Zone"
+        public async Task<List<Zone>> GetZoneAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_zone
+                .OrderBy(c => c.zoneid)
+                .AsNoTracking()
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<Zone?> GetZoneByZoneIDAsync(string zoneid)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_zone.FirstOrDefaultAsync(a => a.zoneid == zoneid);
+        }
 
 
+
+
+        public Task<QueryData<Zone>> OnQueryZoneAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_zone.ToList();
+
+            var isSearched = false;
+            // Memproses kueri tingkat lanjut.
+            if (options.SearchModel is Zone model)
+            {
+                if (!string.IsNullOrEmpty(model.zoneid))
+                {
+                    items = items.Where(item => item.zoneid?.Contains(model.zoneid, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(model.zonename))
+                {
+                    items = items.Where(item => item.zonename?.Contains(model.zonename, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(model.zonename) || !string.IsNullOrEmpty(model.zoneid);
+            }
+
+            if (options.Searches.Any())
+            {
+                // Melakukan pencarian fuzzy berdasarkan SearchText
+                items = items.Where(options.Searches.GetFilterFunc<Zone>(FilterLogic.Or)).ToList();
+            }
+
+            // Penyaringan
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<Zone>()).ToList();
+                isFiltered = true;
+            }
+
+            //// Pengurutan
+            //var isSorted = false;
+            //if (!string.IsNullOrEmpty(options.SortName))
+            //{
+            //    // Jika tidak dilakukan pengurutan di bagian eksternal, maka pengurutan akan dilakukan secara otomatis di bagian internal.
+            //    var invoker = SortLambdaCache.GetOrAdd(typeof(Checkpoint), key => LambdaExtensions.GetSortLambda<Checkpoint>().Compile());
+            //    //items = (List<Checkpoint>)invoker(items, options.SortName, options.SortOrder);
+            //    items = invoker(items, options.SortName, options.SortOrder).ToList();
+            //    isSorted = true;
+            //}
+
+            var total = items.Count();
+
+            return Task.FromResult(new QueryData<Zone>()
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                //IsSorted = isSorted,
+                IsSearch = isSearched
+            });
+        }
+
+        public async Task<List<Zone>> GetZoneComboAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var result = _context.mdt_zone
+                                .Select(p => new Zone()
+                                {
+                                    zoneid = p.zoneid,
+                                    zonename = p.zonename,
+                                    zonegroup = p.zonegroup
+                                })
+                .ToListAsync();
+            return await result;
+        }
+
+        public async Task<bool> CreateZoneAsync(Zone data)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            bool result;
+            try
+            {
+                _context.mdt_zone.Add(data);
+                await _context.SaveChangesAsync();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+               
+                System.Console.WriteLine($"Error in CreateCountryAsync: {ex.Message}");
+                result = false;
+            }
+            return result;
+        }
+
+
+
+        public async Task<bool> SaveZoneAsync(Zone data, ItemChangedType changedType)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            try
+            {
+                if (changedType == ItemChangedType.Add)
+                {
+                    _context.mdt_zone.Add(data);
+                }
+                else
+                {
+                    var existingEntity = await _context.mdt_zone.FindAsync(data.zoneid);
+
+                    if (existingEntity != null)
+                    {
+
+                        _context.Entry(existingEntity).State = EntityState.Detached;
+                    }
+
+
+                    _context.Attach(data);
+                    _context.Entry(data).State = EntityState.Modified;
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateZoneAsync(string zoneid, Zone updatedZone)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var data = await _context.mdt_zone.FirstOrDefaultAsync(a => a.zoneid == zoneid);
+            if (data == null)
+            {
+                return false;
+            }
+            _mapper.Map(updatedZone, data);
+            _context.Entry(data).State = EntityState.Modified;
+
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Error in Update District Async: {ex.Message}");
+                return false;
+            }
+        }
+
+
+
+
+        public async Task<bool> DeleteZoneAsync(string zoneid)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var zone = await _context.mdt_zone.FirstOrDefaultAsync(a => a.zoneid == zoneid);
+
+            if (zone == null)
+            {
+                return false;
+            }
+
+            _=_context.mdt_zone.Remove(zone);
+            await _context.SaveChangesAsync();
+            return true;
+
+        }
+
+        #endregion
 
     }
 }
