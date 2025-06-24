@@ -8,7 +8,8 @@ namespace iDss.X.Models.Dto
         {
             Shipment = new ShipmentDetail
             {
-                packingtype = "" // ← inisialisasi di sini!
+                packingtype = "",// ← inisialisasi di sini!
+                pickupdate = DateOnly.FromDateTime(DateTime.Today)
             };
             Shipper = new ShipperDetail();
 
