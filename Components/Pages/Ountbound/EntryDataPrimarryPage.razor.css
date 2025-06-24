@@ -32,8 +32,11 @@
     --bb-height: 30px;
 }
 
-::deep .select-kecil {
+::deep .custom-select-size {
+    min-width: auto;
 }
+
+::deep 
 
 .select-kecil ::deep .form-control,
 .select-kecil ::deep .form-select {
@@ -41,6 +44,18 @@
     min-width: 60px !important;
     padding: 0 4px;
 }
+
+.icon-refresh {
+    cursor: pointer;
+    color: #ff4d4f;
+    /*    font-size: 1.1rem;*/
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+    .icon-refresh:hover {
+        transform: rotate(90deg);
+        color: #e63946;
+    }
 
 /*override css checkbox shipmnet detail*/
 /*::deep .custom-chekbox .form-check-input {
