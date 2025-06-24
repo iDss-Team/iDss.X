@@ -212,65 +212,57 @@
 
 @code {
 
+    #region Fields and Properties
+
+    // State Control
     private bool isViewClicked = false;
-    private Task<bool> OnQueryCondition(string name) => Task.FromResult(!isViewClicked);
-    private Task<bool> OnQueryCondition2(string name) => Task.FromResult(isViewClicked);
-
-    private EntryDataPrimaryDto entryData = new();
-    private List<CombinedTransactionDto> CombinedList { get; set; } = new();
-
-    private List<SelectedItem> cityItems = new();
-    private List<SelectedItem> districtItems = new();
-    private List<SelectedItem> provinceItems = new();
-    private List<SelectedItem> branchItems = new();
-    private List<SelectedItem> packingTypeOptions = new();
-    private List<SelectedItem> packingSizeOptions = new();
-    private List<District> districtList = new();
-
-    private List<SelectedItem> deliveryItemOptions = new();
-    private List<SelectedItem> servicetypeItemOptions = new();
-    private List<SelectedItem> linehaulItemOptions = new();
-    private List<string> accountList = new();
-
     private bool isPacking = false;
     private CheckboxState packingState = CheckboxState.UnChecked;
 
-    public DateTime PickupDate
+    // Main DTO
+    private EntryDataPrimaryDto entryData = new();
+
+    // Output List
+    private List<CombinedTransactionDto> CombinedList { get; set; } = new(); private List<SelectedItem> cityItems = new();
+
+    // Lookup data - area/cabang
+    private List<SelectedItem> districtItems = new();
+    private List<SelectedItem> provinceItems = new();
+    private List<SelectedItem> branchItems = new();
+    private List<District> districtList = new();
+
+    // Lookup data - packing
+    private List<SelectedItem> packingTypeOptions = new();
+    private List<SelectedItem> packingSizeOptions = new();
+
+    // Lookup data - service
+    private List<SelectedItem> deliveryItemOptions = new();
+    private List<SelectedItem> servicetypeItemOptions = new();
+    private List<SelectedItem> linehaulItemOptions = new();
+
+    // Lookup data - account
+    private List<string> accountList = new();
+
+    // Computed property
+    private DateTime PickupDate
     {
-        get
-        {
-            System.Console.WriteLine($"[GET] PickupDate = {entryData.Shipment?.pickupdate}");
-            return entryData.Shipment?.pickupdate.ToDateTime(TimeOnly.MinValue) ?? DateTime.MinValue;
-        }
-        set
-        {
-            System.Console.WriteLine($"[SET] PickupDate value = {value}");
-            if (entryData.Shipment is not null)
-            {
-                entryData.Shipment.pickupdate = DateOnly.FromDateTime(value);
-                System.Console.WriteLine($"[SET] entryData.Shipment.pickupdate set to = {entryData.Shipment.pickupdate}");
-            }
-        }
+        get => entryData.Shipment.pickupdate.ToDateTime(TimeOnly.MinValue);
+        set => entryData.Shipment.pickupdate = DateOnly.FromDateTime(value);
     }
 
+    #endregion Fields and Properties
 
-    // public DateTime PickupDate
-    // {
-    //     get => entryData.Shipment?.pickupdate.ToDateTime(TimeOnly.MinValue) ?? DateTime.MinValue;
-    //     set
-    //     {
-    //         if (entryData.Shipment is not null)
-    //         {
-    //             entryData.Shipment.pickupdate = DateOnly.FromDateTime(value);
-    //         }
-    //     }
-    // }
+    #region Lifecycle Methods
 
     protected override async Task OnInitializedAsync()
     {
         await LoadMasterDataAsync();
         LoadStaticOptions();
     }
+
+    #endregion
+
+    #region Data Loading
 
     private async Task LoadMasterDataAsync()
     {
@@ -296,21 +288,18 @@
         linehaulItemOptions = _oclservice.GetLinehaulOptions();
     }
 
+    #endregion
+
+    #region Event Handlers
+
     private async Task HandleValidSubmit(EditContext context)
     {
         if (!isPacking)
         {
-            await toastService.Show(new ToastOption
-                {
-                    Category = ToastCategory.Warning,
-                    Title = "Gagal",
-                    Content = "Opsi Packing belum dipilih!",
-                    Delay = 4000,
-                    IsAutoHide = true
-                });
-
+            await ShowPackingErrorAsync();
             return;
         }
+
         try
         {
             // entryData.Shipper.branchid = 1;
@@ -322,26 +311,26 @@
             StateHasChanged();
 
             await toastService.Show(new ToastOption
-            {
-                Category = ToastCategory.Success,
-                Title = "Sukses",
-                Content = "Data berhasil disimpan!",
-                Delay = 4000,
-                IsAutoHide = true
-            });
+                {
+                    Category = ToastCategory.Success,
+                    Title = "Sukses",
+                    Content = "Data berhasil disimpan!",
+                    Delay = 4000,
+                    IsAutoHide = true
+                });
 
             ViewData();
         }
         catch (Exception ex)
         {
             await toastService.Show(new ToastOption
-            {
-                Category = ToastCategory.Error,
-                Title = "Gagal",
-                Content = $"Gagal menyimpan data: {ex.Message}",
-                Delay = 5000,
-                IsAutoHide = false
-            });
+                {
+                    Category = ToastCategory.Error,
+                    Title = "Gagal",
+                    Content = $"Gagal menyimpan data: {ex.Message}",
+                    Delay = 5000,
+                    IsAutoHide = false
+                });
         }
     }
 
@@ -356,6 +345,43 @@
             entryData.Shipment.packingtype = "";
         }
     }
+
+    //autofil shipper act no
+    private async Task OnAccountSelected(string selectedAcctNo)
+    {
+        var account = await _service1.GetAccountByAcctNoAsync(selectedAcctNo);
+        if (account is not null)
+        {
+            entryData.Shipper.acctno = account.acctno;
+            entryData.Shipper.shippername = account.acctname;
+            entryData.Shipper.branchid = account.branchid;
+            StateHasChanged();
+        }
+    }
+
+    private Task<bool> OnQueryCondition(string name) => Task.FromResult(!isViewClicked);
+    private Task<bool> OnQueryCondition2(string name) => Task.FromResult(isViewClicked);
+
+    #endregion
+
+    #region View Management
+
+    private void ViewData()
+    {
+        PrepareSummaryData();
+        isViewClicked = true;
+        StateHasChanged();
+    }
+
+    private void BackToForm()
+    {
+        isViewClicked = false;
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Reset Methods
 
     private void ResetShipmentDetail()
     {
@@ -374,17 +400,20 @@
         isPacking = false;
     }
 
-    //autofil shipper act no
-    private async Task OnAccountSelected(string selectedAcctNo)
+    #endregion
+
+    #region Helpers
+
+    private async Task ShowPackingErrorAsync()
     {
-        var account = await _service1.GetAccountByAcctNoAsync(selectedAcctNo);
-        if (account is not null)
-        {
-            entryData.Shipper.acctno = account.acctno;
-            entryData.Shipper.shippername = account.acctname;
-            entryData.Shipper.branchid = account.branchid;
-            StateHasChanged();
-        }
+        await toastService.Show(new ToastOption
+            {
+                Category = ToastCategory.Warning,
+                Title = "Gagal",
+                Content = "Opsi Packing belum dipilih!",
+                Delay = 4000,
+                IsAutoHide = true
+            });
     }
 
     private void PrepareSummaryData()
@@ -395,45 +424,31 @@
         var consignee = entryData.Consignee;
         var shipment = entryData.Shipment;
 
-        var PickupDate = shipment.pickupdate.ToDateTime(TimeOnly.MinValue);
-        System.Console.WriteLine($"[DEBUG] Formatted pickup date = {PickupDate:dd/MM/yyyy}");
+        var formattedPickupDate = shipment.pickupdate.ToDateTime(TimeOnly.MinValue);
+        System.Console.WriteLine($"[DEBUG] Formatted pickup date = {formattedPickupDate:dd/MM/yyyy}");
         System.Console.WriteLine($"[DEBUG] shipment.pickupdate = {shipment?.pickupdate}");
-        
+
 
         if (!string.IsNullOrWhiteSpace(shipper?.shippername) && !string.IsNullOrWhiteSpace(consignee?.cnename))
         {
             CombinedList.Add(new CombinedTransactionDto
-            {
-                AWB = shipment.awb?.Trim(),
-                PickupDate = shipment.pickupdate != DateOnly.MinValue ? shipment.pickupdate.ToString("dd/MM/yyyy") : "-", 
-                ShipperName = shipper.shippername?.Trim(),
-                ShipperAddress = shipper.addr1?.Trim(),
-                ConsigneeName = consignee.cnename?.Trim(),
-                ConsigneeAddress = consignee.addr1?.Trim(),
-                Destination = consignee.descode?.Trim(),
-                ServiceType = shipment.service?.Trim(),
-                Pieces = shipment.pieces,
-                ActualWeight = shipment.actweight,
-                ChargeWeight = shipment.chargeweight,
-                PackingType = shipment.packingtype?.Trim()
-            });
+                {
+                    AWB = shipment.awb?.Trim(),
+                    PickupDate = shipment.pickupdate != DateOnly.MinValue ? shipment.pickupdate.ToString("dd/MM/yyyy") : "-",
+                    ShipperName = shipper.shippername?.Trim(),
+                    ShipperAddress = shipper.addr1?.Trim(),
+                    ConsigneeName = consignee.cnename?.Trim(),
+                    ConsigneeAddress = consignee.addr1?.Trim(),
+                    Destination = consignee.descode?.Trim(),
+                    ServiceType = shipment.service?.Trim(),
+                    Pieces = shipment.pieces,
+                    ActualWeight = shipment.actweight,
+                    ChargeWeight = shipment.chargeweight,
+                    PackingType = shipment.packingtype?.Trim()
+                });
         }
     }
 
-    private void ViewData()
-    {
-        entryData.Shipment.pickupdate = DateOnly.FromDateTime(PickupDate);
-        PrepareSummaryData();
-        isViewClicked = true;
-        StateHasChanged();
-    }
-
-    private void BackToForm()
-    {
-        isViewClicked = false;
-        StateHasChanged();
-    }
-
-
-
+    #endregion
+  
 }
