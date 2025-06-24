@@ -66,6 +66,7 @@ else
                     <BootstrapInput TValue="string" @bind-Value="selectedCostComponent.componentname" DisplayText="Component Name" ShowLabel="true"></BootstrapInput>
                     <AutoComplete Items="@TypeOptions" @bind-Value="selectedCostComponent.type" DisplayText="Type"></AutoComplete>
                     <Textarea TValue="string" @bind-Value="selectedCostComponent.description" ShowLabel="true" DisplayText="Description" PlaceHolder="Please Enter Description..."></Textarea>
+                    <Checkbox @bind-Value="IsSystem" DisplayText="System" Size="Size.Medium" />  
                 </Row>
             </ValidateForm>
         </BodyTemplate>
@@ -81,6 +82,7 @@ else
                     <BootstrapInput TValue="string" @bind-Value="selectedCostComponent.componentname" DisplayText="Component Name" ShowLabel="true"></BootstrapInput>
                     <AutoComplete Items="@TypeOptions" @bind-Value="selectedCostComponent.type" DisplayText="Type"></AutoComplete>
                     <Textarea TValue="string" @bind-Value="selectedCostComponent.description" ShowLabel="true" DisplayText="Description" PlaceHolder="Please Enter Description..."></Textarea>
+                    <Checkbox @bind-Value="IsSystem" DisplayText="System" Size="Size.Medium" />
                 </Row>
             </ValidateForm>
         </BodyTemplate>
@@ -105,6 +107,14 @@ else
     private bool isModalOpen = false;
     private string modalTitle = "Add Cost Component";
     private CostComponent selectedCostComponent = new();
+
+
+    private bool IsSystem
+    {
+        get => selectedCostComponent.issystem == 1;
+		set => selectedCostComponent.issystem = value ? 1 : 0;
+    }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -140,6 +150,7 @@ else
 				componentname = data.componentname,
 				type = data.type,
 				description = data.description,
+				issystem = data.issystem
             };
 
         modalTitle = "Edit Cost Component";

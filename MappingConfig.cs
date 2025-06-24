@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿ using AutoMapper;
 using iDss.X.Models;
 
 namespace iDss.X
@@ -40,6 +40,11 @@ namespace iDss.X
                     .ForMember(dest => dest.createdby, opt => opt.Ignore());
 
                 config.CreateMap<Industry, Industry>()
+                    .ForMember(dest => dest.id, opt => opt.Ignore())
+                    .ForMember(dest => dest.createddate, opt => opt.Ignore())
+                    .ForMember(dest => dest.createdby, opt => opt.Ignore());
+
+                config.CreateMap<CostComponent, CostComponent>()
                     .ForMember(dest => dest.id, opt => opt.Ignore())
                     .ForMember(dest => dest.createddate, opt => opt.Ignore())
                     .ForMember(dest => dest.createdby, opt => opt.Ignore());

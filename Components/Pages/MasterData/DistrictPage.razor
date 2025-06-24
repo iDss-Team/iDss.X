@@ -64,6 +64,7 @@ else
 	<ModalDialog Size="Size.ExtraLarge" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveDistrict">
 		<BodyTemplate>
 			<ValidateForm @ref="addForm" Model="selectedDistrict" @key="formKey">
+			<ValidationSummary/>
 				<Row ItemsPerRow="ItemsPerRow.Two" RowType="RowType.Inline">
 					<Select TValue="string"
 					Items="cityItems"
