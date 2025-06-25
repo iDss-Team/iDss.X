@@ -1,0 +1,41 @@
+﻿@page "/pricing/PriceRegular"
+@using iDss.X.Models
+@using AutoMapper;
+@inject ToastService _toastService;
+@inject MasterDataPart1Service _service1
+@inject IMapper Mapper;
+@attribute [TabItemOption(Text = "Price Regular")]
+
+<PageTitle>Price Regular</PageTitle>
+
+
+<Transfer TValue="string"
+		  Items="@cityItems"
+          LeftPanelText="List of City Names"
+          RightPanelText="City Choosen"
+          LeftPanelSearchPlaceHolderString="Search City"
+          RightPanelSearchPlaceHolderString="Search City"
+          ShowSearch="true"/>
+
+
+@code {
+	private List<SelectedItem> cityItems = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadCity();
+	}
+
+	private async Task LoadCity()
+	{
+		var dataCity = await _service1.GetCityAsync();
+
+		cityItems = dataCity.Select(c => new SelectedItem
+			{
+				Value = c.cityid,
+				Text = $"{c.cityid} | {c.cityname}"
+			}).ToList();
+
+		cityItems.Insert(0, new SelectedItem { Text = "Please Select...", Value = "0" });
+	}
+}
