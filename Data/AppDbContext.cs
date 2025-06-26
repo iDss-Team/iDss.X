@@ -49,6 +49,7 @@ namespace iDss.X.Data
         public DbSet<NCSBankAccount> mdt_ncsbankaccount { get; set; }
         public DbSet<Zone> mdt_zone { get; set; }
         public DbSet<CityZone> mdt_cityzone { get; set; }
+        public DbSet<ReasonPickup> mdt_reasonpickup { get; set; }
 
 
         //Pickup
@@ -100,29 +101,14 @@ namespace iDss.X.Data
             modelBuilder.ApplyConfiguration(new CheckpointPoolConfiguration());
             modelBuilder.ApplyConfiguration(new PackingPriceConfiguration());
 
-            //Seed table app_module
-            modelBuilder.SeedAppModuleCtg();
-
-            //Seed table app_module
-            modelBuilder.SeedAppModule();
-
             //Seed table app_menu
-            modelBuilder.SeedAppMenu();
-
-            //Seed table province
-            modelBuilder.SeedProvince();
+            modelBuilder.SeedNavigation();
 
             //Seed table city
-            modelBuilder.SeedCity();
-
-            //Seed table district
-            modelBuilder.SeedDistrict();
-
-            //Seed table village
-            modelBuilder.SeedVillage();
+            modelBuilder.SeedArea();
 
             //Seed table mdt_branch
-            modelBuilder.SeedBranch();
+            modelBuilder.SeedMasterData();
 
         }
 

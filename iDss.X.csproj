@@ -41,6 +41,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="PDFsharp" Version="6.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,6 +57,12 @@
   <ItemGroup>
     <Folder Include="Components\Pages\Inbound\" />
     <Folder Include="Components\Pages\Reporting\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="pdftools2025">
+      <HintPath>..\..\DLL\pdftools2025.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

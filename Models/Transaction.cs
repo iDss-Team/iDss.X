@@ -49,7 +49,6 @@ namespace iDss.X.Models
         [StringLength(15)]
         [Display(Name = "Pickup No")]
         public String? pickupno { get; set; }
-
         [ForeignKey("pickupno")]
         [ValidateNever]
         public PickupRequest PickupRequest { get; set; }
@@ -168,20 +167,16 @@ namespace iDss.X.Models
         [Required]
         public string awb { get; set; }
 
-        [ValidateNever]
         [Required]
         [Display(Name = "Branch Ori")]
         public int branchid { get; set; }
-
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
 
         [StringLength(30)]
-        [ValidateNever]
         [Display(Name = "Account")]
         public String? acctno { get; set; }
-
         [ForeignKey("acctno")]
         [ValidateNever]
         public Account Account { get; set; }
@@ -211,11 +206,9 @@ namespace iDss.X.Models
         public string countrycode { get; set; } = "ID";
 
         [StringLength(6)]
-        [ValidateNever]
         [Required]
         [Display(Name = "District")]
         public string distid { get; set; }
-
         [ForeignKey("distid")]
         [ValidateNever]
         public District District { get; set; }
@@ -272,19 +265,15 @@ namespace iDss.X.Models
         [Required]
         public string awb { get; set; }
 
-        [ValidateNever]
         [Display(Name = "Branch Cnee")]
         public int? branchid { get; set; }
-
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
 
         [StringLength(30)]
-        [ValidateNever]
         [Display(Name = "Account")]
         public String? acctno { get; set; }
-
         [ForeignKey("acctno")]
         [ValidateNever]
         public Account Account { get; set; }
@@ -314,11 +303,9 @@ namespace iDss.X.Models
         public string countrycode { get; set; } = "ID";
 
         [StringLength(6)]
-        [ValidateNever]
         [Required]
         [Display(Name = "District")]
         public string distid { get; set; }
-
         [ForeignKey("distid")]
         [ValidateNever]
         public District District { get; set; }
@@ -394,11 +381,9 @@ namespace iDss.X.Models
         public string countrycode { get; set; } = "ID";
 
         [StringLength(6)]
-        [ValidateNever]
         [Required]
         [Display(Name = "District")]
         public string distid { get; set; }
-
         [ForeignKey("distid")]
         [ValidateNever]
         public District District { get; set; }
@@ -566,11 +551,9 @@ namespace iDss.X.Models
         [StringLength(100)]
         public string? longitude { get; set; }
 
-        [ValidateNever]
         [Required]
         [Display(Name = "Branch")]
         public int branchid { get; set; }
-
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
@@ -580,10 +563,8 @@ namespace iDss.X.Models
         public String? branchname { get; set; }
 
         [StringLength(10)]
-        [ValidateNever]
         [Display(Name = "Courier")]
         public String? couriercode { get; set; }
-
         [ForeignKey("couriercode")]
         [ValidateNever]
         public Courier Courier { get; set; }
@@ -592,18 +573,14 @@ namespace iDss.X.Models
         [Display(Name = "Recipient")]
         public String? recipient { get; set; }
 
-        [ValidateNever]
         [Display(Name = "Relation")]
         public int? relationid { get; set; }
-
         [ForeignKey("relationid")]
         [ValidateNever]
         public Relation Relation { get; set; }
 
-        [ValidateNever]
         [Display(Name = "Reason")]
         public int? reasonid { get; set; }
-
         [ForeignKey("reasonid")]
         [ValidateNever]
         public ReasonUN ReasonUN { get; set; }
@@ -667,11 +644,9 @@ namespace iDss.X.Models
         [Required]
         public string awb { get; set; }
 
-        [ValidateNever]
         [Required]
         [Display(Name = "Branch")]
         public int branchid { get; set; }
-
         [ForeignKey("branchid")]
         [ValidateNever]
         public Branch Branch { get; set; }
