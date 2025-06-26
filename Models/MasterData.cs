@@ -1215,4 +1215,36 @@ namespace iDss.X.Models
         public City City { get; set; }
 
     }
+
+    public class ReasonPickup : CommonField3
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [AutoGenerateColumn(Ignore = true)]
+        public int id { get; set; }
+
+        [StringLength(100, ErrorMessage = "Reason Name cannot be longer than 50 characters.")]
+        [Required]
+        [Display(Name = "Reason Name")]
+        [AutoGenerateColumn(Order = 10, Cols = 12, Searchable = true, Filterable = true)]
+        public string reasonname { get; set; }
+
+        [StringLength(5, ErrorMessage = "Reason Code cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Reason Code")]
+        [AutoGenerateColumn(Order = 20, Cols = 12, Searchable = true, Filterable = true)]
+        public string reasoncode { get; set; }
+
+        [StringLength(100, ErrorMessage = "Remarks cannot be longer than 100 characters.")]
+        [Display(Name = "Remarks")]
+        [AutoGenerateColumn(Order = 30, Cols = 12, Rows = 2, ComponentType = typeof(Textarea))]
+        public string? remarks { get; set; }
+
+        [StringLength(15, ErrorMessage = "Reason Group cannot be longer than 5 characters.")]
+        [Required]
+        [Display(Name = "Reason Group")]
+        [AutoGenerateColumn(Order = 40, Cols = 12, Searchable = true, Filterable = true)]
+        public string reasongroup { get; set; }
+
+    }
 }

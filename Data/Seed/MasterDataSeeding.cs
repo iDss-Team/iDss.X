@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace iDss.X.Data.Seed
 {
-    public static class BranchSeeding
+    public static class MasterDataSeeding
     {
-        public static void SeedBranch(this ModelBuilder modelBuilder)
+        public static void SeedMasterData(this ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Branch>().HasData(new Branch[]
             {

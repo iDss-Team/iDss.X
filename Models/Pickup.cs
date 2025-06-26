@@ -29,7 +29,6 @@ namespace iDss.X.Models
         public string pickuptype { get; set; }
 
         [StringLength(30)]
-        [ValidateNever]
         [Required]
         [Display(Name = "Account")]
         public String acctno { get; set; }
@@ -52,7 +51,6 @@ namespace iDss.X.Models
         public String addr { get; set; }
 
         [StringLength(6)]
-        [ValidateNever]
         [Required]
         [Display(Name = "District")]
         public String distid { get; set; }
@@ -89,11 +87,9 @@ namespace iDss.X.Models
         public Branch Branch { get; set; }
 
         [StringLength(50, ErrorMessage = "Branch Name cannot be longer than 50 characters.")]
-        [Required]
-        public string branchname { get; set; }
+        public string? branchname { get; set; }
 
         [StringLength(10)]
-        [ValidateNever]
         [Display(Name = "Courier")]
         public String? couriercode { get; set; }
         [ForeignKey("couriercode")]
@@ -165,7 +161,6 @@ namespace iDss.X.Models
         public string pickuptype { get; set; }
 
         [StringLength(30)]
-        [ValidateNever]
         [Required]
         [Display(Name = "Account")]
         public String acctno { get; set; }
@@ -187,7 +182,6 @@ namespace iDss.X.Models
         public String addr { get; set; }
 
         [StringLength(6)]
-        [ValidateNever]
         [Required]
         [Display(Name = "District")]
         public String distid { get; set; }
@@ -220,7 +214,6 @@ namespace iDss.X.Models
         [EmailAddress]
         public String? picemail { get; set; }
 
-        [ValidateNever]
         [Display(Name = "Branch")]
         public int? branchid { get; set; }
         [ForeignKey("branchid")]
@@ -228,7 +221,6 @@ namespace iDss.X.Models
         public Branch Branch { get; set; }
 
         [StringLength(10)]
-        [ValidateNever]
         [Display(Name = "Courier")]
         public String? couriercode { get; set; }
         [ForeignKey("couriercode")]
