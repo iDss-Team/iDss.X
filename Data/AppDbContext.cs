@@ -70,6 +70,7 @@ namespace iDss.X.Data
         public DbSet<CheckpointPool> trx_checkpointpool { get; set; }
         public DbSet<Attachment> trx_attachment { get; set; }
         public DbSet<VoidTransaction> trx_void { get; set; }
+        public DbSet<TrxStaging> trx_staging { get; set; }
 
         //Outbound
         public DbSet<AWBInventory> mdt_awbinventory { get; set; }
@@ -100,6 +101,7 @@ namespace iDss.X.Data
             modelBuilder.ApplyConfiguration(new VoidTransactionConfiguration());
             modelBuilder.ApplyConfiguration(new CheckpointPoolConfiguration());
             modelBuilder.ApplyConfiguration(new PackingPriceConfiguration());
+            modelBuilder.ApplyConfiguration(new TrxStagingConfiguration());
 
             //Seed table app_menu
             modelBuilder.SeedNavigation();

@@ -198,4 +198,16 @@ namespace iDss.X.Data.Configuration
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
+
+	public class TrxStagingConfiguration : IEntityTypeConfiguration<TrxStaging>
+	{
+		public void Configure(EntityTypeBuilder<TrxStaging> builder)
+		{
+			builder.HasOne(m => m.PickupRequest) // Relasi ke pum_pickuprequest
+				.WithMany(c => c.TrxStagings)
+				.HasForeignKey(m => m.pickupno) // Foreign Key
+				.HasPrincipalKey(pr => pr.pickupno)
+				.OnDelete(DeleteBehavior.Restrict);
+		}
+	}
 }
