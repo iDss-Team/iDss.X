@@ -730,4 +730,339 @@ namespace iDss.X.Models
 
         public int? slato { get; set; }
     }
+
+	public class TrxStaging : CommonField2
+	{
+		//Shipment Detail]
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public long id { get; set; }
+
+		[StringLength(15)]
+		[Display(Name = "AWB")]
+		public string? awb { get; set; }
+
+		[StringLength(100)]
+		[Display(Name = "ReffNo")]
+		public string? refno { get; set; }
+
+		[StringLength(15)]
+		[Display(Name = "Pickup No")]
+		public string? pickupno { get; set; }
+		[ForeignKey("pickupno")]
+		[ValidateNever]
+		public PickupRequest PickupRequest { get; set; }
+
+		[StringLength(30)]
+		public string? apireqid { get; set; }
+
+		[StringLength(30)]
+		[Display(Name = "DO Number")]
+		public string? donumber { get; set; }
+
+		[StringLength(30)]
+		[Display(Name = "Buyer Order No")]
+		public string? buyerorderno { get; set; }
+
+		[DisplayFormat(DataFormatString = "{0:dd/MMM/yyyy}", ApplyFormatInEditMode = true)]
+		public DateOnly? pickupdate { get; set; }
+
+		[StringLength(10)]
+		[Display(Name = "Linehaul")]
+		[Required]
+		public string linehaul { get; set; }
+
+		[StringLength(50)]
+		[Display(Name = "Delivery Item")]
+		[Required]
+		public string deliveryitem { get; set; }
+
+		[StringLength(10)]
+		[Display(Name = "HUB")]
+		[Required]
+		public string hubcode { get; set; }
+
+		[Display(Name = "Pieces")]
+		[Required]
+		public int pieces { get; set; }
+
+		[Display(Name = "Actual Weight")]
+		[Column(TypeName = "decimal(10,2)")]
+		[Required]
+		public decimal actweight { get; set; }
+
+		[Display(Name = "Volume Weight")]
+		[Column(TypeName = "decimal(10,2)")]
+		[Required]
+		public decimal volweight { get; set; }
+
+		[Display(Name = "Charge Weight")]
+		[Column(TypeName = "decimal(10,2)")]
+		[Required]
+		public decimal chargeweight { get; set; }
+
+		[StringLength(10)]
+		[Required]
+		public string unitweight { get; set; } = "kg";
+
+		[StringLength(10)]
+		[Display(Name = "Service")]
+		[Required]
+		public string service { get; set; }
+
+		[StringLength(30)]
+		[Display(Name = "Packing Type")]
+		[Required]
+		public string? packingtype { get; set; }
+
+		[StringLength(50)]
+		[Display(Name = "Content")]
+		[Required]
+		public string content { get; set; }
+
+		[Column(TypeName = "decimal(18,0)")]
+		[Display(Name = "Item Value")]
+		public decimal? itemvalue { get; set; }
+
+		[StringLength(10)]
+		[Display(Name = "Currency")]
+		[Required]
+		public string curr { get; set; } = "IDR";
+
+		[StringLength(100)]
+		[Display(Name = "Notes")]
+		public string? intruction { get; set; }
+
+        [StringLength(10)]
+        [Required]
+        public string trxtype { get; set; } = "api";
+
+		[StringLength(50)]
+		public string? session { get; set; }
+        
+        
+		//Shipper Detail
+		[Required]
+		[Display(Name = "Branch Ori")]
+		public int branchori { get; set; }
+		[ForeignKey("branchori")]
+		[ValidateNever]
+		public Branch BranchOri { get; set; }
+
+		[StringLength(30)]
+		[Display(Name = "Account")]
+		public String? acctno { get; set; }
+		[ForeignKey("acctno")]
+		[ValidateNever]
+		public Account Account { get; set; }
+
+		[StringLength(50, ErrorMessage = "Shipper Name cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Name")]
+		public string shippername { get; set; }
+
+		[StringLength(50, ErrorMessage = "Attention Name cannot be longer than 50 characters.")]
+		[Display(Name = "Attention Name")]
+		public string s_attname { get; set; }
+
+		[StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
+		[Display(Name = "Address")]
+		[Required]
+		public string s_addr1 { get; set; }
+
+		[StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
+		public string? s_addr2 { get; set; }
+
+		[StringLength(3)]
+		[Required]
+		public string s_countrycode { get; set; } = "ID";
+
+		[StringLength(6)]
+		[Required]
+		[Display(Name = "District")]
+		public string s_distid { get; set; }
+		[ForeignKey("s_distid")]
+		[ValidateNever]
+		public District DistrictOri { get; set; }
+
+		[StringLength(50)]
+		[Display(Name = "City")]
+		public string? s_cityname { get; set; }
+
+		[StringLength(50)]
+		[Display(Name = "Province")]
+		public string? s_provname { get; set; }
+
+		[StringLength(10)]
+		[Display(Name = "Postal Code")]
+		public string? s_postcode { get; set; }
+
+		[StringLength(100)]
+		public string? shplat { get; set; }
+
+		[StringLength(100)]
+		public string? shplong { get; set; }
+
+		[StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
+		[Display(Name = "Phone")]
+		public string? s_phone { get; set; }
+
+		[StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
+		[Display(Name = "Email")]
+		[EmailAddress]
+		public string? s_email { get; set; }
+
+		[StringLength(10, ErrorMessage = "Origin Code cannot be longer than 10 characters.")]
+		[Display(Name = "Origin Code")]
+		[Required]
+		public string oricode { get; set; }
+
+		[StringLength(10, ErrorMessage = "Cost Center cannot be longer than 10 characters.")]
+		[Display(Name = "Cost Center")]
+		public string? costcenter { get; set; }
+
+
+		//Consignee Detail
+		[Display(Name = "Branch Cnee")]
+		public int? branchcne { get; set; }
+		[ForeignKey("branchcne")]
+		[ValidateNever]
+		public Branch BranchCne { get; set; }
+
+		[StringLength(50, ErrorMessage = "Consignee Name cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Name")]
+		public string cnename { get; set; }
+
+		[StringLength(50, ErrorMessage = "Attention Name cannot be longer than 50 characters.")]
+		[Display(Name = "Attention Name")]
+		public string c_attname { get; set; }
+
+		[StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
+		[Display(Name = "Address")]
+		[Required]
+		public string c_addr1 { get; set; }
+
+		[StringLength(300, ErrorMessage = "Address cannot be longer than 300 characters.")]
+		public string? c_addr2 { get; set; }
+
+		[StringLength(3)]
+		[Required]
+		public string c_countrycode { get; set; } = "ID";
+
+		[StringLength(6)]
+		[Required]
+		[Display(Name = "District")]
+		public string c_distid { get; set; }
+		[ForeignKey("c_distid")]
+		[ValidateNever]
+		public District DistrictCne { get; set; }
+
+		[StringLength(50)]
+		[Display(Name = "City")]
+		public string? c_cityname { get; set; }
+
+		[StringLength(50)]
+		[Display(Name = "Province")]
+		public string? c_provname { get; set; }
+
+		[StringLength(10)]
+		[Display(Name = "Postal Code")]
+		public string? c_postcode { get; set; }
+
+		[StringLength(100)]
+		public string? cnelat { get; set; }
+
+		[StringLength(100)]
+		public string? cnelong { get; set; }
+
+		[StringLength(15, ErrorMessage = "Phone cannot be longer than 15 characters.")]
+		[Display(Name = "Phone")]
+		public string? c_phone { get; set; }
+
+		[StringLength(50, ErrorMessage = "Email cannot be longer than 50 characters.")]
+		[Display(Name = "Email")]
+		[EmailAddress]
+		public string? c_email { get; set; }
+
+		[StringLength(10, ErrorMessage = "Origin Code cannot be longer than 10 characters.")]
+		[Display(Name = "Destination Code")]
+		[Required]
+		public string descode { get; set; }
+
+
+		//Other Detail
+
+		[StringLength(100)]
+		public string? attach1 { get; set; }
+
+		[StringLength(100)]
+		public string? attach2 { get; set; }
+
+		[StringLength(20)]
+		[Display(Name = "Voucher Code")]
+		public string? vouchercode { get; set; }
+
+		public int isinsurance { get; set; } = 0;
+
+		public int iscod { get; set; } = 0;
+
+		[StringLength(10)]
+		public string? codtype { get; set; }
+
+		[Column(TypeName = "decimal(18,0)")]
+		[Required]
+		public decimal codamount { get; set; } = 0;
+
+		public int isnfd { get; set; } = 0;
+
+		public int isrev { get; set; } = 0;
+
+		public int isnotif { get; set; } = 0;
+
+		public int isdrop { get; set; } = 0;
+
+		public int isprod { get; set; } = 0;
+
+
+		//Payment Detail
+		[Column(TypeName = "decimal(18,0)")]
+		[Required]
+		public decimal deliverycost { get; set; } = 0;
+
+		[Column(TypeName = "decimal(18,0)")]
+		[Required]
+		public decimal packingcost { get; set; } = 0;
+
+		[Column(TypeName = "decimal(18,0)")]
+		[Required]
+		public decimal insurancecost { get; set; } = 0;
+
+		[Column(TypeName = "decimal(18,0)")]
+		[Required]
+		public decimal addcost { get; set; } = 0;
+
+		[Column(TypeName = "decimal(18,0)")]
+		[Required]
+		public decimal totaldiscount { get; set; } = 0;
+
+		[StringLength(30)]
+		[Required]
+		[Display(Name = "Payment Type")]
+		public string paymenttype { get; set; } = "Invoice";
+
+		[StringLength(30)]
+		[Display(Name = "Payment Gateway")]
+		public string? paymentgateway { get; set; }
+
+		[StringLength(100)]
+		[Display(Name = "Reference Pay ID")]
+		public string? refpayid { get; set; }
+
+		[StringLength(10)]
+		[Required]
+		[Display(Name = "Payment Status")]
+		public string? paymentstatus { get; set; }
+	}
+
 }

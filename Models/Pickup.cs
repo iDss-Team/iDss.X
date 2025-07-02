@@ -125,6 +125,9 @@ namespace iDss.X.Models
 
         [NotMapped]
         public virtual ICollection<ShipmentDetail> ShipmentDetails { get; set; } = new List<ShipmentDetail>();
+
+        [NotMapped]
+        public virtual ICollection<TrxStaging> TrxStagings { get; set; } = new List<TrxStaging>();
     }
 
     public class PickupStatusPool : CommonField3
