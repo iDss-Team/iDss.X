@@ -24,19 +24,20 @@
 
 
         <Table @ref="zoneTable" IsPagination="true" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryZoneAsync"
-               IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
-               ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
-               ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+        IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+        ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+        ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
 
             <TableToolbarTemplate>
                 <TableToolbarButton TItem="Zone" Color="Color.Primary" Icon="fa-solid fa-plus"
-                                    Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
+                Text="Add" IsAsync OnClickCallback="@ShowAddModal" />
             </TableToolbarTemplate>
 
             <TableColumns>
-                <TableColumn @bind-Field="@context.zoneid" Searchable="true" />
+                <TableColumn @bind-Field="@context.zoneid" Text="Zone ID" Searchable="true" />
                 <TableColumn @bind-Field="@context.zonename" Searchable="true" />
                 <TableColumn @bind-Field="@context.zonegroup" Searchable="true" />
+
                 <TableColumn @bind-Field="@context.createdby" Searchable="true" />
                 <TableColumn @bind-Field="@context.createddate" Searchable="true" />
                 <TableColumn @bind-Field="@context.createdby" Text="">
@@ -44,8 +45,8 @@
                         <div class="d-grip gap-2 d-md-block">
                             <Button Text="Edit" OnClick="() => ShowEditModal(item.Row.zoneid)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
                             <PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
-                                              Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
-                                              IsAsync="true" OnConfirm="() => DeleteZone(item.Row.zoneid)"></PopConfirmButton>
+                            Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+                            IsAsync="true" OnConfirm="() => DeleteZone(item.Row.zoneid)"></PopConfirmButton>
                         </div>
                     </Template>
                 </TableColumn>
@@ -64,11 +65,54 @@ else
         <BodyTemplate>
             <ValidateForm @ref="addForm" Model="selectedZone" @key="formKey">
                 <Row ItemsPerRow="ItemsPerRow.Two">
-                    @*  <BootstrapInput TValue="string" @bind-Value="selectedCif.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Input CIF"/> *@
-                    <BootstrapInput TValue="string" @bind-Value="selectedZone.zoneid"  ShowLabel="true" PlaceHolder="Input Zone ID" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedZone.zonename" ShowLabel="true" PlaceHolder="Input Zone Name" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedZone.zonegroup" ShowLabel="true" PlaceHolder="Input Zone Group" />
+
+                    <BootstrapInput TValue="string"
+                    @bind-Value="selectedZone.zonegroup"
+                    ShowLabel="true"
+                    PlaceHolder="Input Zone Group" />
                 </Row>
+
+                <Row ItemsPerRow="ItemsPerRow.One">
+                    <label class="form-label">Zone Name</label>
+                    @foreach (var entry in zoneNameList)
+                    {
+                        <div class="d-flex align-items-center mb-2" @key="entry.id">
+                            <BootstrapInput TValue="string"
+                                            @bind-Value="entry.Value"
+                                            ShowLabel="false"
+                                            PlaceHolder="Enter Zone Name" />
+
+                            @if (entry != zoneNameList.Last())
+                            {
+                                <Button Color="Color.Danger"
+                                        Icon="fa-solid fa-minus"
+                                        Class="ms-2"
+                                        Size="Size.Small"
+                                        OnClick="() => RemoveZoneName(entry.id)">
+                                 
+                                </Button>
+                            }
+                            else
+                            {
+                                <Button Color="Color.Success"
+                                        Icon="fa-solid fa-plus"
+                                        Class="ms-2"
+                                        Size="Size.Small"
+                                        IsDisabled="@string.IsNullOrWhiteSpace(entry.Value)"
+                                        OnClick="AddZoneName">
+                                
+                                </Button>
+                            }
+                        </div>
+                    }
+
+
+
+
+
+                </Row>
+
+
             </ValidateForm>
         </BodyTemplate>
     </ModalDialog>
@@ -79,18 +123,32 @@ else
 
 
 <Modal @ref="editModals">
-    <ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveZone">
+    <ModalDialog Size="Size.Large" Title="@modalTitle" ShowSaveButton="true" OnSaveAsync="SaveEditedZones">
         <BodyTemplate>
-            <ValidateForm Model="selectedZone">
-                <Row ItemsPerRow="ItemsPerRow.Two">
-                    <BootstrapInput TValue="string" @bind-Value="selectedZone.zoneid" ShowLabel="true" PlaceHolder="Input Zone ID" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedZone.zonename" ShowLabel="true" PlaceHolder="Input Zone Name" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedZone.zonegroup" ShowLabel="true" PlaceHolder="Input Zone Group" />
-                </Row>
-            </ValidateForm>
+
+
+            @foreach (var zone in editZoneList)
+            {
+                <div class="d-flex align-items-center mb-2" @key="zone.zoneid" style="gap: 1rem;">
+                    <BootstrapInput TValue="string"
+                    @bind-Value="zone.zoneid"
+                    ReadOnly="true"
+                    ShowLabel="false"
+                    IsDisabled="true"
+                    PlaceHolder="Zone ID" />
+
+                    <BootstrapInput TValue="string"
+                    @bind-Value="zone.zonename"
+                    ShowLabel="false"
+                    PlaceHolder="Edit Zone Name" />
+                </div>
+            }
+
         </BodyTemplate>
     </ModalDialog>
 </Modal>
+
+
 
 
 @code {
@@ -102,16 +160,76 @@ else
     private Table<Zone> zoneTable;
     public List<Zone> zones = new();
     private Zone selectedZone = new();
+    private Zone editZone = new();
+    private List<Zone> editZoneList = new();
+    private List<ZoneNameEntry> zoneNameList = new() { new ZoneNameEntry() }; 
     string modalTitle = "Add Zone";
+    private Dictionary<string, int> zoneGroupCounts = new();
+
 
     private bool IsEditMode => modalTitle == "Edit Zone";
     private Guid formKey = Guid.NewGuid();
 
+    public class ZoneNameEntry
+    {
+        public Guid id { get; set; } = Guid.NewGuid();
+        public string Value { get; set; } = "";
+
+        public override bool Equals(object obj)
+        {
+            return obj is ZoneNameEntry other && id == other.id;
+        }
+
+        public override int GetHashCode() => id.GetHashCode();
+    }
+
+
+
+    private void AddZoneName()
+    {
+        zoneNameList.Add(new ZoneNameEntry());
+        formKey = Guid.NewGuid(); 
+        StateHasChanged();
+    }
+
+    private void RemoveZoneName(Guid id)
+    {
+        System.Console.WriteLine($"Removing entry with id: {id}");
+
+        if (zoneNameList.Count <= 1)
+        {
+            System.Console.WriteLine("Only one entry left. Not removing.");
+            return;
+        }
+
+        zoneNameList = zoneNameList.Where(z => z.id != id).ToList();
+
+        formKey = Guid.NewGuid(); 
+        StateHasChanged();
+    }
 
 
 
 
 
+
+    private int? GetSuffixNumber(string zoneid, string group)
+    {
+        if(zoneid.StartsWith(group + "_"))
+        {
+            var suffix = zoneid.Substring(group.Length + 1);
+            if (int.TryParse(suffix, out int number))
+            {
+                return number;
+            }
+        }
+        return null;
+    }
+
+    private int? GetNumericZoneId(string zoneid)
+    {
+        return int.TryParse(zoneid, out int number) ? number : null;
+    }
 
 
 
@@ -123,15 +241,21 @@ else
     private async Task LoadData()
     {
         zones = await _services.GetZoneAsync();
+
+        zoneGroupCounts = zones
+            .GroupBy(z => z.zonegroup)
+            .ToDictionary(g => g.Key, g => g.Count());
+
         StateHasChanged();
     }
 
     private async Task ShowAddModal(IEnumerable<Zone> items)
     {
         selectedZone = new Zone();
+        zoneNameList = new List<ZoneNameEntry> { new ZoneNameEntry() };
         modalTitle = "Create New Zone";
         formKey = Guid.NewGuid();
-        addModals.Show();
+        await addModals.Show();
         await Task.Delay(10);
         await InvokeAsync(StateHasChanged);
     }
@@ -139,49 +263,93 @@ else
     private async Task ShowEditModal(string zoneid)
     {
         var data = await _services.GetZoneByZoneIDAsync(zoneid);
+        if (data == null) return;
 
-        selectedZone = new Zone
-            {
-                zoneid = data.zoneid,
-                zonename = data.zonename,
-				zonegroup = data.zonegroup
-            };
+        formKey = Guid.NewGuid();
+        modalTitle =  $"Edit Zone Group: {data.zonegroup}";
 
-        modalTitle = "Edit Zone";
-        editModals.Show();
+        editZoneList = await _services.GetZoneByGroupAsync(data.zonegroup);
+        await editModals.Show();
     }
 
     private async Task<bool> SaveZone()
     {
+        bool result = false;
 
-        if (string.IsNullOrWhiteSpace(selectedZone.zoneid))
-        {
-            await _toastService.Error("Validation Failed", "Zone ID is required.");
-            return false;
-        }
-
-
-        bool result;
         if (IsEditMode)
         {
-            selectedZone.modifieddate = DateTime.Now;
-            selectedZone.modifier = "System";
-            result = await _services.UpdateZoneAsync(selectedZone.zoneid, selectedZone);
+            if (string.IsNullOrWhiteSpace(editZone.zoneid) ||
+                string.IsNullOrWhiteSpace(editZone.zonename) ||
+                string.IsNullOrWhiteSpace(editZone.zonegroup))
+            {
+                await _toastService.Error("Validation Failed", "All fields are required.");
+                return false;
+            }
+
+            editZone.modifieddate = DateTime.Now;
+            editZone.modifier = "System";
+
+            result = await _services.UpdateZoneAsync(editZone.zoneid, editZone);
             if (result)
             {
                 await _toastService.Success("Success", "Zone updated successfully");
-                editModals.Close();
+                await editModals.Close();
             }
         }
         else
         {
-            selectedZone.createddate = DateTime.Now;
-            selectedZone.createdby = "System";
-            result = await _services.CreateZoneAsync(selectedZone);
+            if (string.IsNullOrWhiteSpace(selectedZone.zonegroup))
+            {
+                await _toastService.Error("Validation Failed", "Zone Group is required.");
+                return false;
+            }
+
+
+            if (zoneNameList.All(z => string.IsNullOrWhiteSpace(z.Value)))
+            {
+                await _toastService.Error("Validation Failed", "At least one Zone Name is required.");
+                return false;
+            }
+
+            var allZones = await _services.GetZoneAsync();
+            int maxId = allZones
+                .Select(z => GetNumericZoneId(z.zoneid))
+                .Where(n => n.HasValue)
+                .Select(n => n.Value)
+                .DefaultIfEmpty(100)
+                .Max(); 
+
+            int counter = maxId + 1;
+            result = true;
+
+            foreach (var entry in zoneNameList.Where(e => !string.IsNullOrWhiteSpace(e.Value)))
+            {
+                string uniqueZoneId = counter.ToString();
+
+                var zone = new Zone
+                    {
+                        zoneid = uniqueZoneId,
+                        zonegroup = selectedZone.zonegroup,
+                        zonename = entry.Value.Trim(),
+                        createddate = DateTime.Now,
+                        createdby = "System"
+                    };
+
+                var saved = await _services.SaveZoneAsync(zone, ItemChangedType.Add);
+                if (!saved)
+                {
+                    result = false;
+                    await _toastService.Error("Error", $"Failed to save zone: {entry.Value}");
+                    break;
+                }
+
+                counter++;
+            }
+
             if (result)
             {
-                await _toastService.Success("Success", "Zone saved successfully");
-                addModals.Close();
+                await _toastService.Success("Success", "All zones saved successfully");
+                await addModals.Close();
             }
         }
 
@@ -194,6 +362,58 @@ else
 
         return result;
     }
+
+    private async Task<bool> SaveEditedZones()
+    {
+        if (editZoneList == null || editZoneList.Count == 0)
+        {
+            await _toastService.Error("Validation Failed", "No zones to update.");
+            return false;
+        }
+
+        bool result = true;
+
+        foreach (var zone in editZoneList)
+        {
+     
+            var original = await _services.GetZoneByZoneIDAsync(zone.zoneid);
+            if (original == null)
+            {
+                await _toastService.Error("Error", $"Zone {zone.zoneid} not found.");
+                return false;
+            }
+
+         
+            if (zone.zonename.Trim() == original.zonename.Trim())
+            {
+                continue;
+            }
+
+            zone.modifieddate = DateTime.Now;
+            zone.modifier = "System";
+
+            var updated = await _services.UpdateZoneAsync(zone.zoneid, zone);
+            if (!updated)
+            {
+                result = false;
+                await _toastService.Error("Error", $"Failed to update zone: {zone.zoneid}");
+                break;
+            }
+        }
+
+        if (result)
+        {
+            await _toastService.Success("Success", "Zones updated successfully");
+            await editModals.Close();
+            await LoadData();
+            await zoneTable.QueryAsync();
+            StateHasChanged();
+        }
+
+        return result;
+    }
+
+
 
 
     private async Task<bool> DeleteZone(string zoneid)

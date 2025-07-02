@@ -1,0 +1,26 @@
+﻿body {
+
+}
+
+
+.card-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-row .card {
+        height: 100%;
+}
+
+
+.card > .card-body {
+    height: 100%;
+}
+
+
+.group-box .card-header{
+    text-align: center;
+    font-weight: bold;
+}

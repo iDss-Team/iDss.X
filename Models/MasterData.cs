@@ -344,7 +344,6 @@ namespace iDss.X.Models
         [Display(Name = "VAT")]
         public int? isvat{ get; set; } = 0;
 
-        //option : exclude & include
         [StringLength(10)]
         [Display(Name = "VAT Type")]
         public String? vattype { get; set; }
@@ -353,7 +352,7 @@ namespace iDss.X.Models
         [Display(Name = "PPN")]
         public decimal? ppn { get; set; }
 
-        //option : ncs & customer
+    
         [StringLength(10)]
         [Display(Name = "VAT Type")]
         public String? stampcosttype { get; set; }

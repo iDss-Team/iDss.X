@@ -16,7 +16,7 @@
         <Row ItemsPerRow="ItemsPerRow.One">
             <Row ItemsPerRow="ItemsPerRow.Two">
                 <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
-                    <StackItem><h5>Account</h5></StackItem>
+                    <StackItem><h5 class="custom">Account</h5></StackItem>
                 </Stack>
             </Row>
 
@@ -81,68 +81,134 @@
             </StackItem>
         </Stack>
     </Row>
-    <ValidateForm  @ref="addForm" Model="selectedAccount" @key="@formKey" OnValidSubmit="SaveAccount">
+
+    <ValidateForm @ref="addForm" Model="selectedAccount" @key="@formKey" OnValidSubmit="SaveAccount">
         <Card>
             <BodyTemplate>
 
-                <Row ItemsPerRow="ItemsPerRow.Two">
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" PlaceHolder="Input Account Name" />
-                    <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" PlaceHolder="Please Select CIF" >
-
-                    </AutoComplete>
-                    <Select TValue="int" @bind-Value="selectedAccount.branchid" Items="BranchItems" ShowLabel="true" DisplayText="Branch" PlaceHolder="Select Branch" ShowSearch="true" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="LoB" ShowLabel="true" PlaceHolder="Input LoB" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" PlaceHolder="Input Cost Center" />
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank AcctNo" ShowLabel="true" PlaceHolder="Input Bank Account Number" />
-                    <Row ItemsPerRow="ItemsPerRow.Two">
-                        <Select TValue="string"
-                        Items="BankItems"
-                        ShowLabel="true"
-                        DisplayText="Bank Code"
-                        PlaceHolder="Select Bank Code"
-                        @bind-Value="selectedAccount.bankcode"
-                        OnValueChanged="OnBankCodeChanged" />
-
-                        <BootstrapInput TValue="string"
-                        @bind-Value="selectedAccount.bankacctname"
-                        DisplayText="Bank Name"
-                        ShowLabel="true"
-                        PlaceHolder="Bank Name"
-                        Readonly="true" />
-                    </Row>
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" PlaceHolder="Input FRP" />
-                </Row>
-                <Divider />
-
-                <Row ItemsPerRow="ItemsPerRow.Two">
-                    <DateTimePicker Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" ValueChanged="AgreedateChangedCallback" MinValue="@(hasAgreedateMin ? DateTime.Today : null)"/>
-                    <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" MinValue="@(hasAgreedate ? selectedAccount.agreedate : null)"/>
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" Placeholder="Input Term of Payment" ShowLabel="true" />
-                    <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" Placeholder="Input Credit Limit" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)"/>
-                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" Placeholder="Input Credit Period" ShowLabel="true" />
-                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" Placeholder="Input Fee CoD" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
-                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
-                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.ppn" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
-                    <BootstrapInputNumber TValue="decimal?" @bind-Value="selectedAccount.mgmtfee" DisplayText="Discrates" Placeholder="Input Discrates" ShowLabel="true" Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
-                    <AutoComplete Items="@StampCostTypeOptions" @bind-Value="selectedAccount.stampcosttype" DisplayText="Stamp Cost Type"></AutoComplete>
-                    <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Two" >
-                        <Checkbox @bind-Value="IsCODChecked" DisplayText="CoD" Size="Size.Medium" />
-                        <Checkbox @bind-Value="IsINTLChecked" DisplayText="International" Size="Size.Medium"/>
-                        <Checkbox @bind-Value="IsNLChecked" DisplayText="National" Size="Size.Medium" />
-                        <Checkbox @bind-Value="IsRev" DisplayText="Rev" Size="Size.Medium"/>
-                        <Checkbox @bind-Value="IsTrace" DisplayText="Trace" Size="Size.Medium" />
-                        <Checkbox @bind-Value="IsVAT" DisplayText="VAT" Size="Size.Medium" />
-                        @if (IsVAT){
-                            <AutoComplete Items="@VatTypeOptions" @bind-Value="selectedAccount.vattype" DisplayText="VAT Type"></AutoComplete>
+                <GroupBox title="General Information" >
+                    <Row ItemsPerRow="ItemsPerRow.One">
+                        @if (isEditMode)
+                        {
+                            <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctno" DisplayText="Account Number" ShowLabel="true" IsDisabled="true" />
                         }
+                        <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" />
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" />
+                        <Select TValue="int" @bind-Value="selectedAccount.branchid" Items="BranchItems" DisplayText="Branch" ShowSearch="true" ShowLabel="true" />
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="Line of Business" ShowLabel="true" />
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" />
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank Account Number" ShowLabel="true" />
+                        <Select TValue="string" Items="BankItems" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" OnValueChanged="OnBankCodeChanged" />
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Name" ShowLabel="true" Readonly="true" />
                     </Row>
-                    @*        <Row>
-                        <Table />        
-                    </Row> *@
-                </Row>
+                </GroupBox>
+
+                <GroupBox title="Agreement Details">
+                    <Row ItemsPerRow="ItemsPerRow.One">
+                        <DateTimePicker Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" ValueChanged="AgreedateChangedCallback" MinValue="@(hasAgreedateMin ? DateTime.Today : null)" />
+                        <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" MinValue="@(hasAgreedate ? selectedAccount.agreedate : null)" />
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" PlaceHolder="Input FRP"/>
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" ShowLabel="true"  PlaceHolder="Input Term of Payment"/>
+                         <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" ShowLabel="true"
+                                        Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" PlaceHolder="Rp0" />
+                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" ShowLabel="true" PlaceHolder="Input Credit Period"/>
+                        <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" ShowLabel="true" PlaceHolder="Input Fee CoD" />
+                        <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" ShowLabel="true" PlaceHolder="Discount Rates" />
+                        <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.ppn" DisplayText="PPN" ShowLabel="true" Placeholder="Input PPN" />
+                        <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.mgmtfee" DisplayText="Management Fee" ShowLabel="true" PlaceHolder="Input Management Fee" />
+                    </Row>
+                </GroupBox>
+
+                <GroupBox title="Additional Options">
+                    <Row RowType="RowType.Normal" ItemsPerRow="ItemsPerRow.Two">
+                        <Checkbox @bind-Value="IsCODChecked" ShowAfterLabel="true" DisplayText="CoD" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsINTLChecked" ShowAfterLabel="true" DisplayText="International" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsNLChecked" ShowAfterLabel="true" DisplayText="National" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsRev" ShowAfterLabel="true" DisplayText="Rev" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsTrace" ShowAfterLabel="true" DisplayText="Trace" Size="Size.Medium" />
+                        <Checkbox @bind-Value="IsVAT" ShowAfterLabel="true" DisplayText="VAT" Size="Size.Medium" />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <AutoComplete Items="@StampCostTypeOptions"
+                                              @bind-Value="selectedAccount.stampcosttype"
+                                              DisplayText="Stamp Duty Type" />
+                            </div>
+
+                            <div class="col-md-6">
+                                @if (IsVAT)
+                                {
+                                    <AutoComplete Items="@VatTypeOptions"
+                                                  @bind-Value="selectedAccount.vattype"
+                                                  DisplayText="VAT Type" />
+                                }
+                                else
+                                {
+                                    <div style="height: 38px;"></div> @* Placeholder for alignment *@
+                                }
+                            </div>
+                        </div>
+
+
+
+                    </Row>     
+                </GroupBox>
+
+
+                <Block OnQueryCondition="OnQueryCondition3">
+                    <Table IsPagination="true" @ref="accountTable" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryAccountAsync"
+                           IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
+                           ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
+                           ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+
+                        <TableToolbarTemplate>
+                            <TableToolbarButton TItem="Account" Color="Color.Primary" Icon="fa-solid fa-plus"
+                                                Text="Add" IsAsync OnClick="ShowAddModal" />
+                        </TableToolbarTemplate>
+
+                        <TableColumns>
+                            <TableColumn @bind-Field="@context.acctno" Searchable="true" />
+                            <TableColumn @bind-Field="@context.cif" Searchable="true" />
+                            <TableColumn @bind-Field="@context.acctname" Searchable="true" />
+                            <TableColumn @bind-Field="@context.Branch" Text="Branch">
+                                <Template Context="x">
+                                    @x.Row.Branch?.branchname
+
+                                </Template>
+
+                            </TableColumn>
+                            <TableColumn @bind-Field="@context.createddate" Searchable="true" />
+                            <TableColumn @bind-Field="@context.createdby" Searchable="true" />
+
+
+                            <TableColumn @bind-Field="@context.isrev" Text="">
+                                <Template Context="item">
+                                    <div class="d-grip gap-2 d-md-block">
+                                        <Button Text="Edit" OnClick="() => ShowEditModal(item.Row.acctno)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
+                                        <PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
+                                                          Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
+                                                          IsAsync="true" OnConfirm="() => DeleteAccount(item.Row.acctno)"></PopConfirmButton>
+                                    </div>
+                                </Template>
+                            </TableColumn>
+
+
+                        </TableColumns>
+
+
+
+
+
+                    </Table>
+                </Block>
+
+
+
+
             </BodyTemplate>
         </Card>
+
         <Divider />
+
         <Stack IsRow="true" Justify="StackJustifyContent.Evenly" AlignItems="StackAlignItems.Center" IsWrap="true">
             <StackItem>
                 <Button ButtonType="@ButtonType.Submit" Color="Color.Success" Icon="fa-solid fa-floppy-disk" IsAsync="true" Text="Save" />
@@ -151,9 +217,8 @@
             </StackItem>
         </Stack>
     </ValidateForm>
-
-
 </Block>
+
 
 
 
@@ -170,6 +235,7 @@
     private Modal editModals;
     private bool isEditMode = false;
     private bool isTable { get; set; } = true;
+	private bool isAddressTable { get; set; } = false;
     public List<Account> accounts = new();
     private Account selectedAccount = new();
     private Table<Account> accountTable;
@@ -183,7 +249,9 @@
 
     private Task<bool> OnQueryCondition(string name) => Task.FromResult(isTable);
     private Task<bool> OnQueryCondition2(string name) => Task.FromResult(!isTable);
-    private Task<bool> OnQueryCondition3(string name) => Task.FromResult(!isTable);
+    private Task<bool> OnQueryCondition3(string name) => Task.FromResult(isAddressTable);
+
+
 
     private DateTime AllowValue = DateTime.Today;
     private List<SelectedItem> BankItems { get; set; } = new();
@@ -463,6 +531,9 @@
         await accountTable.QueryAsync();
         return result;
     }
+
+
+
 
 
 }
