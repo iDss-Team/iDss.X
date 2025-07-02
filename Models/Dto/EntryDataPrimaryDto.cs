@@ -10,16 +10,23 @@ namespace iDss.X.Models.Dto
             {
                 packingtype = "",// ← inisialisasi di sini!
                 pickupdate = DateOnly.FromDateTime(DateTime.Today)
+
             };
             Shipper = new ShipperDetail();
-
             Consignee = new ConsigneeDetail();
+            VolWeight = new VolumeWeight();
+
         }
 
         public string? awb { get; set; }
         public ShipmentDetail Shipment { get; set; }
         public ShipperDetail Shipper { get; set; }
         public ConsigneeDetail Consignee { get; set; }
+        public VolumeWeight VolWeight { get; set; }
+
+        //display only
+        public string? districtName { get; set; }
+
     }
 
     public class CombinedTransactionDto
@@ -44,4 +51,12 @@ namespace iDss.X.Models.Dto
         //public string? ReffNo { get; set; }
         //public string? Branch { get; set; }
     }
+
+    public class VolumeWeight
+    {
+        public decimal? Length { get; set; }
+        public decimal? Width { get; set; }
+        public decimal? Height { get; set; }
+    }
+
 }

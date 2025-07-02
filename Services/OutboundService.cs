@@ -7,6 +7,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Collections.Concurrent;
 using iDss.X.Models.Dto;
 using Humanizer;
+using Microsoft.EntityFrameworkCore.Internal;
+using iDss.X.Components.Pages.MasterData;
 
 namespace iDss.X.Services
 {
@@ -26,6 +28,25 @@ namespace iDss.X.Services
         }
 
         public IEnumerable<int> PageItemsSource => new int[] { 10, 20, 40 };
+
+        // dummy data account adrr by actt no for shipper
+        public async Task<AccountAddr?> GetAccountAddrByAcctNoAsync(string acctno)
+        {
+            var result = await _db.mdt_accountaddr.Where(x => x.acctno == acctno).Select(x => new AccountAddr
+            {
+                acctno = x.acctno,
+                addr1 = x.addr1,
+                distid = x.distid,
+                cityname = x.cityname,
+                provname = x.provname,
+                postcode = x.postcode,
+                phone = x.phone,
+                email = x.email
+            })
+            .FirstOrDefaultAsync();
+
+            return result;
+        }
 
         #region "Dropdown Data Loaders"
 
@@ -93,10 +114,25 @@ namespace iDss.X.Services
             return items;
         }
 
+        public async Task<List<SelectedItem>> GetServiceTypeOptionsAsync()
+        {
+            var serviceType = await _service1.GetServiceComboAsync();
+
+            var items = serviceType
+             .Select(s => new SelectedItem(s.servicecode, s.servicename))
+             .ToList();
+
+            // Tambahkan item awal sebagai placeholder
+            items.Insert(0, new SelectedItem("", "-- Please Select --") { Active = true });
+
+            return items;
+        }
+
         public List<SelectedItem> GetDeliveryTypeOptions()
         {
-            return new List<SelectedItem>
+            var items = new List<SelectedItem>
             {
+                new("", "-- Please Select --") {Active = true},
                 new("PAKET", "PAKET"),
                 new("POLIS", "POLIS"),
                 new("DOCUMENT", "DOCUMENT"),
@@ -109,26 +145,29 @@ namespace iDss.X.Services
                 new("OBAT", "OBAT"),
                 new("OTHERS", "OTHERS")
             };
-        }
 
-        public List<SelectedItem> GetServiceTypeOptions()
-        {
-            return new List<SelectedItem>
-            {
-                new("OVERNIGHT", "OVERNIGHT SERVICE"),
-                new("REGULAR", "REGULAR SERVICE"),
-                new("SAME DAY", "SAME DAY SERVICE"),
-                new("TRUCK", "TRUCK SERVICE")
-            };
+            return items;
         }
 
         public List<SelectedItem> GetLinehaulOptions()
         {
-            return new List<SelectedItem>
+            var items = new List<SelectedItem>
             {
+                new("", "-- Please Select --") {Active = true},
                 new("UDARA", "UDARA"),
                 new("DARAT", "DARAT"),
                 new("LAUT", "LAUT")
+            };
+
+            return items;
+        }
+
+        public List<SelectedItem> GetUnitWeightOptions()
+        {
+            return new List<SelectedItem>
+            {
+                new("Kg", "Kg"),
+                new("Gram", "Gram")
             };
         }
 
@@ -239,7 +278,6 @@ namespace iDss.X.Services
             try
             {
                 var awbEntity = await _db.mdt_awbinventory
-                    .AsNoTracking()
                     .Where(x => x.branchid == branchId
                      && x.userlock == "admin"
                      && !_db.trx_shipmentdetail.Any(s => s.awb == x.awb))
@@ -247,15 +285,17 @@ namespace iDss.X.Services
                     .FirstOrDefaultAsync();
 
                 if (awbEntity == null)
+                {
+                    System.Console.WriteLine("[DEBUG] ❌ Tidak ada AWB yang cocok ditemukan.");
                     return null;
+                }
 
-                _db.Attach(awbEntity);
                 awbEntity.userlock = currentUser;
                 _db.Entry(awbEntity).Property(x => x.userlock).IsModified = true;
-
+                await _db.SaveChangesAsync();
                 return awbEntity;
             }
-            catch
+            catch (Exception)
             {
                 throw;
             }
@@ -268,7 +308,6 @@ namespace iDss.X.Services
         public async Task<bool> SaveEntryDataPrimaryASync(EntryDataPrimaryDto edp)
         {
             using var entryData = await _db.Database.BeginTransactionAsync();
-
             try
             {
                 var awbEntity = await GetAndLockAvailableAwbAsync(edp.Shipper.branchid, "system");
@@ -322,6 +361,22 @@ namespace iDss.X.Services
                     System.Console.WriteLine("Inner Exception: " + ex.InnerException.Message);
                 }
                 return false;
+            }
+        }
+
+        public async Task<int> GetAvailableAWBCountAsyncEDP()
+        {
+            try
+            {
+                var count = await _db.mdt_awbinventory
+                    .Where(x => x.userlock == "admin")
+                    .CountAsync();
+
+                return count;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 

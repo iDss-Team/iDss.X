@@ -12,169 +12,225 @@
 
 <Block OnQueryCondition="OnQueryCondition">
     <ValidateForm Model="entryData" @key="entryData" OnValidSubmit="HandleValidSubmit">
-            <div class="container-fluid">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <Card>
-                            <HeaderTemplate>
-                                Shipper
-                            </HeaderTemplate>
-                            <BodyTemplate>
-                                <Row ItemsPerRow="ItemsPerRow.Two">
-                                    <Row RowType="RowType.Normal">
-                                        <AutoFill TValue="string" Items="accountList" @bind-Value="entryData.Shipper.acctno" OnSelectedItemChanged="OnAccountSelected" DisplayText="Account No" NoDataTip=""></AutoFill>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.shippername" DisplayText="Nama" ShowLabel="true"/>
-                                        <Textarea DisplayText="Street/Jalan" @bind-Value="entryData.Shipper.addr1" PlaceHolder="Address 1" rows="3" ShowLabel="true" />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.addr2" ShowLabel="false" PlaceHolder="Address 2" />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.addr3"  ShowLabel="false" PlaceHolder="Address 3" />
-                                        <Select TValue="string" @bind-Value="entryData.Shipper.distid" Items="districtItems" DisplayText="Kecamatan" ShowLabel="true" ShowSearch />
-                                        <Select TValue="string" @bind-Value="entryData.Shipper.cityname" Items="cityItems" DisplayText="Kota/Kabupaten" ShowLabel="true" ShowSearch />
-                                        <Select TValue="string" @bind-Value="entryData.Shipper.provname" Items="provinceItems" DisplayText="Provinsi" ShowLabel="true" ShowSearch />
-                                    </Row>
-
-                                    <Row RowType="RowType.Normal">
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.postcode" DisplayText="Post Code" ShowLabel="true" />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.phone" DisplayText="Phone" ShowLabel="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.email" DisplayText="Email" ShowLabel="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.attname" DisplayText="Shipper Attn" ShowLabel="true" ShowRequired="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.oricode" DisplayText="Origin Code" ShowLabel="true"/>
-                                        <span class="origin-code">Origin</span>
-                                    </Row>
-                                </Row>
-                            </BodyTemplate>
-                        </Card>
-
-                        <Card class="mt-3" IsCollapsible="false" HeaderText="Consignee">
-                            <HeaderTemplate>
-                                <div class="flex-fill">
-                                </div>
-                                <span class="icon-refresh" @onclick="ResetConsignee">
-                                    <i class="fa-solid fa-arrows-rotate"></i>
-                                </span>
-                            </HeaderTemplate>
-                            <BodyTemplate>
-                                <Row ItemsPerRow="ItemsPerRow.Two">
-                                    <Row RowType="RowType.Normal">
-                                        @* <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.acctno" DisplayText="Account No" ShowLabel="true" /> *@
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.cnename" DisplayText="Nama" ShowLabel="true" />
-                                        <Textarea DisplayText="Street/Jalan" @bind-Value="entryData.Consignee.addr1" PlaceHolder="Address 1" ShowLabel="true" />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.addr2" ShowLabel="false" PlaceHolder="Address 2"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.addr3" ShowLabel="false" PlaceHolder="Address 3"/>
-                                        <Select TValue="string" @bind-Value="entryData.Consignee.distid" Items="districtItems" DisplayText="Kecamatan" ShowLabel="true" ShowSearch/>
-                                        <Select TValue="string" @bind-Value="entryData.Consignee.cityname" Items="cityItems" DisplayText="Kota/Kabupaten" ShowLabel="true" ShowSearch/> 
-                                    </Row>
-                                    <Row RowType="RowType.Normal">
-                                        <Select TValue="string" @bind-Value="entryData.Consignee.provname" Items="provinceItems" DisplayText="Provinsi" ShowLabel="true" ShowSearch />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.postcode" DisplayText="Post Code" ShowLabel="true" />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.phone" DisplayText="Phone" ShowLabel="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.email" DisplayText="Email" ShowLabel="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.attname" DisplayText="Consignee Attn" ShowLabel="true" ShowRequired="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.descode" DisplayText="Destination Code" ShowLabel="true"/>
-                                    </Row>
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-md-12 mb-4">
+                    <Card>
+                        <BodyTemplate>
+                            <Row ItemsPerRow="ItemsPerRow.Four">
+                                <Row RowType="RowType.Normal">
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.awb" DisplayText="eConnote/AWB" PlaceHolder="Auto Generated" Readonly="true" ShowLabel="true" />
                                 </Row>
 
-                            </BodyTemplate>
-                        </Card>
-                    </div>
-
-                    <div class="col-md-6">
-                        <Card IsCollapsible="false" HeaderText="Shipment Detail">
-                            <HeaderTemplate>
-                                <div class="flex-fill">
-                                </div>
-                                <span class="icon-refresh" @onclick="ResetShipmentDetail">
-                                    <i class="fa-solid fa-arrows-rotate"></i>
-                                </span>
-                            </HeaderTemplate>
-                            <BodyTemplate>
-                                <Row ItemsPerRow="ItemsPerRow.Two">
-                                    <Row RowType="RowType.Normal">
-                                        <DateTimePicker @bind-Value="PickupDate" DisplayText="Pick Up Date" ShowLabel="true" />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.donumber" DisplayText="DO Number" ShowLabel="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.buyerorderno" DisplayText="Buyer Order No" ShowLabel="true" />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.pickupno" DisplayText="No Resi" ShowLabel="true"/>
-                                        <Select TValue="string" @bind-Value="entryData.Shipment.deliveryitem" Items="deliveryItemOptions" DisplayText="Delivery Item" ShowLabel="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.content" DisplayText="Content" ShowLabel="true"/>
-                                        <BootstrapInput TValue="decimal?" @bind-Value="entryData.Shipment.itemvalue" DisplayText="Item Value" ShowLabel="true"/>
-                                        <Select TValue="string" @bind-Value="entryData.Shipment.service" Items="servicetypeItemOptions" DisplayText="Service Type" ShowLabel="true"/>
-                                        <Select TValue="string" @bind-Value="entryData.Shipment.linehaul" Items="linehaulItemOptions" DisplayText="Line Haul" ShowLabel="true"/>
-                                    </Row>
-
-                                    <Row RowType="RowType.Normal">
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.hubcode" DisplayText="Hub Code" ShowLabel="true" />
-                                        <BootstrapInput TValue="int" @bind-Value="entryData.Shipment.pieces" DisplayText="Pieces" PlaceHolder="Pcs" ShowLabel="true" />
-                                        <BootstrapInput TValue="decimal" @bind-Value="entryData.Shipment.actweight" DisplayText="Actual Weight" ShowLabel="true"/>
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.unitweight" DisplayText="Unit Weight" ShowLabel="true"/>
-                                        <BootstrapInput TValue="decimal" @bind-Value="entryData.Shipment.volweight" DisplayText="Volume Weight" ShowLabel="true" />
-                                        <BootstrapInput TValue="decimal" @bind-Value="entryData.Shipment.chargeweight" DisplayText="Charge Weight" ShowLabel="true" />
-                                        <Textarea DisplayText="Notes" @bind-Value="entryData.Shipment.intruction" ShowLabel="true" />
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.vouchercode" DisplayText="Voucher Code" ShowLabel="true" />
-                                    </Row>
+                                <Row RowType="RowType.Normal">
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.refno" DisplayText="Ref No" Readonly="true" ShowLabel="true" />
                                 </Row>
 
-                            </BodyTemplate>
-                        </Card>
-
-                        <Card class="mt-3" IsCollapsible="false" HeaderText="Additional Entry">
-                            <HeaderTemplate>
-                                <div class="flex-fill">
-                                </div>
-                                <span class="icon-refresh">
-                                    <i class="fa-solid fa-arrows-rotate"></i>
-                                </span>
-                            </HeaderTemplate>
-                            <BodyTemplate>
-                                 <Row ItemsPerRow="ItemsPerRow.Three" RowType="RowType.Inline">
-                                    <Checkbox TValue="bool" State="packingState" StateChanged="OnPackingStateChanged" DisplayText="Packing" ShowLabel="true" Size="Size.Small" ShowRequired="true" />
-                                    <BootstrapInputGroup>
-                                        <Select TValue="string" @bind-Value="entryData.Shipment.packingtype" Items="packingTypeOptions" IsDisabled="!isPacking" ShowLabel="false" Class="custom-select-size" />
-                                        <Select TValue="string" Items="packingSizeOptions" IsDisabled="!isPacking" ShowLabel="false" Class="custom-select-size" />
-                                    </BootstrapInputGroup>                            
+                                <Row RowType="RowType.Normal">
+                                    <Select TValue="int" @bind-Value="entryData.Shipper.branchid" Items="branchItems" DisplayText="Branch" ShowLabel="true" ShowSearch />
                                 </Row>
 
-                                <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Three" style="margin-top: 10px">
-                                    <Switch DisplayText="Insurance" ShowLabel="true" Width="35" />
-                                    <BootstrapInput TValue="int" @bind-Value="entryData.Shipment.isinsurance" ShowLabel="false" />
+                                <Row RowType="RowType.Normal">
+                                    <BootstrapInput TValue="int" Value="availableAWBCount" IsAutoFocus="true" Readonly="true" IsSelectAllTextOnFocus="true" ShowLabel="true" DisplayText="Available AWB" />
                                 </Row>
-
-                            </BodyTemplate>
-                        </Card>
-                    </div>
-
-                    <div class="col-md-12 mt-3">
-                        <Card>
-                            <BodyTemplate>
-                                <Row ItemsPerRow="ItemsPerRow.Four">
-                                    <Row RowType="RowType.Normal">
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.awb" DisplayText="eConnote/AWB" PlaceHolder="Auto Generated" Readonly="true" ShowLabel="true" />
-                                    </Row>
-
-                                    <Row RowType="RowType.Normal">
-                                        <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.refno" DisplayText="Reff No" PlaceHolder="Auto Generated" Readonly="true" ShowLabel="true" />
-                                    </Row>                           
-
-                                    <Row RowType="RowType.Normal">
-                                        <Select TValue="int" @bind-Value="entryData.Shipper.branchid" Items="branchItems" DisplayText="Branch" ShowLabel="true" ShowSearch />
-                                    </Row>
-
-                                    <Row RowType="RowType.Normal">
-                                        <BootstrapInput TValue="int" IsAutoFocus="true" Readonly="true" IsSelectAllTextOnFocus="true" ShowLabel="true" DisplayText="Available AWB" />
-                                    </Row>
-                                </Row>
-                            </BodyTemplate>
-                        </Card>
-                    </div>
+                            </Row>
+                        </BodyTemplate>
+                    </Card>
                 </div>
 
-                <Stack Justify="StackJustifyContent.Center" class="mt-3" IsRow="true">
-                    <div class="btn-group" role="group">
-                        <Button ButtonType="ButtonType.Submit" Size="Size.Small" Color="Color.Success" Icon="fa-solid fa-floppy-disk" Text="Save" />
-                        <Button ButtonType="ButtonType.Button" OnClick="ViewData" Size="Size.Small" Color="Color.Primary" Icon="fa-solid fa-eye" Text="View Data" />
-                        <Button ButtonType="ButtonType.Reset" OnClick="ResetAll" Size="Size.Small" Color="Color.Danger" Icon="fa-solid fa-arrows-rotate me-2" Text="Reset All" />
-                    </div>
-                </Stack>
+                <div class="col-md-6">
+                    <Card IsCollapsible="false" HeaderText="Shipper">
+                        <BodyTemplate>
+                            <Row ItemsPerRow="ItemsPerRow.Two">
+                                <Row RowType="RowType.Normal">
+                                    <AutoFill TValue="string" Items="accountList" @bind-Value="entryData.Shipper.acctno" OnSelectedItemChanged="OnAccountSelected" DisplayText="Account No" NoDataTip=""></AutoFill>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.shippername" DisplayText="Nama" ShowLabel="true" Readonly="true"/>
+                                    <Textarea DisplayText="Street/Jalan" @bind-Value="entryData.Shipper.addr1" PlaceHolder="Address 1" rows="2" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.addr2" ShowLabel="false" PlaceHolder="Address 2" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.addr3"  ShowLabel="false" PlaceHolder="Address 3" />
+                                    <BootstrapInput TValue="string" Value="entryData.districtName" ShowLabel="true" DisplayText="Kecamatan" Readonly="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.cityname" ShowLabel="true" DisplayText="Kota/Kabupaten" Readonly="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.provname" ShowLabel="true" DisplayText="Provinsi" Readonly="true"/>
+                                    @* <Select TValue="string" @bind-Value="entryData.Shipper.distid" Items="districtItems" DisplayText="Kecamatan" ShowLabel="true" ShowSearch /> *@
+                                    @* <Select TValue="string" @bind-Value="entryData.Shipper.cityname" Items="cityItems" DisplayText="Kota/Kabupaten" ShowLabel="true" ShowSearch /> *@
+                                    @* <Select TValue="string" @bind-Value="entryData.Shipper.provname" Items="provinceItems" DisplayText="Provinsi" ShowLabel="true" ShowSearch /> *@
+                                </Row>
 
+                                <Row RowType="RowType.Normal">
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.postcode" DisplayText="Post Code" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.phone" DisplayText="Phone" ShowLabel="true" Readonly="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.email" DisplayText="Email" ShowLabel="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.attname" DisplayText="Shipper Attn" ShowLabel="true" ShowRequired="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipper.oricode" DisplayText="Origin Code" ShowLabel="true"/>
+                                    <span class="origin-code">Origin</span>
+                                </Row>
+                            </Row>
+                        </BodyTemplate>
+                    </Card>
+
+                    <Card class="mt-3" IsCollapsible="false" HeaderText="Consignee">
+                        <HeaderTemplate>
+                            <div class="flex-fill">
+                            </div>
+                            <span class="icon-refresh" @onclick="ResetConsignee">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </span>
+                        </HeaderTemplate>
+                        <BodyTemplate>
+                            <Row ItemsPerRow="ItemsPerRow.Two">
+                                <Row RowType="RowType.Normal">
+                                    @* <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.acctno" DisplayText="Account No" ShowLabel="true" /> *@
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.cnename" DisplayText="Nama" ShowLabel="true" />
+                                    <Textarea rows="2" DisplayText="Street/Jalan" @bind-Value="entryData.Consignee.addr1" PlaceHolder="Address 1" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.addr2" ShowLabel="false" PlaceHolder="Address 2"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.addr3" ShowLabel="false" PlaceHolder="Address 3"/>
+                                    <Select TValue="string" @bind-Value="entryData.Consignee.distid" Items="districtItems" DisplayText="Kecamatan" ShowLabel="true" ShowSearch/>
+                                    <Select TValue="string" @bind-Value="entryData.Consignee.cityname" Items="cityItems" DisplayText="Kota/Kabupaten" ShowLabel="true" ShowSearch/> 
+                                </Row>
+                                <Row RowType="RowType.Normal">
+                                    <Select TValue="string" @bind-Value="entryData.Consignee.provname" Items="provinceItems" DisplayText="Provinsi" ShowLabel="true" ShowSearch />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.postcode" DisplayText="Post Code" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.phone" DisplayText="Phone" ShowLabel="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.email" DisplayText="Email" ShowLabel="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.attname" DisplayText="Consignee Attn" ShowLabel="true" ShowRequired="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Consignee.descode" DisplayText="Destination Code" ShowLabel="true"/>
+                                </Row>
+                            </Row>
+
+                        </BodyTemplate>
+                    </Card>
+                </div>
+
+                <div class="col-md-6">
+                    <Card IsCollapsible="false" HeaderText="Shipment Detail">
+                        <HeaderTemplate>
+                            <div class="flex-fill">
+                            </div>
+                            <span class="icon-refresh" @onclick="ResetShipmentDetail">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </span>
+                        </HeaderTemplate>
+                        <BodyTemplate>
+                            <Row ItemsPerRow="ItemsPerRow.Two">
+                                <Row RowType="RowType.Normal">
+                                    <DateTimePicker @bind-Value="PickupDate" DisplayText="Pick Up Date" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.donumber" DisplayText="DO Number" ShowLabel="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.buyerorderno" DisplayText="Buyer Order No" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.pickupno" DisplayText="No Resi" ShowLabel="true"/>
+                                    <Select TValue="string" @bind-Value="entryData.Shipment.deliveryitem" Items="deliveryItemOptions" DisplayText="Delivery Item" ShowLabel="true"/>
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.content" DisplayText="Content" ShowLabel="true"/>
+                                    <BootstrapInput TValue="decimal?" @bind-Value="entryData.Shipment.itemvalue" DisplayText="Item Value" ShowLabel="true"/>
+                                    <Select TValue="string" @bind-Value="entryData.Shipment.service" Items="servicetypeItemOptions" DisplayText="Service Type" ShowLabel="true"/>                                       
+                                </Row>
+
+                                <Row RowType="RowType.Normal">
+                                    <Select TValue="string" @bind-Value="entryData.Shipment.linehaul" OnSelectedItemChanged="OnLinehaulChanged" Items="linehaulItemOptions" DisplayText="Line Haul" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.hubcode" DisplayText="Hub Code" ShowLabel="true" />
+
+                                    <BootstrapInputGroupLabel DisplayText="Pieces" ShowRequiredMark="true" />
+                                    <BootstrapInputGroup>
+                                        <BootstrapInput TValue="int" @bind-Value="entryData.Shipment.pieces" />                                               
+                                        <BootstrapInputGroupLabel DisplayText="Pcs" Width="45"/>
+                                    </BootstrapInputGroup>               
+                                    
+                                    <BootstrapInputGroupLabel DisplayText="Actual Weight" ShowRequiredMark="true" />
+                                    <BootstrapInputGroup>
+                                        <BootstrapInput TValue="decimal" @bind-Value="entryData.Shipment.actweight" OnValueChanged="OnActWeightChanged" />
+                                        <Dropdown TValue="string" @bind-Value="entryData.Shipment.unitweight" Items="unitWeightOptions" Color="Color.Secondary" />
+                                    </BootstrapInputGroup>                                   
+
+                                    <BootstrapInputGroupLabel DisplayText="Volume Weight"/>
+                                    <BootstrapInputGroup>
+                                        <BootstrapInput TValue="decimal?" @bind-Value="entryData.VolWeight.Length" ShowLabel="false" class="custom-vol-weight" PlaceHolder="Length" UseInputEvent="true" OnValueChanged="OnLengthChanged" />
+                                        <BootstrapInput TValue="decimal?" @bind-Value="entryData.VolWeight.Width" ShowLabel="false" class="custom-vol-weight" PlaceHolder="Width" UseInputEvent="true" OnValueChanged="OnWidthChanged" />
+                                        <BootstrapInput TValue="decimal?" @bind-Value="entryData.VolWeight.Height" ShowLabel="false" class="custom-vol-weight" PlaceHolder="Height" UseInputEvent="true" OnValueChanged="OnHeightChanged" />
+                                        <BootstrapInputGroupLabel DisplayText="Cm" Width="45"/>
+                                    </BootstrapInputGroup>
+
+                                    <BootstrapInput TValue="decimal" @bind-Value="entryData.Shipment.volweight" ShowLabel="false" Readonly="true" />
+
+                                    <BootstrapInputGroupLabel DisplayText="Charge Weight" ShowRequiredMark="true" style="margin-top:30px;"/>
+                                    <BootstrapInputGroup>
+                                        <BootstrapInput TValue="decimal" @bind-Value="entryData.Shipment.chargeweight" Readonly="true" />
+                                        <Dropdown TValue="string" Value="entryData.Shipment.unitweight" Items="unitWeightOptions" Color="Color.Secondary" IsDisabled="true" />                                       
+                                    </BootstrapInputGroup>
+
+                                    <Textarea rows="2" DisplayText="Notes" @bind-Value="entryData.Shipment.intruction" ShowLabel="true" />
+                                </Row>
+                            </Row>
+
+                        </BodyTemplate>
+                    </Card>
+
+                    <Card class="mt-3" IsCollapsible="false" HeaderText="Additional Entry">
+                        <HeaderTemplate>
+                            <div class="flex-fill">
+                            </div>
+                            <span class="icon-refresh">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </span>
+                        </HeaderTemplate>
+                        <BodyTemplate>
+                            <Row ItemsPerRow="ItemsPerRow.Three" RowType="RowType.Inline">
+                                <Checkbox TValue="bool" State="packingState" StateChanged="OnPackingStateChanged" DisplayText="Packing" ShowLabel="true" Size="Size.Small" ShowRequired="true" />
+                                <BootstrapInputGroup>
+                                    <Select TValue="string" @bind-Value="entryData.Shipment.packingtype" Items="packingTypeOptions" IsDisabled="!isPacking" ShowLabel="false" Class="custom-select-size" />
+                                    <Select TValue="string" Items="packingSizeOptions" IsDisabled="!isPacking" ShowLabel="false" Class="custom-select-size" />
+                                </BootstrapInputGroup>                            
+                            </Row>
+
+                            <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Three" style="margin-top: 10px">
+                                <Checkbox TValue="bool" DisplayText="Insurance" ShowLabel="true" Size="Size.Small"/>
+                                <BootstrapInput TValue="int" @bind-Value="entryData.Shipment.isinsurance" ShowLabel="false" />                               
+                            </Row>
+                            
+                            <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Three" style="margin-top: 10px">
+                                <Checkbox TValue="bool" DisplayText="Voucher Code" ShowLabel="true" Size="Size.Small" />
+                                <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.vouchercode" ShowLabel="false" />
+                            </Row>
+                        </BodyTemplate>
+                    </Card>
+                    
+                    @* <Card class="mt-3" IsCollapsible="false" HeaderText="Price">
+                        <HeaderTemplate>
+                            <div class="flex-fill">
+                            </div>
+                            <span class="icon-refresh">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </span>
+                        </HeaderTemplate>
+                        <BodyTemplate>
+                            <Row ItemsPerRow="ItemsPerRow.Three" RowType="RowType.Inline">
+                                <Checkbox TValue="bool" State="packingState" StateChanged="OnPackingStateChanged" DisplayText="Packing" ShowLabel="true" Size="Size.Small" ShowRequired="true" />
+                                <BootstrapInputGroup>
+                                    <Select TValue="string" @bind-Value="entryData.Shipment.packingtype" Items="packingTypeOptions" IsDisabled="!isPacking" ShowLabel="false" Class="custom-select-size" />
+                                    <Select TValue="string" Items="packingSizeOptions" IsDisabled="!isPacking" ShowLabel="false" Class="custom-select-size" />
+                                </BootstrapInputGroup>                            
+                            </Row>
+
+                            <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Three" style="margin-top: 10px">
+                                <Checkbox TValue="bool" DisplayText="Insurance" ShowLabel="true" Size="Size.Small"/>
+                                <BootstrapInput TValue="int" @bind-Value="entryData.Shipment.isinsurance" ShowLabel="false" />                               
+                            </Row>
+                            
+                            <Row RowType="RowType.Inline" ItemsPerRow="ItemsPerRow.Three" style="margin-top: 10px">
+                                <Checkbox TValue="bool" DisplayText="Voucher Code" ShowLabel="true" Size="Size.Small" />
+                                <BootstrapInput TValue="string" @bind-Value="entryData.Shipment.vouchercode" ShowLabel="false" />
+                            </Row>
+                        </BodyTemplate>
+                    </Card> *@
+                </div>      
             </div>
+
+            <Stack Justify="StackJustifyContent.Center" class="mt-3" IsRow="true">
+                <div class="btn-group" role="group">
+                    <Button ButtonType="ButtonType.Submit" Size="Size.Small" Color="Color.Success" Icon="fa-solid fa-floppy-disk" Text="Save" />
+                    <Button ButtonType="ButtonType.Button" OnClick="ViewData" Size="Size.Small" Color="Color.Primary" Icon="fa-solid fa-eye" Text="View Data" />
+                    <Button ButtonType="ButtonType.Reset" OnClick="ResetAll" Size="Size.Small" Color="Color.Danger" Icon="fa-solid fa-arrows-rotate me-2" Text="Reset All" />
+                </div>
+            </Stack>
+
+        </div>
         </ValidateForm>
 </Block>
 
@@ -224,6 +280,7 @@
 
     // Output List
     private List<CombinedTransactionDto> CombinedList { get; set; } = new(); private List<SelectedItem> cityItems = new();
+    private int availableAWBCount;
 
     // Lookup data - area/cabang
     private List<SelectedItem> districtItems = new();
@@ -234,6 +291,7 @@
     // Lookup data - packing
     private List<SelectedItem> packingTypeOptions = new();
     private List<SelectedItem> packingSizeOptions = new();
+    private List<SelectedItem> unitWeightOptions = new();
 
     // Lookup data - service
     private List<SelectedItem> deliveryItemOptions = new();
@@ -279,13 +337,15 @@
         branchItems = await _oclservice.GetBranchDropdownItemsAsync();
         packingTypeOptions = await _oclservice.GetPackingTypeDropdownItemsAsync();
         packingSizeOptions = await _oclservice.GetPackingSizeDropdownItemsAsync();
+        servicetypeItemOptions = await _oclservice.GetServiceTypeOptionsAsync();
+        availableAWBCount = await _oclservice.GetAvailableAWBCountAsyncEDP();
     }
 
     private void LoadStaticOptions()
     {
         deliveryItemOptions = _oclservice.GetDeliveryTypeOptions();
-        servicetypeItemOptions = _oclservice.GetServiceTypeOptions();
         linehaulItemOptions = _oclservice.GetLinehaulOptions();
+        unitWeightOptions = _oclservice.GetUnitWeightOptions();
     }
 
     #endregion
@@ -307,6 +367,7 @@
             entryData.Consignee.countrycode = "ID";
 
             await _oclservice.SaveEntryDataPrimaryASync(entryData);
+            availableAWBCount = await _oclservice.GetAvailableAWBCountAsyncEDP();
             entryData.awb = entryData.Shipment?.awb;
             StateHasChanged();
 
@@ -350,13 +411,55 @@
     private async Task OnAccountSelected(string selectedAcctNo)
     {
         var account = await _service1.GetAccountByAcctNoAsync(selectedAcctNo);
+        var accountAddr = await _oclservice.GetAccountAddrByAcctNoAsync(selectedAcctNo);
         if (account is not null)
         {
             entryData.Shipper.acctno = account.acctno;
             entryData.Shipper.shippername = account.acctname;
             entryData.Shipper.branchid = account.branchid;
+            entryData.Shipper.addr1 = accountAddr.addr1;
+
+            entryData.Shipper.distid = accountAddr.distid;
+
+            var district = await _service1.GetDistrictByDistrictId(accountAddr.distid);
+            entryData.districtName = district?.distname;
+
+            entryData.Shipper.cityname = accountAddr.cityname;
+            entryData.Shipper.provname = accountAddr.provname;
+            entryData.Shipper.postcode = accountAddr.postcode;
+            entryData.Shipper.phone = accountAddr.phone;
+            entryData.Shipper.email = accountAddr.email;
             StateHasChanged();
         }
+    }
+
+    private Task OnLinehaulChanged(SelectedItem item)
+    {
+        return CalculateVolWeight();
+    }
+
+    private Task OnActWeightChanged(decimal value)
+    {
+        entryData.Shipment.actweight = value;
+        return CalculateVolWeight();
+    }
+
+    private Task OnLengthChanged(decimal? value)
+    {
+        entryData.VolWeight.Length = value;
+        return CalculateVolWeight();
+    }
+
+    private Task OnWidthChanged(decimal? value)
+    {
+        entryData.VolWeight.Width = value;
+        return CalculateVolWeight();
+    }
+
+    private Task OnHeightChanged(decimal? value)
+    {
+        entryData.VolWeight.Height = value;
+        return CalculateVolWeight();
     }
 
     private Task<bool> OnQueryCondition(string name) => Task.FromResult(!isViewClicked);
@@ -425,9 +528,6 @@
         var shipment = entryData.Shipment;
 
         var formattedPickupDate = shipment.pickupdate.ToDateTime(TimeOnly.MinValue);
-        System.Console.WriteLine($"[DEBUG] Formatted pickup date = {formattedPickupDate:dd/MM/yyyy}");
-        System.Console.WriteLine($"[DEBUG] shipment.pickupdate = {shipment?.pickupdate}");
-
 
         if (!string.IsNullOrWhiteSpace(shipper?.shippername) && !string.IsNullOrWhiteSpace(consignee?.cnename))
         {
@@ -448,6 +548,39 @@
                 });
         }
     }
+
+    private Task CalculateVolWeight()
+        {
+            var shipment = entryData.Shipment;
+            var vol = entryData.VolWeight;
+
+            if (vol == null)
+            {
+                shipment.volweight = 0;
+                shipment.chargeweight = shipment.actweight;
+                return Task.CompletedTask;
+            }
+
+            var length = vol.Length ?? 0;
+            var width = vol.Width ?? 0;
+            var height = vol.Height ?? 0;
+
+            if (length == 0 || width == 0 || height == 0)
+            {
+                shipment.volweight = 0;
+                shipment.chargeweight = shipment.actweight;
+                return Task.CompletedTask;
+            }
+
+            var divisor = shipment.linehaul == "UDARA" ? 5000 : 4000;
+
+            shipment.volweight = (length * width * height) / divisor;
+
+            shipment.chargeweight = Math.Max(shipment.volweight, shipment.actweight);
+
+            return Task.CompletedTask;
+        }
+
 
     #endregion
   
