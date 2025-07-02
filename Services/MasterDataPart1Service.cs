@@ -11,6 +11,7 @@ using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using System.Net.NetworkInformation;
 using AutoMapper;
+using System.Threading.Tasks.Dataflow;
 
 namespace iDss.X.Services
 {
@@ -2985,7 +2986,7 @@ namespace iDss.X.Services
         {
             using var _context = _contextFactory.CreateDbContext();
             var result = _context.mdt_zone
-                .OrderBy(c => c.zoneid)
+                .OrderBy(c => c.createddate)
                 .AsNoTracking()
                 .ToListAsync();
             return await result;
@@ -2997,7 +2998,13 @@ namespace iDss.X.Services
             return await _context.mdt_zone.FirstOrDefaultAsync(a => a.zoneid == zoneid);
         }
 
-
+        public async Task<List<Zone>> GetZoneByGroupAsync(string group)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_zone
+                .Where(z => z.zonegroup == group)
+                .ToListAsync();
+        }
 
 
         public Task<QueryData<Zone>> OnQueryZoneAsync(QueryPageOptions options)
@@ -3076,21 +3083,28 @@ namespace iDss.X.Services
         public async Task<bool> CreateZoneAsync(Zone data)
         {
             using var _context = _contextFactory.CreateDbContext();
-            bool result;
             try
             {
+                var exists = await _context.mdt_zone
+                    .AnyAsync(z => z.zoneid == data.zoneid);
+
+                if (exists)
+                {
+                    System.Console.WriteLine($"Zone ID already exists: {data.zoneid}");
+                    return false;
+                }
+
                 _context.mdt_zone.Add(data);
                 await _context.SaveChangesAsync();
-                result = true;
+                return true;
             }
             catch (Exception ex)
             {
-               
-                System.Console.WriteLine($"Error in CreateCountryAsync: {ex.Message}");
-                result = false;
+                System.Console.WriteLine($"Error in CreateZoneAsync: {ex.Message}\n{ex.StackTrace}");
+                return false;
             }
-            return result;
         }
+
 
 
 
@@ -3121,8 +3135,11 @@ namespace iDss.X.Services
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Console.WriteLine($"[SaveZoneAsync] ERROR: {ex.Message}");
+                if (ex.InnerException != null)
+                System.Console.WriteLine($"[SaveZoneAsync] INNER: {ex.InnerException.Message}");
                 return false;
             }
         }
@@ -3131,25 +3148,39 @@ namespace iDss.X.Services
         {
             using var _context = _contextFactory.CreateDbContext();
             var data = await _context.mdt_zone.FirstOrDefaultAsync(a => a.zoneid == zoneid);
+
             if (data == null)
             {
+                System.Console.WriteLine($"[UpdateZoneAsync] Zone not found: {zoneid}");
                 return false;
             }
-            _mapper.Map(updatedZone, data);
+
+    
+
+            
+            data.zonename = updatedZone.zonename;
+            data.modifieddate = DateTime.Now;
+            data.modifier = updatedZone.modifier ?? "System";
+
             _context.Entry(data).State = EntityState.Modified;
+
 
             try
             {
                 var affectedRows = await _context.SaveChangesAsync();
-                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                System.Console.WriteLine($"[UpdateZoneAsync] SaveChanges affected rows: {affectedRows}");
                 return affectedRows > 0;
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine($"Error in Update District Async: {ex.Message}");
+                System.Console.WriteLine($"[UpdateZoneAsync] ERROR: {ex.Message}");
+                if (ex.InnerException != null)
+                    System.Console.WriteLine($"[UpdateZoneAsync] INNER: {ex.InnerException.Message}");
                 return false;
             }
         }
+
+
 
 
 
