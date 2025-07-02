@@ -27,16 +27,41 @@
     --bb-btn-label-margin-left: 0px;
 }
 
+/* icon calender */
 ::deep .datetime-picker i.datetime-picker-bar.fa-regular.fa-calendar-days {
     font-size: medium;
     --bb-height: 30px;
 }
 
+/* select packing size*/
 ::deep .custom-select-size {
     min-width: auto;
 }
 
-::deep 
+::deep .custom-vol-weight {
+    min-width: auto;
+}
+
+/* Unit Weight Dropdown */
+::deep .btn.dropdown-toggle {
+    min-width: auto;
+    font-size: 12px;
+    padding: 0 10px;
+}
+
+::deep .custom-inputgroup-label {
+    min-width: auto;
+    font-size: 12px;
+    padding: 0 8px;
+    margin: 0;
+}
+
+::deep .input-group-text {
+    min-width: auto;
+    font-size: 12px;
+    padding: 0 8px;
+    margin: 0;
+}
 
 .select-kecil ::deep .form-control,
 .select-kecil ::deep .form-select {
@@ -45,6 +70,7 @@
     padding: 0 4px;
 }
 
+/* icon reset */
 .icon-refresh {
     cursor: pointer;
     color: #ff4d4f;
@@ -56,13 +82,3 @@
         transform: rotate(90deg);
         color: #e63946;
     }
-
-/*override css checkbox shipmnet detail*/
-/*::deep .custom-chekbox .form-check-input {
-    margin-left: 30px;
-}*/
-
-/*.origin-code {
-    font-size: 12px;
-    color: #6c757d;
-}*/
