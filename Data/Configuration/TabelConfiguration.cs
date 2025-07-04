@@ -210,4 +210,64 @@ namespace iDss.X.Data.Configuration
 				.OnDelete(DeleteBehavior.Restrict);
 		}
 	}
+
+	public class SuccessPickupConfiguration : IEntityTypeConfiguration<SuccessPickup>
+	{
+		public void Configure(EntityTypeBuilder<SuccessPickup> builder)
+		{
+			builder.HasOne(m => m.PickupRequest) // Relasi ke pum_pickuprequest
+				.WithMany(c => c.SuccessPickups)
+				.HasForeignKey(m => m.pickupno) // Foreign Key
+				.HasPrincipalKey(pr => pr.pickupno)
+				.OnDelete(DeleteBehavior.Cascade);
+		}
+	}
+
+	public class CancelPickupConfiguration : IEntityTypeConfiguration<CancelPickup>
+	{
+		public void Configure(EntityTypeBuilder<CancelPickup> builder)
+		{
+			builder.HasOne(m => m.PickupRequest) // Relasi ke pum_pickuprequest
+				.WithMany(c => c.CancelPickups)
+				.HasForeignKey(m => m.pickupno) // Foreign Key
+				.HasPrincipalKey(pr => pr.pickupno)
+				.OnDelete(DeleteBehavior.Cascade);
+		}
+	}
+
+	public class ReschedulePickupConfiguration : IEntityTypeConfiguration<ReschedulePickup>
+	{
+		public void Configure(EntityTypeBuilder<ReschedulePickup> builder)
+		{
+			builder.HasOne(m => m.PickupRequest) // Relasi ke pum_pickuprequest
+				.WithMany(c => c.ReschedulePickups)
+				.HasForeignKey(m => m.pickupno) // Foreign Key
+				.HasPrincipalKey(pr => pr.pickupno)
+				.OnDelete(DeleteBehavior.Cascade);
+		}
+	}
+
+	public class ReassignPickupConfiguration : IEntityTypeConfiguration<ReassignPickup>
+	{
+		public void Configure(EntityTypeBuilder<ReassignPickup> builder)
+		{
+			builder.HasOne(m => m.PickupRequest) // Relasi ke pum_pickuprequest
+				.WithMany(c => c.ReassignPickups)
+				.HasForeignKey(m => m.pickupno) // Foreign Key
+				.HasPrincipalKey(pr => pr.pickupno)
+				.OnDelete(DeleteBehavior.Cascade);
+		}
+	}
+
+	public class UnsuccessPickupConfiguration : IEntityTypeConfiguration<UnsuccessPickup>
+	{
+		public void Configure(EntityTypeBuilder<UnsuccessPickup> builder)
+		{
+			builder.HasOne(m => m.PickupRequest) // Relasi ke pum_pickuprequest
+				.WithMany(c => c.UnsuccessPickups)
+				.HasForeignKey(m => m.pickupno) // Foreign Key
+				.HasPrincipalKey(pr => pr.pickupno)
+				.OnDelete(DeleteBehavior.Cascade);
+		}
+	}
 }

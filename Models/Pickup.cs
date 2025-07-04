@@ -128,6 +128,21 @@ namespace iDss.X.Models
 
         [NotMapped]
         public virtual ICollection<TrxStaging> TrxStagings { get; set; } = new List<TrxStaging>();
+
+        [NotMapped]
+        public virtual ICollection<SuccessPickup> SuccessPickups { get; set; } = new List<SuccessPickup>();
+
+		[NotMapped]
+		public virtual ICollection<CancelPickup> CancelPickups { get; set; } = new List<CancelPickup>();
+
+		[NotMapped]
+		public virtual ICollection<ReschedulePickup> ReschedulePickups { get; set; } = new List<ReschedulePickup>();
+
+		[NotMapped]
+		public virtual ICollection<ReassignPickup> ReassignPickups { get; set; } = new List<ReassignPickup>();
+
+		[NotMapped]
+		public virtual ICollection<UnsuccessPickup> UnsuccessPickups { get; set; } = new List<UnsuccessPickup>();
     }
 
     public class PickupStatusPool : CommonField3
@@ -279,4 +294,181 @@ namespace iDss.X.Models
         public TimeOnly timeto { get; set; }
 
     }
+
+	public class SuccessPickup: CommonField3
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int id { get; set; }
+
+		[StringLength(15)]
+		[Required]
+		public string pickupno { get; set; }
+		[ForeignKey("pickupno")]
+		[ValidateNever]
+		public PickupRequest PickupRequest { get; set; }
+
+		[StringLength(20)]
+		[Required]
+		public string pickupstatus { get; set; }
+
+		[StringLength(100)]
+		public string? latitude { get; set; }
+
+		[StringLength(100)]
+		public string? longitude { get; set; }
+
+		[StringLength(100)]
+		public string? attach1 { get; set; }
+
+		[StringLength(100)]
+		public string? attach2 { get; set; }
+
+		[Column(TypeName = "decimal(18,0)")]
+		[Required]
+		public decimal cashreceived { get; set; } = 0;
+
+		[StringLength(100, ErrorMessage = "remarks cannot be longer than 50 characters.")]
+		public string? remarks { get; set; }
+
+	}
+
+	public class CancelPickup: CommonField3
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int id { get; set; }
+
+		[StringLength(15)]
+		[Required]
+		public string pickupno { get; set; }
+		[ForeignKey("pickupno")]
+		[ValidateNever]
+		public PickupRequest PickupRequest { get; set; }
+
+		[StringLength(20)]
+		[Required]
+		public string pickupstatus { get; set; }
+
+		[Required]
+		public int reasonid { get; set; }
+
+		[StringLength(100, ErrorMessage = "Reason Name cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Reason Name")]
+		public string reasonname { get; set; }
+
+		[StringLength(50, ErrorMessage = "Requestor cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Requestor")]
+		public string requestor { get; set; }
+
+		[StringLength(100)]
+		public string? attachment { get; set; }
+
+		[StringLength(100, ErrorMessage = "remarks cannot be longer than 50 characters.")]
+		public string? remarks { get; set; }
+
+	}
+
+	public class ReschedulePickup : CommonField3
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int id { get; set; }
+
+		[StringLength(15)]
+		[Required]
+		public string pickupno { get; set; }
+		[ForeignKey("pickupno")]
+		[ValidateNever]
+		public PickupRequest PickupRequest { get; set; }
+
+		[StringLength(20)]
+		[Required]
+		public string pickupstatus { get; set; }
+
+		[Required]
+		public int reasonid { get; set; }
+
+		[StringLength(100, ErrorMessage = "Reason Name cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Reason Name")]
+		public string reasonname { get; set; }
+
+		[StringLength(50, ErrorMessage = "Requestor cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Requestor")]
+		public string requestor { get; set; }
+
+		[StringLength(100, ErrorMessage = "remarks cannot be longer than 50 characters.")]
+		public string? remarks { get; set; }
+
+	}
+
+	public class ReassignPickup : CommonField3
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int id { get; set; }
+
+		[StringLength(15)]
+		[Required]
+		public string pickupno { get; set; }
+		[ForeignKey("pickupno")]
+		[ValidateNever]
+		public PickupRequest PickupRequest { get; set; }
+
+		[StringLength(20)]
+		[Required]
+		public string pickupstatus { get; set; }
+
+		[Required]
+		public int reasonid { get; set; }
+
+		[StringLength(100, ErrorMessage = "Reason Name cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Reason Name")]
+		public string reasonname { get; set; }
+
+		[StringLength(50, ErrorMessage = "Previous Courier cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Previous Courier")]
+		public string prevcourier { get; set; }
+
+		[StringLength(100, ErrorMessage = "remarks cannot be longer than 50 characters.")]
+		public string? remarks { get; set; }
+
+	}
+
+	public class UnsuccessPickup : CommonField3
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int id { get; set; }
+
+		[StringLength(15)]
+		[Required]
+		public string pickupno { get; set; }
+		[ForeignKey("pickupno")]
+		[ValidateNever]
+		public PickupRequest PickupRequest { get; set; }
+
+		[StringLength(20)]
+		[Required]
+		public string pickupstatus { get; set; }
+
+		[Required]
+		public int reasonid { get; set; }
+
+		[StringLength(100, ErrorMessage = "Reason Name cannot be longer than 50 characters.")]
+		[Required]
+		[Display(Name = "Reason Name")]
+		public string reasonname { get; set; }
+
+		[StringLength(100, ErrorMessage = "remarks cannot be longer than 50 characters.")]
+		public string? remarks { get; set; }
+
+	}
+
 }

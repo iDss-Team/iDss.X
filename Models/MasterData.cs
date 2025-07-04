@@ -1243,7 +1243,7 @@ namespace iDss.X.Models
         [Required]
         [Display(Name = "Reason Group")]
         [AutoGenerateColumn(Order = 40, Cols = 12, Searchable = true, Filterable = true)]
-        public string reasongroup { get; set; }
+        public string reasongroup { get; set; } // {reasign, reschedule, reject, failure, cancel}
 
-    }
+	}
 }
