@@ -49,6 +49,14 @@ namespace iDss.X
                     .ForMember(dest => dest.createddate, opt => opt.Ignore())
                     .ForMember(dest => dest.createdby, opt => opt.Ignore());
 
+                config.CreateMap<AccountAddr, AccountAddr>()
+                    .ForMember(dest => dest.id, opt => opt.Ignore()) 
+                    .ForMember(dest => dest.acctno, opt => opt.Ignore()) 
+                    .ForMember(dest => dest.addrtype, opt => opt.Ignore()) 
+                    .ForMember(dest => dest.createddate, opt => opt.Ignore())
+                    .ForMember(dest => dest.createdby, opt => opt.Ignore());
+
+
             });
             return mappingconfig;
         }
