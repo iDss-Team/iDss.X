@@ -57,6 +57,11 @@ namespace iDss.X.Data
         public DbSet<PickupStatusPool> pum_pickupstatuspool { get; set; }
         public DbSet<PickupRegular> pum_pickupregular { get; set; }
         public DbSet<PickupSchedule> pum_pickupschedule { get; set; }
+        public DbSet<SuccessPickup> pum_successpickup { get; set; }
+        public DbSet<CancelPickup> pum_cancelpickup { get; set; }
+        public DbSet<ReschedulePickup> pum_reschedulepickup { get; set; }
+        public DbSet<ReassignPickup> pum_reassignpickup { get; set; }
+        public DbSet<UnsuccessPickup> pum_unsuccesspickup { get; set; }
 
 
         //Transaction
@@ -85,23 +90,8 @@ namespace iDss.X.Data
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
-            //Example Rewrite On-Delete Rule
-            modelBuilder.ApplyConfiguration(new CIFConfiguration());
-            modelBuilder.ApplyConfiguration(new AccountAddrConfiguration());
-            modelBuilder.ApplyConfiguration(new accountCROConfiguration());
-            modelBuilder.ApplyConfiguration(new PickupRegularConfiguration());
-            modelBuilder.ApplyConfiguration(new PickupRequestConfiguration());
-            modelBuilder.ApplyConfiguration(new PickupStatusPoolConfiguration());
-            modelBuilder.ApplyConfiguration(new ShipmentDetailConfiguration());
-            modelBuilder.ApplyConfiguration(new CourierConfiguration());
-            modelBuilder.ApplyConfiguration(new AWBInventoryConfiguration());
-            modelBuilder.ApplyConfiguration(new ShipmentDetailConfiguration());
-            modelBuilder.ApplyConfiguration(new ConsigneeDetailConfiguration());
-            modelBuilder.ApplyConfiguration(new PaymentDetailConfiguration());
-            modelBuilder.ApplyConfiguration(new VoidTransactionConfiguration());
-            modelBuilder.ApplyConfiguration(new CheckpointPoolConfiguration());
-            modelBuilder.ApplyConfiguration(new PackingPriceConfiguration());
-            modelBuilder.ApplyConfiguration(new TrxStagingConfiguration());
+			// Apply all configuration IEntityTypeConfiguration<T>
+			modelBuilder.ApplyConfigurationsFromAssembly(typeof(ConfigurationMarker).Assembly);
 
             //Seed table app_menu
             modelBuilder.SeedNavigation();
