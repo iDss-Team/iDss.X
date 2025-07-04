@@ -1,0 +1,245 @@
+﻿@page "/ocl/printawbprimary"
+@using System.Text
+@using iDss.X.Models
+@using iDss.X.Models.Dto
+@using PdfSharp
+@using PdfSharp.Drawing
+@using PdfSharp.Fonts
+@using PdfSharp.Pdf
+@using PdfSharp.Quality
+@using pdftools2025;
+
+@inject MasterDataPart1Service _service1
+@inject MasterDataPart2Service _service2
+@inject MasterDataPart3Service _service3
+@inject OutboundService _oclservice
+@inject ToastService toastService
+@attribute [TabItemOption(Text = "Print AWB Primary")]
+
+@* Header Section *@  
+<Row ItemsPerRow="ItemsPerRow.One" style="margin-bottom: 16px">
+    <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
+        <StackItem>
+            <h5>Print AWB Primary</h5>
+        </StackItem>
+    </Stack>
+</Row>
+
+
+<div class="container-fluid">
+    <div class="row g-2">
+        <div class="col-md-12 mb-2">
+            <Card>
+                <BodyTemplate>
+                    <Stack class="mb-2">
+                    <Row ItemsPerRow="ItemsPerRow.Three">
+                        <Row>
+                            <BootstrapInputGroup>
+                                <BootstrapInputGroupLabel DisplayText="AWB" />
+                                <BootstrapInput TValue="string" />
+                            </BootstrapInputGroup>
+                        </Row>
+
+                        <Row RowType="RowType.Inline">
+                            <AutoFill TValue="string" DisplayText="Account" ShowLabel="true"/>
+                        </Row>
+
+                        <Row RowType="RowType.Inline">
+                            <Select TValue="int" DisplayText="Branch" ShowLabel="true" ShowSearch />
+                        </Row>
+
+                    </Row>
+                    </Stack>
+
+                    <Stack class="mb-2">
+                        <Row ItemsPerRow="ItemsPerRow.Three">
+                            <Row RowType="RowType.Inline">
+                                <DateTimeRange @bind-Value="@CreatedDateRange" DisplayText="Created Date" ShowLabel="true" DateFormat="yyyy-MM-dd" AutoClose="true" ShowSelectedValue="true" Placeholder="Select created date range" />                       
+                            </Row>
+
+                            <Row RowType="RowType.Inline">
+                                <BootstrapInput TValue="string" DisplayText="No Resi" ShowLabel="true" />
+                            </Row>
+
+                            <Row RowType="RowType.Inline">
+                                <Select TValue="int" DisplayText="Login" ShowLabel="true" ShowSearch />
+                            </Row>
+
+                        </Row>
+                    </Stack>
+
+                    <Stack>
+                        <Row ItemsPerRow="ItemsPerRow.Three">
+                            <Row RowType="RowType.Inline">
+                                <DateTimeRange @bind-Value="@CreatedDateRange" DisplayText="Pickup Date" ShowLabel="true" DateFormat="yyyy-MM-dd" AutoClose="true" ShowSelectedValue="true" Placeholder="Select created date range" />
+                            </Row>
+
+                        <Row RowType="RowType.Inline">
+                            <Select TValue="int" DisplayText="Jenis Input" ShowLabel="true" ShowSearch />
+                        </Row>
+                    </Row>
+                    </Stack>
+                </BodyTemplate>
+            </Card>
+        </div>
+
+        <div class="col-md-12 mb-2">
+            <Card>
+                <BodyTemplate>
+                    <Stack IsRow="true" Justify="StackJustifyContent.Between">
+                        <StackItem>
+                            <Stack IsRow="true" AlignItems="StackAlignItems.Center" style="gap: 10px;">
+                                <Select TValue="string" ShowLabel="false" ShowSearch />
+                                <Select TValue="string" ShowLabel="false" ShowSearch />
+                                <Button Size="Size.Small" Color="Color.Secondary" Text="Print" Icon="fa-solid fa-print" @onclick="printAWB" />
+                            </Stack>
+                        </StackItem>
+
+                        <StackItem>
+                            <Button Size="Size.Small" Color="Color.Secondary" Text="View Transaction" Icon="fa-solid fa-magnifying-glass"/>
+                        </StackItem>
+                    </Stack>
+                </BodyTemplate>
+            </Card>
+        </div>
+
+        <div class="col-md-12 mb-2">
+            <Card>
+                <BodyTemplate>
+                    <Table TItem="CombinedTransactionDto" Items="transactions" IsBordered="true" ShowLineNo="true" IsStriped="true" ShowEmpty="true" EmptyText="Tidak Ada Transaksi">
+                        <TableColumns>
+                            <TableColumn @bind-field="@context.AWB" Text="AWB" Width="100" />
+                            <TableColumn @bind-field="@context.PickupDate" Text="Pickup Date" />
+                            <TableColumn @bind-field="@context.ShipperName" Text="Shipper Name" />
+                            <TableColumn @bind-field="@context.ShipperAddress" Text="Shipper Address" />
+                            <TableColumn @bind-field="@context.ConsigneeName" Text="Consignee Name" />
+                            <TableColumn @bind-field="@context.ConsigneeAddress" Text="Consignee Address" />
+                            <TableColumn @bind-field="@context.Destination" Text="Destination" />
+                            <TableColumn @bind-field="@context.ServiceType" Text="Service Type" />
+                            <TableColumn @bind-field="@context.Pieces" Text="Pieces" />
+                            <TableColumn @bind-field="@context.ActualWeight" Text="Actual Weight" />
+                            <TableColumn @bind-field="@context.ChargeWeight" Text="Charge Weight" />
+                            <TableColumn @bind-field="@context.PackingType" Text="Packing Type" />
+                        </TableColumns>
+                    </Table>
+                </BodyTemplate>
+            </Card>
+        </div>
+
+        <div class="col-md-12 mb-2">
+            <Card>
+                <BodyTemplate>
+                    <Stack IsRow="true" Justify="StackJustifyContent.End">
+                        <StackItem>
+                            <Row RowType="RowType.Inline">
+                                <BootstrapInput TValue="int" DisplayText="Total" ShowLabel="true"/>
+                            </Row>
+                        </StackItem>
+                    </Stack>
+                </BodyTemplate>
+            </Card>
+        </div>
+    </div>
+
+</div>
+
+<PdfReader @ref="AdvancedPdfReader" FileName=@FilenameURL Height="500px" />
+
+@code {
+
+    PdfReader? AdvancedPdfReader { get; set; }
+    private string FilenameURL = "/Temp/contoh.pdf";
+
+    private DateTimeRangeValue CreatedDateRange { get; set; }
+
+    public class CombinedTransactionDto
+    {
+        public string AWB { get; set; }
+        public DateTime PickupDate { get; set; }
+        public string ShipperName { get; set; }
+        public string ShipperAddress { get; set; }
+        public string ConsigneeName { get; set; }
+        public string ConsigneeAddress { get; set; }
+        public string Destination { get; set; }
+        public string ServiceType { get; set; }
+        public int Pieces { get; set; }
+        public decimal ActualWeight { get; set; }
+        public decimal ChargeWeight { get; set; }
+        public string PackingType { get; set; }
+    }
+
+    private List<CombinedTransactionDto> transactions = new();
+
+    protected override void OnInitialized()
+    {
+        transactions = new List<CombinedTransactionDto>
+        {
+            new CombinedTransactionDto
+            {
+                AWB = "AWB001",
+                PickupDate = DateTime.Today,
+                ShipperName = "PT. Pengirim Sejahtera",
+                ShipperAddress = "Jl. Merdeka No. 1",
+                ConsigneeName = "CV. Penerima Makmur",
+                ConsigneeAddress = "Jl. Sudirman No. 10",
+                Destination = "Bandung",
+                ServiceType = "Regular",
+                Pieces = 2,
+                ActualWeight = 5.5M,
+                ChargeWeight = 6.0M,
+                PackingType = "Box"
+            },
+            new CombinedTransactionDto
+            {
+                AWB = "AWB002",
+                PickupDate = DateTime.Today.AddDays(-1),
+                ShipperName = "PT. Pengirim Sentosa",
+                ShipperAddress = "Jl. Gatot Subroto No. 22",
+                ConsigneeName = "UD. Penerima Jaya",
+                ConsigneeAddress = "Jl. Diponegoro No. 5",
+                Destination = "Jakarta",
+                ServiceType = "Express",
+                Pieces = 1,
+                ActualWeight = 2.0M,
+                ChargeWeight = 2.5M,
+                PackingType = "Plastic Wrap"
+            },
+            new CombinedTransactionDto
+            {
+                AWB = "AWB003",
+                PickupDate = DateTime.Today.AddDays(-2),
+                ShipperName = "CV. Cargo Lancar",
+                ShipperAddress = "Jl. Asia Afrika No. 3",
+                ConsigneeName = "PT. Penerima Hebat",
+                ConsigneeAddress = "Jl. Braga No. 8",
+                Destination = "Surabaya",
+                ServiceType = "Overnight",
+                Pieces = 3,
+                ActualWeight = 10.0M,
+                ChargeWeight = 12.0M,
+                PackingType = "Pallet"
+            }
+        };
+    }
+
+    private async Task printAWB ()
+    {
+        try
+        {
+
+        }
+        catch (Exception ex)
+        {
+            var err = ex.Message;
+        }
+    }
+
+
+    // Computed property
+    // private DateTime PickupDate
+    // {
+    //     get => entryData.Shipment.pickupdate.ToDateTime(TimeOnly.MinValue);
+    //     set => entryData.Shipment.pickupdate = DateOnly.FromDateTime(value);
+    // }
+
+}

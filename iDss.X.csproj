@@ -31,6 +31,7 @@
     <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
     <PackageReference Include="BootstrapBlazor" Version="8.*" />
     <PackageReference Include="BootstrapBlazor.FontAwesome" Version="8.*" />
+    <PackageReference Include="BootstrapBlazor.PdfReader" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
@@ -57,11 +58,12 @@
   <ItemGroup>
     <Folder Include="Components\Pages\Inbound\" />
     <Folder Include="Components\Pages\Reporting\" />
+    <Folder Include="wwwroot\Temp\" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="pdftools2025">
-      <HintPath>..\..\DLL\pdftools2025.dll</HintPath>
+      <HintPath>..\..\Downloads\pdftools2025.dll</HintPath>
     </Reference>
   </ItemGroup>
 
