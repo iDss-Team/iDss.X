@@ -1439,6 +1439,133 @@ namespace iDss.X.Services
 
 
         #endregion
+
+        #region "AccountAddress"
+        public async Task<IEnumerable<AccountAddr>> GetAllAccountAddrAsync()
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            return await _context.mdt_accountaddr
+                .Include(a => a.Account)
+                .Include(a => a.District)
+                .ToListAsync();
+        }
+
+        public Task<QueryData<AccountAddr>> OnQueryAccountAddrAsync(QueryPageOptions options)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var items = _context.mdt_accountaddr
+                .Include(a => a.Account)
+                .Include(a => a.District)
+                .AsNoTracking()
+                .ToList();
+
+            var isSearched = false;
+
+            if (options.SearchModel is AccountAddr accountaddr)
+            {
+                if (!string.IsNullOrEmpty(accountaddr.acctno))
+                {
+                    items = items.Where(item => item.acctno?.Contains(accountaddr.acctno, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(accountaddr.addrtype))
+                {
+                    items = items.Where(item => item.addrtype?.Contains(accountaddr.addrtype, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+                }
+
+                isSearched = !string.IsNullOrEmpty(accountaddr.acctno) || !string.IsNullOrEmpty(accountaddr.addrtype);
+            }
+
+            if (options.Searches.Any())
+            {
+                items = items.Where(options.Searches.GetFilterFunc<AccountAddr>(FilterLogic.Or)).ToList();
+            }
+
+            var isFiltered = false;
+            if (options.Filters.Any())
+            {
+                items = items.Where(options.Filters.GetFilterFunc<AccountAddr>()).ToList();
+                isFiltered = true;
+            }
+
+            var total = items.Count;
+
+            return Task.FromResult(new QueryData<AccountAddr>
+            {
+                Items = items.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList(),
+                TotalCount = total,
+                IsFiltered = isFiltered,
+                IsSearch = isSearched
+            });
+        }
+
+
+
+        public async Task<AccountAddr> CreateAccountAddrAsync(AccountAddr accountaddr)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.mdt_accountaddr.Add(accountaddr);
+            await _context.SaveChangesAsync();
+            return accountaddr;
+        }
+
+        public async Task<bool> UpdateAccountAddrAsync(string acctno, string addrtype, AccountAddr updatedAccountAddr)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var accountaddr = await _context.mdt_accountaddr.FirstOrDefaultAsync(a => a.acctno == acctno && a.addrtype == addrtype);
+            if (accountaddr == null)
+            {
+                return false;
+            }
+            accountaddr.addr1 = updatedAccountAddr.addr1;
+            accountaddr.addr2 = updatedAccountAddr.addr2;
+            accountaddr.addr3 = updatedAccountAddr.addr3;
+            accountaddr.distid = updatedAccountAddr.distid;
+            accountaddr.cityname = updatedAccountAddr.cityname;
+            accountaddr.provname = updatedAccountAddr.provname;
+            accountaddr.postcode = updatedAccountAddr.postcode;
+            accountaddr.latitude = updatedAccountAddr.latitude;
+            accountaddr.longitude = updatedAccountAddr.longitude;
+            accountaddr.picname = updatedAccountAddr.picname;
+            accountaddr.phone = updatedAccountAddr.phone;
+            accountaddr.email = updatedAccountAddr.email;
+
+
+            _context.Entry(accountaddr).State = EntityState.Modified;
+
+            try
+            {
+                var affectedRows = await _context.SaveChangesAsync();
+                System.Console.WriteLine($"SaveChanges affected rows: {affectedRows}");
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("Error saving changes: " + ex.Message);
+                return false;
+            }
+
+        }
+        public async Task<bool> DeleteAccountAddrAsync(string addrtype)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var accountaddr = await _context.mdt_accountaddr.FirstOrDefaultAsync(a => a.addrtype == addrtype);
+
+            if (accountaddr == null)
+            {
+                return false;
+            }
+
+            _context.mdt_accountaddr.Remove(accountaddr);
+            await _context.SaveChangesAsync();
+            return true;
+
+        }
+
+
+        #endregion
+
+
         #region "Industry"
         public async Task<List<Industry>> GetIndustryAsync()
         {

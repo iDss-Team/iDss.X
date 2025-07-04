@@ -73,7 +73,7 @@
 
 
 
-<Block OnQueryCondition="OnQueryCondition2">
+<Block OnQueryCondition="OnQueryCondition2" class="mb-4">
     <Row ItemsPerRow="ItemsPerRow.Two">
         <Stack IsRow="true" Justify="StackJustifyContent.Between" AlignItems="@StackAlignItems.Center">
             <StackItem>
@@ -85,127 +85,107 @@
     <ValidateForm @ref="addForm" Model="selectedAccount" @key="@formKey" OnValidSubmit="SaveAccount">
         <Card>
             <BodyTemplate>
+                <div class="container-fluid" style="max-width: 1200px;">
 
-                <GroupBox title="General Information" >
-                    <Row ItemsPerRow="ItemsPerRow.One">
-                        @if (isEditMode)
-                        {
-                            <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctno" DisplayText="Account Number" ShowLabel="true" IsDisabled="true" />
-                        }
-                        <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" />
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" />
-                        <Select TValue="int" @bind-Value="selectedAccount.branchid" Items="BranchItems" DisplayText="Branch" ShowSearch="true" ShowLabel="true" />
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="Line of Business" ShowLabel="true" />
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" />
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank Account Number" ShowLabel="true" />
-                        <Select TValue="string" Items="BankItems" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" OnValueChanged="OnBankCodeChanged" />
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Name" ShowLabel="true" Readonly="true" />
-                    </Row>
-                </GroupBox>
-
-                <GroupBox title="Agreement Details">
-                    <Row ItemsPerRow="ItemsPerRow.One">
-                        <DateTimePicker Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" ValueChanged="AgreedateChangedCallback" MinValue="@(hasAgreedateMin ? DateTime.Today : null)" />
-                        <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" MinValue="@(hasAgreedate ? selectedAccount.agreedate : null)" />
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" PlaceHolder="Input FRP"/>
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" ShowLabel="true"  PlaceHolder="Input Term of Payment"/>
-                         <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" ShowLabel="true"
-                                        Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" PlaceHolder="Rp0" />
-                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" ShowLabel="true" PlaceHolder="Input Credit Period"/>
-                        <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" ShowLabel="true" PlaceHolder="Input Fee CoD" />
-                        <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" ShowLabel="true" PlaceHolder="Discount Rates" />
-                        <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.ppn" DisplayText="PPN" ShowLabel="true" Placeholder="Input PPN" />
-                        <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.mgmtfee" DisplayText="Management Fee" ShowLabel="true" PlaceHolder="Input Management Fee" />
-                    </Row>
-                </GroupBox>
-
-                <GroupBox title="Additional Options">
-                    <Row RowType="RowType.Normal" ItemsPerRow="ItemsPerRow.Two">
-                        <Checkbox @bind-Value="IsCODChecked" ShowAfterLabel="true" DisplayText="CoD" Size="Size.Medium" />
-                        <Checkbox @bind-Value="IsINTLChecked" ShowAfterLabel="true" DisplayText="International" Size="Size.Medium" />
-                        <Checkbox @bind-Value="IsNLChecked" ShowAfterLabel="true" DisplayText="National" Size="Size.Medium" />
-                        <Checkbox @bind-Value="IsRev" ShowAfterLabel="true" DisplayText="Rev" Size="Size.Medium" />
-                        <Checkbox @bind-Value="IsTrace" ShowAfterLabel="true" DisplayText="Trace" Size="Size.Medium" />
-                        <Checkbox @bind-Value="IsVAT" ShowAfterLabel="true" DisplayText="VAT" Size="Size.Medium" />
-                        <div class="row">
-                            <div class="col-md-6">
-                                <AutoComplete Items="@StampCostTypeOptions"
-                                              @bind-Value="selectedAccount.stampcosttype"
-                                              DisplayText="Stamp Duty Type" />
-                            </div>
-
-                            <div class="col-md-6">
-                                @if (IsVAT)
-                                {
-                                    <AutoComplete Items="@VatTypeOptions"
-                                                  @bind-Value="selectedAccount.vattype"
-                                                  DisplayText="VAT Type" />
-                                }
-                                else
-                                {
-                                    <div style="height: 38px;"></div> @* Placeholder for alignment *@
-                                }
-                            </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <GroupBox title="General Information" class="mb-4">
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    @if (isAccountEditMode)
+                                    {
+                                        <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctno" DisplayText="Account Number" ShowLabel="true" IsDisabled="true" />
+                                    }
+                                    <AutoComplete Items="CifItems" @bind-Value="selectedAccount.cif" DisplayText="CIF" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.acctname" DisplayText="Account Name" ShowLabel="true" />
+                                    <Select TValue="int" @bind-Value="selectedAccount.branchid" Items="BranchItems" DisplayText="Branch" ShowSearch="true" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.lob" DisplayText="Line of Business" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.costcenter" DisplayText="Cost Center" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctno" DisplayText="Bank Account Number" ShowLabel="true" />
+                                    <Select TValue="string" Items="BankItems" @bind-Value="selectedAccount.bankcode" DisplayText="Bank Code" ShowLabel="true" OnValueChanged="OnBankCodeChanged" />
+                                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.bankacctname" DisplayText="Bank Name" ShowLabel="true" Readonly="true" />
+                                </Row>
+                            </GroupBox>
                         </div>
 
+                        <div class="col-md-6">
+                            <GroupBox title="Agreement Details" class="mb-4">
+                                <Row ItemsPerRow="ItemsPerRow.Two">
+                                    <DateTimePicker Value="selectedAccount.agreedate" Format="yyyy-MM-dd" DatePlaceHolderText="Select Agreement Date" ValueChanged="AgreedateChangedCallback" MinValue="@(hasAgreedateMin ? DateTime.Today : null)" />
+                                    <DateTimePicker @bind-Value="selectedAccount.agreeexpire" Format="yyyy-MM-dd" DatePlaceHolderText="Select Expiry Date" MinValue="@(hasAgreedate ? selectedAccount.agreedate : null)" />
+                                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.frp" DisplayText="FRP" ShowLabel="true" />
+                                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.termofpayment" DisplayText="Term of Payment" ShowLabel="true" />
+                                    <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.creditlimit" DisplayText="Credit Limit" ShowLabel="true"
+                                    Formatter="@(val => val.HasValue ? val.Value.ToString("C0", new CultureInfo("id-ID")) : string.Empty)" />
+                                    <BootstrapInput TValue="string" @bind-Value="selectedAccount.creditperiod" DisplayText="Credit Period" ShowLabel="true" />
+                                    <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.feecod" DisplayText="Fee CoD" ShowLabel="true" />
+                                    <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.discrates" DisplayText="Discrates" ShowLabel="true" />
+                                    <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.ppn" DisplayText="PPN" ShowLabel="true" />
+                                    <BootstrapInput TValue="decimal?" @bind-Value="selectedAccount.mgmtfee" DisplayText="Management Fee" ShowLabel="true" />
+                                </Row>
+                            </GroupBox>
+                        </div>
+                    </div>
 
-
-                    </Row>     
-                </GroupBox>
-
-
-                <Block OnQueryCondition="OnQueryCondition3">
-                    <Table IsPagination="true" @ref="accountTable" PageItemsSource="@_services.PageItemsSource" OnQueryAsync="@_services.OnQueryAccountAsync"
-                           IsFixedHeader="true" ShowLoading="true" IsStriped="true" IsBordered="true"
-                           ShowToolbar="true" AutoGenerateColumns="false" ShowSearch="true"
-                           ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
-
-                        <TableToolbarTemplate>
-                            <TableToolbarButton TItem="Account" Color="Color.Primary" Icon="fa-solid fa-plus"
-                                                Text="Add" IsAsync OnClick="ShowAddModal" />
-                        </TableToolbarTemplate>
-
-                        <TableColumns>
-                            <TableColumn @bind-Field="@context.acctno" Searchable="true" />
-                            <TableColumn @bind-Field="@context.cif" Searchable="true" />
-                            <TableColumn @bind-Field="@context.acctname" Searchable="true" />
-                            <TableColumn @bind-Field="@context.Branch" Text="Branch">
-                                <Template Context="x">
-                                    @x.Row.Branch?.branchname
-
-                                </Template>
-
-                            </TableColumn>
-                            <TableColumn @bind-Field="@context.createddate" Searchable="true" />
-                            <TableColumn @bind-Field="@context.createdby" Searchable="true" />
-
-
-                            <TableColumn @bind-Field="@context.isrev" Text="">
-                                <Template Context="item">
-                                    <div class="d-grip gap-2 d-md-block">
-                                        <Button Text="Edit" OnClick="() => ShowEditModal(item.Row.acctno)" Icon="fa-solid fa-pen" Color="Color.Primary" Size="Size.Small"></Button>
-                                        <PopConfirmButton Placement="Placement.Top" Color="Color.Danger" ConfirmIcon="fa-solid fa-fw" ConfirmButtonColor="Color.Danger"
-                                                          Text="Delete" Content="Are you sure want to delete the data?" Icon="fa-solid fa-trash"
-                                                          IsAsync="true" OnConfirm="() => DeleteAccount(item.Row.acctno)"></PopConfirmButton>
+                    <div class="row">
+                        <div class="col-12">
+                            <GroupBox title="Additional Options" class="mb-4">
+                                <Row RowType="RowType.Normal" ItemsPerRow="ItemsPerRow.Two">
+                                    <Checkbox @bind-Value="IsCODChecked" ShowAfterLabel="true" DisplayText="CoD" Size="Size.Medium" />
+                                    <Checkbox @bind-Value="IsINTLChecked" ShowAfterLabel="true" DisplayText="International" Size="Size.Medium" />
+                                    <Checkbox @bind-Value="IsNLChecked" ShowAfterLabel="true" DisplayText="National" Size="Size.Medium" />
+                                    <Checkbox @bind-Value="IsRev" ShowAfterLabel="true" DisplayText="Rev" Size="Size.Medium" />
+                                    <Checkbox @bind-Value="IsTrace" ShowAfterLabel="true" DisplayText="Trace" Size="Size.Medium" />
+                                    <Checkbox @bind-Value="IsVAT" ShowAfterLabel="true" DisplayText="VAT" Size="Size.Medium" />
+                                </Row>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <AutoComplete Items="@StampCostTypeOptions" @bind-Value="selectedAccount.stampcosttype" DisplayText="Stamp Duty Type" />
                                     </div>
-                                </Template>
-                            </TableColumn>
+                                    <div class="col-md-6">
+                                        @if (IsVAT)
+                                        {
+                                            <AutoComplete Items="@VatTypeOptions" @bind-Value="selectedAccount.vattype" DisplayText="VAT Type" />
+                                        }
+                                    </div>
+                                </div>
+                            </GroupBox>
+                        </div>
+                    </div>
 
-
-                        </TableColumns>
-
-
-
-
-
-                    </Table>
-                </Block>
-
-
-
-
+                    <div class="row">
+                        <div class="col-12">
+                            <Block OnQueryCondition="OnQueryCondition3" class="mt-4">
+                                <Table TItem="AccountAddr" Items="displayAddresses" @ref="accountaddrTable"
+                                IsFixedHeader="true" ShowLoading="false" IsStriped="true" IsBordered="true"
+                                ShowToolbar="false" AutoGenerateColumns="false" ShowSearch="false"
+                                ShowExtendButtons="false" ShowEditButton="false" ShowAddButton="false" ShowDeleteButton="false">
+                                    <TableColumns>
+                                        <TableColumn @bind-Field="context.addrtype" Text="Address Type" />
+                                        <TableColumn @bind-Field="context.addr1" Text="Address 1" />
+                                        <TableColumn @bind-Field="context.addr2" Text="Address 2" />
+                                        <TableColumn @bind-Field="context.addr3" Text="Address 3" />
+                                        <TableColumn @bind-Field="@context.email" Text="Actions">
+                                            <Template Context="addr">
+                                                @if (selectedAccount.AccountAddrs.Any(x => x.addrtype == addr.Row.addrtype))
+                                                {
+                                                    <Button Text="Edit" OnClick="@(() => EditAddress(addr.Row.addrtype))" Size="Size.Small" Icon="fa-solid fa-pen" />
+                                                    <PopConfirmButton Text="Delete" OnConfirm="@(() => DeleteAddress(addr.Row.addrtype))" Color="Color.Danger" Size="Size.Small" Icon="fa-solid fa-trash" />
+                                                }
+                                                else
+                                                {
+                                                    <Button Text="Add" OnClick="@(() => AddAddress(addr.Row.addrtype))" Size="Size.Small" />
+                                                }
+                                            </Template>
+                                        </TableColumn>
+                                    </TableColumns>
+                                </Table>
+                            </Block>
+                        </div>
+                    </div>
+                </div>
             </BodyTemplate>
         </Card>
+
 
         <Divider />
 
@@ -221,6 +201,75 @@
 
 
 
+<Block OnQueryCondition="OnQueryCondition4" class="mt-4">
+    <ValidateForm Model="selectedAccountAddr" OnValidSubmit="SaveNewAddress">
+        <Card>
+            <BodyTemplate>
+                <h6>Adding Address: @selectedAccountAddr.addrtype</h6>
+
+                <Row ItemsPerRow="ItemsPerRow.Two">
+                  
+                    <BootstrapInput @bind-Value="selectedAccountAddr.acctno"
+                                    DisplayText="Account Number"
+                                    IsDisabled="true"
+                                    ShowLabel="true" />
+
+                    @if (!isAddressEditMode)
+                    {
+                        <div class="form-group">
+                            <label class="form-label">Select Address Type(s):</label>
+                            <div class="d-flex flex-wrap gap-3 mt-1">
+                                @foreach (var addrType in RequireAddrTypes.Where(x => !selectedAccount.AccountAddrs.Any(a => a.addrtype == x)))
+                                {
+                                    <Checkbox Value="@BindChecked(addrType)"
+                                              ValueChanged="@GetValueChangedCallback(addrType)"
+                                              ShowAfterLabel="true"
+                                              DisplayText="@addrType"
+                                              Size="Size.Medium" />
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <BootstrapInput @bind-Value="selectedAccountAddr.addrtype"
+                                        DisplayText="Address Type"
+                                        IsDisabled="true"
+                                        ShowLabel="true" />
+                    }
+                </Row>
+
+                <Row ItemsPerRow="ItemsPerRow.Two">
+                    <Textarea @bind-Value="selectedAccountAddr.addr1" DisplayText="Address 1" ShowLabel="true" rows="3" />
+                    <Textarea @bind-Value="selectedAccountAddr.addr2" DisplayText="Address 2" ShowLabel="true" rows="2" />
+                    <Textarea @bind-Value="selectedAccountAddr.addr3" DisplayText="Address 3" ShowLabel="true" rows="2" />
+                    <Select TValue="string" Items="districtItems" @bind-Value="SelectedDistrict" DisplayText="District" ShowLabel="true" ShowSearch="true" />
+                    <Select TValue="string" Items="CityItemList" @bind-Value="selectedAccountAddr.cityname" DisplayText="City Name" ShowLabel="true" ShowSearch="true" PlaceHolder="Select City Name" />
+                    <Select TValue="string" Items="ProvItemList" @bind-Value="selectedAccountAddr.provname" DisplayText="Province Name" ShowLabel="true" ShowSearch="true" PlaceHolder="Select Province Name" />
+                    <BootstrapInput @bind-Value="selectedAccountAddr.postcode" DisplayText="Postal Code" ShowLabel="true" />
+                    <BootstrapInput @bind-Value="selectedAccountAddr.latitude" DisplayText="Latitude" ShowLabel="true" />
+                    <BootstrapInput @bind-Value="selectedAccountAddr.longitude" DisplayText="Longitude" ShowLabel="true" />
+                    <BootstrapInput @bind-Value="selectedAccountAddr.picname" DisplayText="Picture Name" ShowLabel="true" />
+                    <BootstrapInput @bind-Value="selectedAccountAddr.phone" DisplayText="Phone" ShowLabel="true" />
+                    <BootstrapInput @bind-Value="selectedAccountAddr.email" DisplayText="Email" ShowLabel="true" />
+                </Row>
+            </BodyTemplate>
+        </Card>
+
+
+
+
+        <Divider />
+
+        <Stack IsRow="true" Justify="StackJustifyContent.Evenly" AlignItems="StackAlignItems.Center">
+            <StackItem>
+                <Button ButtonType="ButtonType.Submit" Color="Color.Primary" Text="Save Address" />
+                <Divider IsVertical="true" />
+                <Button ButtonType="ButtonType.Button" Color="Color.Secondary" Text="Cancel" OnClick="CancelAddressForm" />
+            </StackItem>
+        </Stack>
+    </ValidateForm>
+</Block>
 
 
 
@@ -233,23 +282,57 @@
 @code {
     private Modal addModals;
     private Modal editModals;
-    private bool isEditMode = false;
-    private bool isTable { get; set; } = true;
-	private bool isAddressTable { get; set; } = false;
+    private bool isAccountEditMode = false;
+    private bool isAddressEditMode = false;
+    private bool isTable = true;
+    private bool isAddAddressMode = false;
+    private bool isAddressTable = false;
+    private List<District> DistrictItems { get; set; } = new();
+    private List<SelectedItem> districtItems = new();
     public List<Account> accounts = new();
     private Account selectedAccount = new();
+    private AccountAddr selectedAccountAddr = new();
     private Table<Account> accountTable;
+    private Table<AccountAddr> accountaddrTable;
+    private List<AccountAddr> displayAddresses = new();
+    private IEnumerable<string>? CifItems { get; set; }
+    private List<SelectedItem> CityItemList { get; set; } = new();
+    private List<SelectedItem> ProvItemList { get; set; } = new();
     string modalTitle = "Add Account";
-
+    private string selectedDistrict;
     private ValidateForm addForm;
 
     private int currentPage = 1;
     private int pageSize = 10;
     private int totalCount = 0;
 
-    private Task<bool> OnQueryCondition(string name) => Task.FromResult(isTable);
-    private Task<bool> OnQueryCondition2(string name) => Task.FromResult(!isTable);
-    private Task<bool> OnQueryCondition3(string name) => Task.FromResult(isAddressTable);
+
+
+    private enum ViewMode
+    {
+        Table,
+        AccountForm,
+        AccountAddressTable,
+        AccountAddressForm
+    }
+
+    private ViewMode currentView = ViewMode.Table;
+
+
+
+
+    private Task<bool> OnQueryCondition(string _) =>
+    Task.FromResult(currentView == ViewMode.Table);
+
+    private Task<bool> OnQueryCondition2(string _) =>
+        Task.FromResult(currentView == ViewMode.AccountForm || currentView == ViewMode.AccountAddressTable);
+
+    private Task<bool> OnQueryCondition3(string _) =>
+        Task.FromResult(currentView == ViewMode.AccountAddressTable);
+
+    private Task<bool> OnQueryCondition4(string _) =>
+        Task.FromResult(currentView == ViewMode.AccountAddressForm);
+
 
 
 
@@ -257,10 +340,13 @@
     private List<SelectedItem> BankItems { get; set; } = new();
     private Dictionary<string, string> BankCodeNameMap { get; set; } = new();
 
-    private IEnumerable<string>? CifItems { get; set; } 
-    private List<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
-    private bool IsEditMode => modalTitle == "Edit Account";
 
+    private List<SelectedItem> BranchItems { get; set; } = new List<SelectedItem>();
+    private bool IsAccountEditMode => modalTitle == "Edit Account";
+
+
+    private List<string> SelectedAddrTypes { get; set; } = new();
+    private readonly List<string> RequireAddrTypes = new() { "Pickup", "Billing", "Management" };
     private List<string> VatTypeOptions => ["Exclude", "Include"];
     private List<string> StampCostTypeOptions => ["NCS", "Customer"];
 
@@ -273,6 +359,23 @@
         EventCallback.Factory.Create<DateTime?>(this, OnExpireDateChanged);
 
 
+    private void PrepareAddressTable()
+    {
+        selectedAccount.AccountAddrs ??= new List<AccountAddr>();
+
+        displayAddresses = RequireAddrTypes
+            .Select(type =>
+                selectedAccount.AccountAddrs.FirstOrDefault(a => a.addrtype == type)
+                ?? new AccountAddr
+                    {
+                        acctno = selectedAccount.acctno,
+                        addrtype = type,
+                        addr1 = ""
+                    })
+            .ToList();
+    }
+
+
 
     private bool showAccountAddrTable;
     private bool hasAgreedate = false;
@@ -282,7 +385,7 @@
     {
         if (value.HasValue && value.Value.Date < DateTime.Today)
         {
-            
+
             await _toastService.Warning("Invalid Date", "Agreement date cannot be in the past.");
             selectedAccount.agreedate = null;
         }
@@ -356,7 +459,45 @@
 
 
 
+    private bool BindChecked(string type)
+    {
+        return SelectedAddrTypes.Contains(type);
+    }
 
+    private void BindChecked(string type, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!SelectedAddrTypes.Contains(type))
+                SelectedAddrTypes.Add(type);
+        }
+        else
+        {
+            if (SelectedAddrTypes.Contains(type))
+                SelectedAddrTypes.Remove(type);
+        }
+    }
+
+    private EventCallback<bool> GetValueChangedCallback(string type)
+    {
+        return EventCallback.Factory.Create<bool>(this, val => BindChecked(type, val));
+    }
+
+
+
+
+    private string SelectedDistrict
+    {
+        get => selectedDistrict;
+        set
+        {
+            if (selectedDistrict != value)
+            {
+                selectedDistrict = value;
+                selectedAccountAddr.distid = value;
+            }
+        }
+    }
 
 
 
@@ -375,14 +516,34 @@
             }
         }
     }
+
     private async Task Cancel()
     {
-        isTable = true;
+        currentView = ViewMode.Table;
+        await InvokeAsync(StateHasChanged);
     }
+
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
+        await LoadDistrict();
     }
+
+    private async Task LoadDistrict()
+    {
+        var dataDistrict = await _services.GetDistrictAsync();
+
+        districtItems = dataDistrict.Select(c => new SelectedItem
+			{
+				Value = c.distid,
+				Text = $"{c.distid} | {c.distname}"
+			}).ToList();
+
+        districtItems.Insert(0, new SelectedItem { Text = "Please Select...", Value="0" });
+    }
+
+
+
     private async Task LoadData()
     {
         accounts = (await _services.GetAllAccountAsync()).ToList();
@@ -401,6 +562,15 @@
 
         var cifs = await _services.GetCifListAsync();
         CifItems = cifs.Select(x => x.cif).ToList(); 
+
+        var cities = await _services.GetCityAsync();
+        CityItemList = cities.Select(x => new SelectedItem { Text = x.cityname, Value = x.cityname }).ToList();
+        CityItemList.Insert(0, new SelectedItem("Select City Name", ""));
+
+        var provinces = await _services.GetProvinceAsync();
+        ProvItemList = provinces.Select(x => new SelectedItem { Text = x.provname, Value = x.provname }).ToList();
+        ProvItemList.Insert(0, new SelectedItem("Select Province Name", ""));
+
 
         var banks = await _services.GetBankAsync(); 
         BankItems = banks.
@@ -437,9 +607,9 @@
     }
     private async Task ShowAddModal()
     {
-        isTable = false;
         selectedAccount = new Account();
-        isEditMode = false;
+        currentView = ViewMode.AccountForm;
+        isAccountEditMode = false;
         // selectedAccount.agreedate = null;   
         // selectedAccount.agreeexpire = null;
         formKey = Guid.NewGuid();
@@ -450,8 +620,8 @@
     private async Task ShowEditModal(string acct)
     {
         var data = await _services.GetAccountByAcctNoAsync(acct);
-        isTable = false;
-
+        isAccountEditMode = true;
+        currentView = ViewMode.AccountForm;
         selectedAccount = new Account
             {
                 acctno = data.acctno,
@@ -484,8 +654,16 @@
 				modifieddate = DateTime.Now,
 				modifier = "System",
             };
-        isEditMode = true;
+
+        selectedAccount.AccountAddrs = (await _services.GetAllAccountAddrAsync())
+    .Where(a => a.acctno == selectedAccount.acctno)
+    .ToList();
+        PrepareAddressTable();
+        currentView = ViewMode.AccountAddressTable;
         modalTitle = "Edit Account";
+        await InvokeAsync(StateHasChanged);
+
+
     }
     private async Task SaveAccount(EditContext context)
     {
@@ -493,7 +671,7 @@
                           && accounts.Any(c => c.acctno == selectedAccount.acctno);
 
         bool result;
-        if (isEditMode)
+        if (isAccountEditMode)
         {
             selectedAccount.modifieddate = DateTime.Now;
             selectedAccount.modifier = "System";
@@ -514,11 +692,18 @@
         if (result)
         {
             await LoadData();
-            isTable = true;
             await accountTable.QueryAsync();
-            StateHasChanged();
+
+            if (!string.IsNullOrEmpty(selectedAccount.acctno))
+            {
+                PrepareAddressTable();
+                currentView = ViewMode.AccountAddressTable;
+            }
+
+            await InvokeAsync(StateHasChanged);
         }
-     
+
+
     }
     private async Task<bool> DeleteAccount(string acctno)
     {
@@ -527,12 +712,162 @@
         {
             await LoadData();
         }
-		StateHasChanged();
+        StateHasChanged();
         await accountTable.QueryAsync();
         return result;
     }
 
 
+    private async Task AddAddress(string type)
+    {
+        isAddressEditMode = false;
+        SelectedAddrTypes = new() { type };
+
+        var newAddr = new AccountAddr
+            {
+                acctno = selectedAccount.acctno,
+                addrtype = type
+            };
+
+        selectedAccountAddr = newAddr;
+        currentView = ViewMode.AccountAddressForm;
+        PrepareAddressTable();
+        StateHasChanged();
+    }
+
+    private async Task EditAddress(string type)
+    {
+        var addr = selectedAccount.AccountAddrs.FirstOrDefault(x => x.addrtype == type);
+        if (addr != null)
+        {
+            selectedAccountAddr = new AccountAddr
+                {
+                    acctno = addr.acctno,
+                    addrtype = addr.addrtype,
+                    addr1 = addr.addr1,
+                    addr2 = addr.addr2,
+                    addr3 = addr.addr3,
+                    distid  = addr.distid,
+                    cityname = addr.cityname,
+                    provname = addr.provname,
+                    postcode = addr.postcode, 
+                    latitude = addr.latitude,
+                    longitude = addr.longitude,
+                    picname = addr.picname,
+                    phone = addr.phone,
+					email = addr.email
+                };
+            selectedDistrict = addr.distid;
+            isAddressEditMode = true;
+            currentView = ViewMode.AccountAddressForm;
+			modalTitle = $"Edit Address: {addr.addrtype}";
+
+			await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task DeleteAddress(string type)
+    {
+        var addr = selectedAccount.AccountAddrs.FirstOrDefault(x => x.addrtype == type);
+        if (addr != null)
+        {
+            selectedAccount.AccountAddrs.Remove(addr);
+            PrepareAddressTable();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveNewAddress(EditContext _)
+    {
+        bool hasError = false;
+        selectedAccountAddr.distid = SelectedDistrict;
+        if (isAddressEditMode)
+        {
+            
+            var result = await _services.UpdateAccountAddrAsync(selectedAccountAddr.acctno, selectedAccountAddr.addrtype, selectedAccountAddr);
+            if (result != null)
+            {
+                await _toastService.Success("Success", $"Address for {selectedAccountAddr.addrtype} updated.");
+            }
+            else
+            {
+                hasError = true;
+            }
+        }
+        else
+        {
+      
+            foreach (var type in SelectedAddrTypes)
+            {
+                var newAddr = new AccountAddr
+                    {
+                        acctno = selectedAccount.acctno,
+                        addrtype = type,
+                        addr1 = selectedAccountAddr.addr1,
+                        addr2 = selectedAccountAddr.addr2,
+                        addr3 = selectedAccountAddr.addr3,
+                        distid = selectedAccountAddr.distid,
+                        cityname = selectedAccountAddr.cityname,
+                        provname = selectedAccountAddr.provname,
+                        postcode = selectedAccountAddr.postcode,
+                        latitude = selectedAccountAddr.latitude,
+                        longitude = selectedAccountAddr.longitude,
+                        picname = selectedAccountAddr.picname,
+                        phone = selectedAccountAddr.phone,
+                        email = selectedAccountAddr.email
+                    };
+
+                var result = await _services.CreateAccountAddrAsync(newAddr);
+                if (result == null)
+                    hasError = true;
+            }
+
+            if (!hasError)
+                await _toastService.Success("Success", "Address(es) created.");
+        }
+
+        if (!hasError)
+        {
+            var allAddrs = await _services.GetAllAccountAddrAsync();
+            selectedAccount.AccountAddrs = allAddrs
+                .Where(a => a.acctno == selectedAccount.acctno)
+                .ToList();
+
+            PrepareAddressTable();
+            currentView = ViewMode.AccountAddressTable;
+            modalTitle = "Edit Account";
+
+            if (accountaddrTable is not null)
+            {
+                await accountaddrTable.QueryAsync();
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            await _toastService.Error("Error", "Failed to save address.");
+        }
+    }
+
+
+
+    private async Task CancelAddressForm()
+    {
+        isAccountEditMode = true;
+        currentView = ViewMode.AccountAddressTable;
+        modalTitle = "Edit Account";
+        PrepareAddressTable();
+        isAddressTable = true;
+
+        if (accountaddrTable is not null)
+        {
+            await accountaddrTable.QueryAsync();
+        }
+
+        await InvokeAsync(StateHasChanged);
+
+    }
 
 
 
